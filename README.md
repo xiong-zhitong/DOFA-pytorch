@@ -1,6 +1,6 @@
 # DOFA
 
-Dynamic One-For-All (DOFA) reference implementation.
+Dynamic One-For-All (DOFA) multimodal foundation models for Earth vision reference implementation.
 
 ## Installation
 
