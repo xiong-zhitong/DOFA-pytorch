@@ -50,54 +50,6 @@ class TransformerWeightGenerator(nn.Module):
         return weights, bias
 
 
-class GaussianFourierFeatureTransform(torch.nn.Module):
-    """
-    An implementation of Gaussian Fourier feature mapping.
-
-    "Fourier Features Let Networks Learn High Frequency Functions in Low Dimensional
-    Domains":
-
-       https://arxiv.org/abs/2006.10739
-       https://people.eecs.berkeley.edu/~bmild/fourfeat/index.html
-
-    Given an input of size [batches, num_input_channels, width, height],
-     returns a tensor of size [batches, mapping_size*2, width, height].
-    """
-
-    def __init__(self, num_input_channels, mapping_size=256, scale=10):
-        super().__init__()
-
-        self._num_input_channels = num_input_channels
-        self._mapping_size = mapping_size
-        torch.manual_seed(42)
-        self._B = torch.randn((num_input_channels, mapping_size)) * scale
-
-    def forward(self, x):
-        assert x.dim() == 4, "Expected 4D input (got {}D input)".format(x.dim())
-
-        batches, channels, width, height = x.shape
-
-        assert (
-            channels == self._num_input_channels
-        ), "Expected input to have {} channels (got {} channels)".format(
-            self._num_input_channels, channels
-        )
-
-        # Make shape compatible for matmul with _B.
-        # From [B, C, W, H] to [(B*W*H), C].
-        x = x.permute(0, 2, 3, 1).reshape(batches * width * height, channels)
-
-        x = x @ self._B.to(x.device)
-
-        # From [(B*W*H), C] to [B, W, H, C]
-        x = x.view(batches, width, height, self._mapping_size)
-        # From [B, W, H, C] to [B, C, W, H]
-        x = x.permute(0, 3, 1, 2)
-
-        x = 2 * np.pi * x
-        return torch.cat([torch.sin(x), torch.cos(x)], dim=1)
-
-
 class Basic1d(nn.Module):
     def __init__(self, in_channels, out_channels, bias=True):
         super().__init__()
@@ -184,73 +136,6 @@ class Dynamic_MLP_Decoder(nn.Module):
         x = dynamic_out
         return x
 
-
-class Dynamic_Patch_Embed(nn.Module):
-    """
-    Input: channels of wavelength (normalized): List -> List
-           kernel size of the depth-wise convolution: kernel_size, default 3x3
-           wv_planes
-           inplanes
-    """
-
-    def __init__(self, wv_planes, inter_dim=128, kernel_size=3, embed_dim=1024):
-        super().__init__()
-        self.kernel_size = kernel_size
-        self.wv_planes = wv_planes
-        self.embed_dim = embed_dim
-        self.kernel_size = kernel_size
-        self.patch_size = (kernel_size, kernel_size)
-        self.weight2 = nn.Parameter(
-            torch.empty([embed_dim, 2, kernel_size, kernel_size])
-        )
-        self.bias2 = nn.Parameter(torch.empty([embed_dim]))
-        self.weight3 = nn.Parameter(
-            torch.empty([embed_dim, 3, kernel_size, kernel_size])
-        )
-        self.bias3 = nn.Parameter(torch.empty([embed_dim]))
-        self.weight4 = nn.Parameter(
-            torch.empty([embed_dim, 4, kernel_size, kernel_size])
-        )
-        self.bias4 = nn.Parameter(torch.empty([embed_dim]))
-        self.weight9 = nn.Parameter(
-            torch.empty([embed_dim, 9, kernel_size, kernel_size])
-        )
-        self.bias9 = nn.Parameter(torch.empty([embed_dim]))
-        self.weight70 = nn.Parameter(
-            torch.empty([embed_dim, 70, kernel_size, kernel_size])
-        )
-        self.bias70 = nn.Parameter(torch.empty([embed_dim]))
-        self.weights = {
-            2: self.weight2,
-            3: self.weight3,
-            4: self.weight4,
-            9: self.weight9,
-            70: self.weight70,
-        }
-        self.biass = {
-            2: self.bias2,
-            3: self.bias3,
-            4: self.bias4,
-            9: self.bias9,
-            70: self.bias70,
-        }
-
-    def forward(self, img_feat, waves):
-        inplanes = waves.size(0)
-        # wv_feats: 9,128 -> 9, 3x3x3
-        weights = self.weights[inplanes]
-        bias = self.biass[inplanes]
-
-        dynamic_out = F.conv2d(
-            img_feat, weights, bias=bias, stride=self.kernel_size, padding=1, dilation=1
-        )
-
-        x = dynamic_out
-        x = x.flatten(2).transpose(1, 2)
-
-        return x
-
-
 class Dynamic_MLP_OFA(nn.Module):
     """
     Input: channels of wavelength (normalized): List -> List
@@ -320,39 +205,3 @@ class Dynamic_MLP_OFA(nn.Module):
 
         return x, waves
 
-
-if __name__ == "__main__":
-    # num_channels, transformer_dim, patch_depth, patch_height, patch_width
-    in_chans = 5
-    inp = torch.randn([5, in_chans, 224, 224])
-    inpt = torch.randn([5, 196, 512])
-    wave_lengths = torch.tensor(list(range(in_chans))).float()
-    wv_planes = 128
-    gfl = GaussianFourierFeatureTransform(1, wv_planes // 2, 0.5)
-    wvs = wave_lengths.view([in_chans, 1, 1, 1])
-    waves1 = gfl(wvs)
-    print(waves1.squeeze().shape)
-    waves = get_1d_sincos_pos_embed_from_grid_torch(wv_planes, wave_lengths)
-    print(waves.shape)
-    wg = TransformerWeightGenerator(128, 768 * 256, 768)
-    tout = wg(torch.randn([5, 128]))
-    # waves, inplanes, wv_planes, kernel_size
-    decod = Dynamic_MLP_Decoder(wv_planes, inter_dim=64, kernel_size=16)
-    dmlp = Dynamic_MLP_OFA(wv_planes, inter_dim=64, kernel_size=16)
-    out = dmlp(inp, wave_lengths)
-    dout = decod(inpt, waves)
-    uniprompt = torch.randn([1, 1, 128])
-    clstoken = torch.randn([1, 1, 128])
-    print(dout.shape)
-
-    gfl = GaussianFourierFeatureTransform(1, 5, 0.2)
-    gfl2 = GaussianFourierFeatureTransform(1, 5, 0.2)
-    x1 = torch.tensor([73.4]).view([1, 1, 1, 1])
-    x2 = torch.tensor([74.0]).view([1, 1, 1, 1])
-    s1 = gfl(x1).view([1, 10])
-    s2 = gfl(x2).view([1, 10])
-    s3 = gfl(x1).view([1, 10])
-    print(torch.nn.functional.cosine_similarity(s1, s2))
-    print(s1)
-    print(s3)
-    print(s2)
