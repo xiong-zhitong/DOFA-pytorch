@@ -288,3 +288,17 @@ model = dofa_base_patch16_224(weights=DOFABase16_Weights.DOFA_MAE)
 # Make a prediction (model may need to be fine-tuned first)
 y = model(x, wavelengths)
 ```
+
+---
+
+If you find the DOFA useful in your research, please kindly cite our paper:
+```
+@misc{xiong2024neural,
+      title={Neural Plasticity-Inspired Foundation Model for Observing the Earth Crossing Modalities}, 
+      author={Zhitong Xiong and Yi Wang and Fahong Zhang and Adam J. Stewart and Joëlle Hanna and Damian Borth and Ioannis Papoutsis and Bertrand Le Saux and Gustau Camps-Valls and Xiao Xiang Zhu},
+      year={2024},
+      eprint={2403.15356},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
+```
