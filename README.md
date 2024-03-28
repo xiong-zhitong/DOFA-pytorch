@@ -1,9 +1,20 @@
 # DOFA
 **What is DOFA**: DOFA is a unified multimodal foundation model for different data modalities in remote sensing and Earth observation.
+<p align="center">
+<img src="assets/DOFA-main.png" width="500">
+</p>
 
 **Differences with existing foundation models**: DOFA is pre-trained using five different data modalities in remote sensing and Earth observation. It can handle images with any number of input channels.
 
+**DOFA is inspired by neuroplasticity** Neuroplasticity is an
+important brain mechanism for adjusting to new experiences or environmental shifts. Inspired by this concept, we design DOFA to emulate this mechanism for processing multimodal EO data.
+
+<p align="center">
+<img src="assets/DOFA-model.png" width="500">
+</p>
+
 Please refer to the paper [Neural Plasticity-Inspired Foundation Model for Observing the Earth Crossing Modalities](https://arxiv.org/abs/2403.15356) for more details.
+
 
 ## Why develop DOFA
 - The learned multimodal representation may not effectively capture such an intersensor relationship.
@@ -109,7 +120,7 @@ s1_img = s1_img.view([1,2,224,224]).cuda()
 
 
     
-![png](demo_files/demo_4_0.png)
+![png](assets/demo_4_0.png)
     
 
 
@@ -179,7 +190,7 @@ s2_img = s2_img.view([1,C,224,224]).cuda()
 
 
     
-![png](demo_files/demo_11_1.png)
+![png](assets/demo_11_1.png)
     
 
 
@@ -242,7 +253,7 @@ naip_img = naip_img.view([1,C,224,224]).cuda()
 
 
     
-![png](demo_files/demo_18_0.png)
+![png](assets/demo_18_0.png)
     
 
 
