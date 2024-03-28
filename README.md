@@ -45,6 +45,7 @@ Please refer to [demo.ipynb](https://github.com/ShadowXZT/DOFA-pytorch/blob/mast
 
 DOFA supports input images with any number of channels using our pre-trained foundation models. The following examples show how to use DOFA for **Sentinel-1 (SAR)**, **Sentinel-2**, **NAIP RGB**. We will add example usage for Gaofen Multispectral, and Hyperspectral data soon.
 
+### Preprare for the data loading and preprocessing
 
 ```python
 # Step 1: Data preprocessing (normalization and resize)
@@ -85,6 +86,7 @@ class DataAugmentation(torch.nn.Module):
         return x_out
 ```
 
+### Load Sentinel-1 data with 2 channels
 
 ```python
 transform = DataAugmentation(mean=S1_MEAN,std=S1_STD)
