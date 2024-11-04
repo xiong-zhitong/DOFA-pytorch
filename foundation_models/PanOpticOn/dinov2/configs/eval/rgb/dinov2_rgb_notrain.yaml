@@ -1,0 +1,72 @@
+
+# pretrained_weights: /data/panopticon/logs/dino_logs/out/bl_dino_rgb/model_0024999.pth
+
+student:
+  arch: vit_base
+  patch_size: 14
+  embed_layer: PatchEmbed
+
+val_metrics: # first metric will always be used to determine best classifier
+- id: Accuracy
+  top_k: 1
+  average: micro
+- id: Accuracy
+  top_k: 1
+  average: macro
+- id: Accuracy
+  top_k: 5
+  average: micro
+
+# test_metrics:
+# - 
+#   - id: Accuracy
+#     top_k: 1
+#     average: micro
+# - 
+#   - id: Accuracy
+#     top_k: 1
+#     average: macro
+
+criterion_cfg: 
+  id: CrossEntropyLoss
+
+train_dataset:
+  id: geobench.m-eurosat
+  split: train
+  transform:
+  - id: Listify
+  - id: ListCenterCrop
+    size: 56
+  - id: ChnSelect
+    idxs: [3,2,1]
+
+val_dataset:
+  id: geobench.m-eurosat
+  split: val
+  display_name: m-eurosat
+  transform:
+  - id: Listify
+  - id: ListCenterCrop
+    size: 56
+  - id: ChnSelect
+    idxs: [3,2,1]
+  
+test_datasets:
+  - id: geobench.m-eurosat
+    split: test
+    display_name: m-eurosat
+    transform:
+    - id: Listify
+    - id: ListCenterCrop
+      size: 56
+    - id: ChnSelect
+      idxs: [3,2,1]
+
+batch_size: 256
+num_workers: 4
+
+epochs: 8
+epoch_length: 100  # need to choose epoch lenghts manually
+
+save_checkpoint_frequency_epoch: 2
+eval_period_epoch: 1

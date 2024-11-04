@@ -1,0 +1,23 @@
+
+# vit-B
+train:
+  batch_size_per_gpu: 105  # 130 for small crops, 105 for big crops
+  num_workers: 12
+
+eval:
+  overwrites:
+    optim:
+      dl:
+        batch_size: 512
+        num_workers: 8
+
+
+# # vit-L
+# train:
+#   batch_size_per_gpu: 75
+#   num_workers: 12
+
+# evaluation:
+#   dl_cfg:
+#     batch_size: 150
+#     num_workers: 4

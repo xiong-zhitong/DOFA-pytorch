@@ -1,0 +1,154 @@
+MODEL:
+  WEIGHTS: ''
+  pretrained_weights: []
+  # pretrained_weights:
+  # - path: ${env:RDIR}/other_model_ckpts/dinov2/dinov2_vitb14_pretrain.pth
+  #   exclude: pos_emb,patch_embed
+  #   prefix_map: 
+  #     '': teacher.backbone.
+  # - path: ${env:RDIR}/other_model_ckpts/dinov2/dinov2_vitb14_pretrain.pth
+  #   exclude: pos_emb,patch_embed
+  #   prefix_map: 
+  #     '': student.backbone.
+compute_precision:
+  grad_scaler: true
+  teacher:
+    backbone:
+      sharding_strategy: NO_SHARD
+      mixed_precision:
+        param_dtype: fp16
+        reduce_dtype: fp16
+        buffer_dtype: fp32
+    dino_head:
+      sharding_strategy: NO_SHARD
+      mixed_precision:
+        param_dtype: fp16
+        reduce_dtype: fp16
+        buffer_dtype: fp32
+    ibot_head:
+      sharding_strategy: NO_SHARD
+      mixed_precision:
+        param_dtype: fp16
+        reduce_dtype: fp16
+        buffer_dtype: fp32
+  student:
+    backbone:
+      sharding_strategy: NO_SHARD
+      mixed_precision:
+        param_dtype: fp16
+        reduce_dtype: fp16
+        buffer_dtype: fp32
+    dino_head:
+      sharding_strategy: NO_SHARD
+      mixed_precision:
+        param_dtype: fp16
+        reduce_dtype: fp32
+        buffer_dtype: fp32
+    ibot_head:
+      sharding_strategy: NO_SHARD
+      mixed_precision:
+        param_dtype: fp16
+        reduce_dtype: fp32
+        buffer_dtype: fp32
+dino:
+  loss_weight: 1.0
+  head_n_prototypes: 65536
+  head_bottleneck_dim: 256
+  head_nlayers: 3
+  head_hidden_dim: 2048
+  koleo_loss_weight: 0.1
+ibot:
+  loss_weight: 1.0
+  mask_sample_probability: 0.5
+  mask_ratio_min_max:
+  - 0.1
+  - 0.5
+  separate_head: false
+  head_n_prototypes: 65536
+  head_bottleneck_dim: 256
+  head_nlayers: 3
+  head_hidden_dim: 2048
+train:
+  dataset: null
+
+  dino_augm:
+    id: ChnSpatialAugmentation
+    global_crops_number: 2
+    global_crops_size: [13, 196]
+    global_crops_scale: [0.32, 1.0]
+    local_crops_number: 4
+    local_crops_size: [6, 84]
+    local_crops_scale: [0.05, 0.32]
+
+  # global_smask_absolute_tuple: [6,13]
+  # local_smask_absolute_tuple: [1,6] 
+  
+  batch_size_per_gpu: 10
+  num_workers: 12
+  drop_last: true
+  pin_memory: true
+  persistent_workers: true
+
+  use_wandb: False
+  output_dir: .
+  saveckp_freq: 2
+  seed: 0
+  OFFICIAL_EPOCH_LENGTH: -1 
+  cache_dataset: true
+  centering: "centering" # or "sinkhorn_knopp"
+  log_every_n_steps: 2
+student:
+  arch: vit_base
+  embed_layer: ChnAttnPatchEmb
+  patch_size: 14
+  pos_emb_img_size: 518
+  drop_path_rate: 0.3
+  layerscale: 1.0e-05
+  drop_path_uniform: true
+  pretrained_weights: []
+  ffn_layer: "mlp"
+  block_chunks: 0
+  qkv_bias: true
+  proj_bias: true
+  ffn_bias: true
+  num_register_tokens: 0
+  interpolate_antialias: false
+  interpolate_offset: 0.1
+teacher:
+  pretrained_weights: []
+  momentum_teacher: 0.992
+  final_momentum_teacher: 1
+  warmup_teacher_temp: 0.04
+  teacher_temp: 0.07
+  warmup_teacher_temp_epochs: 30
+optim:
+  epochs: 2
+  weight_decay: 0.04
+  weight_decay_end: 0.4
+  base_lr: 0.004  # learning rate for a batch size of 1024
+  lr: 0.  # will be set after applying scaling rule
+  warmup_epochs: 0
+  min_lr: 1.0e-06
+  lr_multiplier: patch_emb=0.2
+  freeze_weights: last_layer=1
+  scaling_rule: sqrt_wrt_1024
+  clip_grad: 3.0
+  layerwise_decay: 0.9
+  adamw_beta1: 0.9
+  adamw_beta2: 0.999
+
+
+eval:
+  use_online_eval: False
+  eval_period_epoch: 1
+  eval_period_iterations: -1
+
+  config_obj: ${env:CDIR}/eval/offline_train
+  overwrites: null
+  
+  remove_ckpts: True
+  return_all_results: True
+  recompute: False
+  include_final_ckpt: False
+
+add_args: True
