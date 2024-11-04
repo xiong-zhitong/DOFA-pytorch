@@ -159,6 +159,8 @@ class CROMA_seg_Config(BaseModelConfig):
     class Config:
         validate_assignment = True
 
+
+
 class ScaleMAE_seg_Config(BaseModelConfig):
     model_type: str = "scalemae"
     pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/eval-fm/fm_weights/scalemae-vitlarge-800.pth"
@@ -177,6 +179,8 @@ class ScaleMAE_seg_Config(BaseModelConfig):
 
     class Config:
         validate_assignment = True
+
+
 
 
 class GFM_seg_Config(BaseModelConfig):

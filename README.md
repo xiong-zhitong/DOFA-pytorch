@@ -24,7 +24,8 @@ The following models are included:
 - CROMA
 - ...
 
-
+---
+The model weights can be downloaded from [HF](https://huggingface.co/XShadow/GeoFMs)
 
 The following datasets are supported:
 - GeoBench
