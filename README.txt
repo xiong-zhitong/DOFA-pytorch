@@ -1,6 +1,6 @@
-# Evaluation of Foundation Models for EO
+* Evaluation of Foundation Models for EO
 
-## For pretraining and deployment of [DOFA](https://arxiv.org/abs/2403.15356), please refer to the [main DOFA repo](https://github.com/zhu-xlab/DOFA).
+**  For pretraining and deployment of [DOFA](https://arxiv.org/abs/2403.15356), please refer to the [main DOFA repo](https://github.com/zhu-xlab/DOFA).
 
 
 This repo is tested using the following versions:
