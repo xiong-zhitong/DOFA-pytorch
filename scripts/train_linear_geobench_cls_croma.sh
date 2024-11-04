@@ -4,7 +4,7 @@ export GEO_BENCH_DIR=/home/zhitong/Datasets/geobench/
 python -m torch.distributed.launch --nproc_per_node=1 --master_port=25673 main.py \
 --output_dir logs/linear_geobench_croma \
 --log_dir logs/linear_geobench_croma \
---model scalemae_seg \
+--model gfm_seg \
 --dataset geobench_pv4ger \
 --num_workers 4 \
 --batch_size 64 \

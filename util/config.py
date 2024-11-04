@@ -179,10 +179,30 @@ class ScaleMAE_seg_Config(BaseModelConfig):
         validate_assignment = True
 
 
+class GFM_seg_Config(BaseModelConfig):
+    model_type: str = "gfm"
+    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/eval-fm/fm_weights/gfm.pth"
+    image_resolution = 192
+    out_features = True
+    freeze_backbone = True
+    task = 'segmentation'
+    embed_dim = 1024
+    num_channels: int = 3  # Define the field for num_channels
+
+    @validator("num_channels")
+    def validate_num_channels(cls, value):
+        if value != 3:
+            raise ValueError("GFM requires #channels to be 3!")
+        return value
+
+    class Config:
+        validate_assignment = True
+
 #
 model_config_registry = {
     "croma_cls": CROMA_cls_Config,
     "croma_seg": CROMA_seg_Config,
     "panopticon_seg": Panopticon_seg_Config,
     "scalemae_seg": ScaleMAE_seg_Config,
+    "gfm_seg": GFM_seg_Config,
 }
