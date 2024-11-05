@@ -63,15 +63,12 @@ class GeoBench_cashew_Config(GeoBenchDatasetConfig):
     benchmark_name = "segmentation_v1.0"
     dataset_name = "m-cashew-plant"
     task = "segmentation"
-    #band_names = ['01 - Coastal aerosol', '02 - Blue', '03 - Green', '04 - Red',\
-    #        '05 - Vegetation Red Edge', '06 - Vegetation Red Edge', '07 - Vegetation Red Edge',\
-    #        '08 - NIR', '08A - Vegetation Red Edge', '09 - Water vapour', '11 - SWIR', '11 - SWIR', '12 - SWIR']
+    band_names = ['01 - Coastal aerosol', '02 - Blue', '03 - Green', '04 - Red',\
+            '05 - Vegetation Red Edge', '06 - Vegetation Red Edge', '07 - Vegetation Red Edge',\
+            '08 - NIR', '08A - Vegetation Red Edge', '09 - Water vapour', '11 - SWIR', '11 - SWIR', '12 - SWIR']
     num_classes = 7
-    band_names = ['04 - Red', '03 - Green', '02 - Blue', '05 - Vegetation Red Edge', \
-                  '06 - Vegetation Red Edge', '07 - Vegetation Red Edge', '08 - NIR', '11 - SWIR', '12 - SWIR']
-    #band_wavelengths = [0.44, 0.49, 0.56, 0.66, 0.7, 0.74, 0.78, 0.84, 0.86, 0.94, 1.37, 1.37, 1.61]
-    band_wavelengths = [0.66, 0.56, 0.49, 0.7, 0.74, 0.78, 0.84, 1.61, 2.2]
-    chn_ids = [440, 490, 560, 660, 700, 740, 780, 840, 860, 940, 1370, 1370, 1610]
+    band_wavelengths = [0.44, 0.49, 0.56, 0.665, 0.705, 0.74, 0.783, 0.842, 0.865, 0.945, 1.61, 1.61, 2.19]
+    chn_ids = [it*1000 for it in band_wavelengths]
     multilabel = False
     num_channels = len(band_names)
 

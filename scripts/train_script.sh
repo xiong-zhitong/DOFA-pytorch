@@ -1,7 +1,7 @@
 export CUDA_VISIBLE_DEVICES=0
 export GEO_BENCH_DIR=/home/zhitong/Datasets/geobench/
 
-model=dofa_seg
+model=panopticon_seg
 dataset=geobench_cashew
 task=segmentation
 batch_size=12
