@@ -49,21 +49,6 @@ class VisionTransformer(timm.models.vision_transformer.VisionTransformer):
         out = self.forward_features(x)
         return out
 
-        '''
-        #print(x.shape)
-        if self.global_pool:
-            x = x[:, 1:, :].mean(dim=1).unsqueeze(1)  # global pool without cls token 
-            # yi: I have to add unsqueeze to make it work, maybe a timm version issue?
-            #print(x.shape)
-            outcome = self.fc_norm(x)
-        else:
-            x = self.norm(x)
-            outcome = x[:, 0]
-
-        return outcome
-        '''
-
-
 def vit_base_patch16(**kwargs):
     model = VisionTransformer(
         out_indices=[3,5,7,11],
@@ -78,7 +63,6 @@ def vit_large_patch16(**kwargs):
         patch_size=16, embed_dim=1024, depth=24, num_heads=16, mlp_ratio=4, qkv_bias=True,
         norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
-
 
 def vit_huge_patch14(**kwargs):
     model = VisionTransformer(

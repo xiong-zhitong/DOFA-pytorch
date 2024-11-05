@@ -182,6 +182,37 @@ class ScaleMAE_seg_Config(BaseModelConfig):
 
 
 
+class Dinov2_seg_Config(BaseModelConfig):
+    model_type: str = "dinov2"
+    dino_size = "dinov2_vitl14"
+    image_resolution = 224
+    out_features = True
+    freeze_backbone = True
+    task = 'segmentation'
+    embed_dim = 1024
+    num_channels: int = 3  # Define the field for num_channels
+
+    @validator("num_channels")
+    def validate_num_channels(cls, value):
+        if value != 3:
+            raise ValueError("ScaleMAE requires #channels to be 3!")
+        return value
+
+    class Config:
+        validate_assignment = True
+
+
+class Dinov2base_seg_Config(Dinov2_seg_Config):
+    model_type: str = "dinov2"
+    dino_size = "dinov2_vitb14"
+    embed_dim = 768
+
+
+class Dinov2basereg_seg_Config(Dinov2_seg_Config):
+    model_type: str = "dinov2"
+    dino_size = "dinov2_vitb14_reg"
+    embed_dim = 768
+
 
 class GFM_seg_Config(BaseModelConfig):
     model_type: str = "gfm"
@@ -209,4 +240,6 @@ model_config_registry = {
     "panopticon_seg": Panopticon_seg_Config,
     "scalemae_seg": ScaleMAE_seg_Config,
     "gfm_seg": GFM_seg_Config,
+    "dinov2_seg": Dinov2_seg_Config,
+    "dinov2base_seg": Dinov2base_seg_Config,
 }

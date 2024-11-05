@@ -4,11 +4,7 @@ import torch
 from mmseg.models.necks import Feature2Pyramid
 from mmseg.models.decode_heads import UPerHead, FCNHead
 from loguru import logger
-import pdb
 from util.misc import resize
-import sys
-sys.path.append("/home/zhitong/OFALL/OFALL_baseline/mae/eval-fm/foundation_models/PanOpticOn")
-from dinov2.eval.setup import parse_model_obj
 import math
 from einops import rearrange
 
@@ -23,7 +19,7 @@ class UperNet(torch.nn.Module):
         self.idx_blocks_to_return = [4, 6, 10, 11]
     
     def forward(self, x_dict):  
-        outputs = self.backbone.get_intermediate_layers(x_dict, n=self.idx_blocks_to_return)
+        outputs = self.backbone.get_intermediate_layers(x_dict, self.idx_blocks_to_return)
         x = x_dict['imgs']
         N,HW,C = outputs[0].shape
         H = W = int(math.sqrt(HW))
@@ -36,13 +32,12 @@ class UperNet(torch.nn.Module):
         return out, out_a
 
 
-class Panopticon(nn.Module):
+class Dinov2(nn.Module):
     def __init__(self, config):
-        super(Panopticon, self).__init__()
+        super(Dinov2, self).__init__()
 
         self.config = config
-        model_folder = config.pretrained_path
-        self.encoder = parse_model_obj(model_obj=model_folder,return_with_wrapper=False)
+        self.encoder = torch.hub.load('facebookresearch/dinov2', config.dino_size)
 
         self.out_features = config.out_features
         self.model = self.encoder
@@ -111,10 +106,9 @@ class Panopticon(nn.Module):
             case 'classification':
                 pass
             case 'segmentation':
+                #logger.debug(f'dinov2: {self.config.dino_size}')
                 x_dict = {}
-                BSIZE = samples.shape[0]
                 x_dict['imgs'] = samples
-                x_dict['chn_ids'] = torch.tensor(self.config.chn_ids, device=samples.device).unsqueeze(0).repeat([BSIZE,1])
                 out, out_aux =  self.seg_model(x_dict)
                 return out, out_aux
 

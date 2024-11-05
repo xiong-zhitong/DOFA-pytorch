@@ -1,4 +1,4 @@
-from foundation_models import CROMA, Panopticon, ScaleMAE, GFM
+from foundation_models import CROMA, Panopticon, ScaleMAE, GFM, Dinov2
 from datasets.geobench_wrapper import GeoBenchDataset
 
 
@@ -7,6 +7,7 @@ model_registry = {
     "panopticon": Panopticon,
     "scalemae": ScaleMAE,
     "gfm": GFM,
+    "dinov2": Dinov2,
     # Add other model mappings here
 }
 
