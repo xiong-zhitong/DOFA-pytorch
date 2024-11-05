@@ -63,11 +63,15 @@ class GeoBench_cashew_Config(GeoBenchDatasetConfig):
     benchmark_name = "segmentation_v1.0"
     dataset_name = "m-cashew-plant"
     task = "segmentation"
-    band_names = ['01 - Coastal aerosol', '02 - Blue', '03 - Green', '04 - Red',\
-            '05 - Vegetation Red Edge', '06 - Vegetation Red Edge', '07 - Vegetation Red Edge',\
-            '08 - NIR', '08A - Vegetation Red Edge', '09 - Water vapour', '11 - SWIR', '12 - SWIR']
+    #band_names = ['01 - Coastal aerosol', '02 - Blue', '03 - Green', '04 - Red',\
+    #        '05 - Vegetation Red Edge', '06 - Vegetation Red Edge', '07 - Vegetation Red Edge',\
+    #        '08 - NIR', '08A - Vegetation Red Edge', '09 - Water vapour', '11 - SWIR', '11 - SWIR', '12 - SWIR']
     num_classes = 7
-    band_wavelengths = [0.44, 0.49, 0.56, 0.66, 0.7, 0.74, 0.78, 0.84, 0.86, 0.94, 1.37, 1.61]
+    band_names = ['04 - Red', '03 - Green', '02 - Blue', '05 - Vegetation Red Edge', \
+                  '06 - Vegetation Red Edge', '07 - Vegetation Red Edge', '08 - NIR', '11 - SWIR', '12 - SWIR']
+    #band_wavelengths = [0.44, 0.49, 0.56, 0.66, 0.7, 0.74, 0.78, 0.84, 0.86, 0.94, 1.37, 1.37, 1.61]
+    band_wavelengths = [0.66, 0.56, 0.49, 0.7, 0.74, 0.78, 0.84, 1.61, 2.2]
+    chn_ids = [440, 490, 560, 660, 700, 740, 780, 840, 860, 940, 1370, 1370, 1610]
     multilabel = False
     num_channels = len(band_names)
 
@@ -86,6 +90,8 @@ class BaseModelConfig(BaseModel):
     model_type: str
     num_classes: int = 10
     task: Optional[str] = "classification"
+    band_wavelengths: Optional[list] = None
+    chn_ids: Optional[list] = None
     freeze_backbone: bool = True
     image_resolution: int = 224
     additional_params: Optional[Dict] = Field(default_factory=dict)
@@ -97,6 +103,9 @@ class BaseModelConfig(BaseModel):
         cls.num_channels = dataset_config.num_channels
         # image_resolution depends on the model
         dataset_config.image_resolution = cls.image_resolution
+        # model wavelength determined by dataset
+        cls.band_wavelengths = dataset_config.band_wavelengths
+        cls.chn_ids = dataset_config.chn_ids
 
     @validator("model_type")
     def validate_model_type(cls, value):
@@ -107,19 +116,18 @@ class BaseModelConfig(BaseModel):
 
 class Panopticon_seg_Config(BaseModelConfig):
     model_type: str = "panopticon"
-    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/eval-fm/fm_weights/panopticon-v1-1103"
+    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/fm_weights/panopticon-v1-1103"
     image_resolution = 224
     out_features = True
     task = 'segmentation'
     freeze_backbone = True
     embed_dim = 768
-    chn_ids = [440, 490, 560, 660, 700, 740, 780, 840, 860, 940, 1370, 1610]
 
 
 
 class CROMA_cls_Config(BaseModelConfig):
     model_type: str = "croma"
-    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/eval-fm/fm_weights/CROMA_base.pt"
+    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/fm_weights/CROMA_base.pt"
     size = 'base'
     modality = 'optical'
     image_resolution = 120
@@ -140,7 +148,7 @@ class CROMA_cls_Config(BaseModelConfig):
 
 class CROMA_seg_Config(BaseModelConfig):
     model_type: str = "croma"
-    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/eval-fm/fm_weights/CROMA_base.pt"
+    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/fm_weights/CROMA_base.pt"
     size = 'base'
     modality = 'optical'
     image_resolution = 120
@@ -163,7 +171,7 @@ class CROMA_seg_Config(BaseModelConfig):
 
 class ScaleMAE_seg_Config(BaseModelConfig):
     model_type: str = "scalemae"
-    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/eval-fm/fm_weights/scalemae-vitlarge-800.pth"
+    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/fm_weights/scalemae-vitlarge-800.pth"
     image_resolution = 224
     out_features = True
     freeze_backbone = True
@@ -202,16 +210,63 @@ class Dinov2_seg_Config(BaseModelConfig):
         validate_assignment = True
 
 
+
 class Dinov2base_seg_Config(Dinov2_seg_Config):
     model_type: str = "dinov2"
     dino_size = "dinov2_vitb14"
     embed_dim = 768
 
 
+
 class Dinov2basereg_seg_Config(Dinov2_seg_Config):
     model_type: str = "dinov2"
     dino_size = "dinov2_vitb14_reg"
     embed_dim = 768
+
+
+
+
+class SoftCON_seg_Config(BaseModelConfig):
+    model_type: str = "softcon"
+    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/fm_weights/B13_vitb14_softcon.pth"
+    image_resolution = 224
+    softcon_size = "vit_base"
+    out_features = True
+    freeze_backbone = True
+    task = 'segmentation'
+    embed_dim = 768
+    num_channels: int = 13  # Define the field for num_channels
+
+    @validator("num_channels")
+    def validate_num_channels(cls, value):
+        if value != 13:
+            raise ValueError("SoftCON requires #channels to be 13!")
+        return value
+
+    class Config:
+        validate_assignment = True
+
+
+
+class DOFA_seg_Config(BaseModelConfig):
+    model_type: str = "dofa"
+    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/fm_weights/DOFA_ViT_large_e100.pth"
+    image_resolution = 224
+    out_features = True
+    freeze_backbone = True
+    task = 'segmentation'
+    embed_dim = 1024
+    dofa_size = 'dofa_large'
+
+    @validator("dofa_size")
+    def validate_num_channels(cls, value):
+        if value not in ['dofa_base', 'dofa_large']:
+            raise ValueError("DOFA model size should be dofa_base or dofa_large !")
+        return value
+
+    class Config:
+        validate_assignment = True
+
 
 
 class GFM_seg_Config(BaseModelConfig):
@@ -242,4 +297,6 @@ model_config_registry = {
     "gfm_seg": GFM_seg_Config,
     "dinov2_seg": Dinov2_seg_Config,
     "dinov2base_seg": Dinov2base_seg_Config,
+    "softcon_seg": SoftCON_seg_Config,
+    "dofa_seg": DOFA_seg_Config,
 }

@@ -1,10 +1,11 @@
-export CUDA_VISIBLE_DEVICES=4
+export CUDA_VISIBLE_DEVICES=0
 export GEO_BENCH_DIR=/home/zhitong/Datasets/geobench/
 
-model=dinov2base_seg
-dataset=geobench_pv4ger
-batch_size=64
-blr=0.1
+model=dofa_seg
+dataset=geobench_cashew
+task=segmentation
+batch_size=12
+blr=0.001
 epochs=20
 
 torchrun --nproc_per_node=1 --master_port=25673 main.py \
@@ -12,7 +13,8 @@ torchrun --nproc_per_node=1 --master_port=25673 main.py \
 --log_dir logs/"${model}_${dataset}_${blr}_${batch_size}_${epochs}" \
 --model $model \
 --dataset $dataset \
---num_workers 4 \
+--task $task \
+--num_workers 8 \
 --batch_size $batch_size \
 --epochs $epochs \
 --blr $blr \

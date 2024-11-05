@@ -1,13 +1,6 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# All rights reserved.
-
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
-# --------------------------------------------------------
-# References:
-# DeiT: https://github.com/facebookresearch/deit
-# MoCo v3: https://github.com/facebookresearch/moco-v3
-# --------------------------------------------------------
+
 
 import argparse
 import datetime
@@ -18,7 +11,8 @@ import time
 from pathlib import Path
 import warnings
 
-warnings.filterwarnings("ignore", message="Default grid_sample and affine_grid behavior has changed to align_corners=False")
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
 
 import torch
 import torch.backends.cudnn as cudnn
@@ -51,7 +45,10 @@ def get_args_parser():
     parser.add_argument('--model', default='croma', type=str, metavar='MODEL',
                         help='Name of model to train')
     # Dataset parameters
-    parser.add_argument('--dataset', default='geobench_so2sat', type=str, metavar='MODEL',
+    parser.add_argument('--dataset', default='geobench_so2sat', type=str, metavar='DATASET',
+                        help='Name of model to train')
+    
+    parser.add_argument('--task', default='segmentation', type=str, metavar='TASK',
                         help='Name of model to train')
 
     # Optimizer parameters
@@ -209,7 +206,10 @@ def main(args):
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
         #model_without_ddp = model.module
 
-    optimizer = LARS(model_without_ddp.params_to_optimize(), lr=args.lr, weight_decay=args.weight_decay)
+    if args.task == "segmentation":
+        optimizer = torch.optim.AdamW(model_without_ddp.params_to_optimize(), lr=args.lr)
+    elif args.task == "classification":
+        optimizer = LARS(model_without_ddp.params_to_optimize(), lr=args.lr, weight_decay=args.weight_decay)
     loss_scaler = NativeScaler()
 
     if dataset_config.multilabel:
