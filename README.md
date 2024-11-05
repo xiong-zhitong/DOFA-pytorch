@@ -17,22 +17,34 @@ mim install "mmcv==2.1.0"
 mim install mmsegmentation
 ```
 
+The model weights can be downloaded from [HF](https://huggingface.co/XShadow/GeoFMs).
+
 
 The following models are included:
 - ScaleMAE
 - DOFA
+- GFM
 - CROMA
-- ...
+- Dinov2 large, base, w/ or w/o registers
 
 ---
-The model weights can be downloaded from [HF](https://huggingface.co/XShadow/GeoFMs)
-
 The following datasets are supported:
 - GeoBench
-- Spectral Earth ...
+- Spectral Earth (on going)
 
+How to add new model and dataset wrappers?
 
+1) Add new model wrapper to the [foundation_models](foundation_models) folder and add it to __init__.py;
+2) Add the model name to [factory.py](factory.py) for access by ```model_type``` name;
+3) Add new dataset wrapper to the [datasets](datasets) folder;
+4) Add the dataset name to [factory.py](factory.py) 
+5) Write the configuration class in the [config.py](util/config.py).
 
+---
+How to run the evaluation?
 
+```bash
+sh scripts/train_linear_geobench_cls_croma.sh
+```
 
 
