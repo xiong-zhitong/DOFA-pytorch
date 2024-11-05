@@ -19,9 +19,11 @@ class UperNet(torch.nn.Module):
     def forward(self, x):
         feat = self.backbone(x)
         out = self.decode_head(feat)
-        out = self.resize(out, size=x.shape[2:], mode='bilinear', align_corners=False)
+        #out = self.resize(out, size=x.shape[2:], mode='bilinear', align_corners=True)
+        out = F.interpolate(out, size=x.shape[2:], mode='bilinear', align_corners=True)
         out_a = self.aux_head(feat)
-        out_a = self.resize(out_a, size=x.shape[2:], mode='bilinear', align_corners=False)
+        #out_a = self.resize(out_a, size=x.shape[2:], mode='bilinear', align_corners=True)
+        out_a = F.interpolate(out_a, size=x.shape[2:], mode='bilinear', align_corners=True)
         return out, out_a
 
     @staticmethod
@@ -39,9 +41,8 @@ class UperNet(torch.nn.Module):
                     if ((output_h > 1 and output_w > 1 and input_h > 1
                         and input_w > 1) and (output_h - 1) % (input_h - 1)
                             and (output_w - 1) % (input_w - 1)):
-                        warnings.warn(
-                            f'When align_corners={align_corners}, ')
-        return F.interpolate(input, size, scale_factor, mode, align_corners)
+                        pass
+        return F.interpolate(input, size, scale_factor, mode, align_corners=True)
 
 
 class GFM(nn.Module):
