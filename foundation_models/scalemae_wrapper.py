@@ -6,7 +6,7 @@ from mmseg.models.necks import Feature2Pyramid
 from mmseg.models.decode_heads import UPerHead, FCNHead
 from loguru import logger
 import pdb
-import torch.nn.functional as F
+from util.misc import resize
 
 # upernet + mae from mmsegmentation
 class UperNet(torch.nn.Module):
@@ -21,9 +21,9 @@ class UperNet(torch.nn.Module):
         feat = self.backbone(x)
         feat = self.neck(feat)
         out = self.decode_head(feat)
-        out = self.resize(out, size=x.shape[2:], mode='bilinear', align_corners=False)
+        out = resize(out, size=x.shape[2:], mode='bilinear', align_corners=False)
         out_a = self.aux_head(feat)
-        out_a = self.resize(out_a, size=x.shape[2:], mode='bilinear', align_corners=False)
+        out_a = resize(out_a, size=x.shape[2:], mode='bilinear', align_corners=False)
         return out, out_a
 
     @staticmethod

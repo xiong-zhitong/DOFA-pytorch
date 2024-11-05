@@ -12,13 +12,13 @@ class ClsDataAugmentation(torch.nn.Module):
 
         if split=='train':
             self.transform = torch.nn.Sequential(
-                K.augmentation.RandomResizedCrop(size=size, scale=(0.8,1.0)), # croma sentinel 2
+                K.augmentation.RandomResizedCrop(size=size, scale=(0.8,1.0), align_corners=True), # croma sentinel 2
                 #K.augmentation.RandomHorizontalFlip(p=0.5),
                 K.augmentation.Normalize(mean=mean,std=std)
             )
         else:
             self.transform = torch.nn.Sequential(
-                K.augmentation.Resize(size=size), # croma sentinel 2
+                K.augmentation.Resize(size=size, align_corners=True), # croma sentinel 2
                 K.augmentation.Normalize(mean=mean,std=std)
             )
 

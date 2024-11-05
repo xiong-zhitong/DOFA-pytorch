@@ -16,14 +16,15 @@ import numpy as np
 import os
 import time
 from pathlib import Path
+import warnings
+
+warnings.filterwarnings("ignore", message="Default grid_sample and affine_grid behavior has changed to align_corners=False")
 
 import torch
 import torch.backends.cudnn as cudnn
 from torch.utils.tensorboard import SummaryWriter
 import torchvision.datasets as datasets
 from loguru import logger
-
-import timm
 
 #assert timm.__version__ == "0.3.2" # version check
 from timm.models.layers import trunc_normal_
@@ -34,8 +35,6 @@ from util.misc import NativeScalerWithGradNormCount as NativeScaler
 from util.lars import LARS
 
 from engine.engine_finetune import train_one_epoch, evaluate
-
-import geobench
 
 from factory import create_model, create_dataset
 from util.config import model_config_registry, dataset_config_registry

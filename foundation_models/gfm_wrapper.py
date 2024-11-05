@@ -2,11 +2,10 @@ from .GFM import build_swin_cls, build_swin_seg
 import torch.nn as nn
 import torch
 # use mmsegmentation for upernet+mae
-from mmseg.models.necks import Feature2Pyramid
 from mmseg.models.decode_heads import UPerHead, FCNHead
 from loguru import logger
 import pdb
-import torch.nn.functional as F
+from util.misc import resize
 
 # upernet + mae from mmsegmentation
 class UperNet(torch.nn.Module):
@@ -19,30 +18,10 @@ class UperNet(torch.nn.Module):
     def forward(self, x):
         feat = self.backbone(x)
         out = self.decode_head(feat)
-        #out = self.resize(out, size=x.shape[2:], mode='bilinear', align_corners=True)
-        out = F.interpolate(out, size=x.shape[2:], mode='bilinear', align_corners=True)
+        out = resize(out, size=x.shape[2:], mode='bilinear', align_corners=False)
         out_a = self.aux_head(feat)
-        #out_a = self.resize(out_a, size=x.shape[2:], mode='bilinear', align_corners=True)
-        out_a = F.interpolate(out_a, size=x.shape[2:], mode='bilinear', align_corners=True)
+        out_a = resize(out_a, size=x.shape[2:], mode='bilinear', align_corners=False)
         return out, out_a
-
-    @staticmethod
-    def resize(input,
-            size=None,
-            scale_factor=None,
-            mode='nearest',
-            align_corners=None,
-            warning=True):
-        if warning:
-            if size is not None and align_corners:
-                input_h, input_w = tuple(int(x) for x in input.shape[2:])
-                output_h, output_w = tuple(int(x) for x in size)
-                if output_h > input_h or output_w > output_h:
-                    if ((output_h > 1 and output_w > 1 and input_h > 1
-                        and input_w > 1) and (output_h - 1) % (input_h - 1)
-                            and (output_w - 1) % (input_w - 1)):
-                        pass
-        return F.interpolate(input, size, scale_factor, mode, align_corners=True)
 
 
 class GFM(nn.Module):

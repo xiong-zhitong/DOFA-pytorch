@@ -5,7 +5,7 @@ from mmseg.models.necks import Feature2Pyramid
 from mmseg.models.decode_heads import UPerHead, FCNHead
 from loguru import logger
 import pdb
-import torch.nn.functional as F
+from util.misc import resize
 import sys
 sys.path.append("/home/zhitong/OFALL/OFALL_baseline/mae/eval-fm/foundation_models/PanOpticOn")
 from dinov2.eval.setup import parse_model_obj
@@ -30,9 +30,9 @@ class UperNet(torch.nn.Module):
         feat = [rearrange(out, "n (h w) c -> n c h w", h=H, w=W) for out in outputs]
         feat = self.neck(feat)
         out = self.decode_head(feat)
-        out = self.resize(out, size=x.shape[2:], mode='bilinear', align_corners=False)
+        out = resize(out, size=x.shape[2:], mode='bilinear', align_corners=False)
         out_a = self.aux_head(feat)
-        out_a = self.resize(out_a, size=x.shape[2:], mode='bilinear', align_corners=False)
+        out_a = resize(out_a, size=x.shape[2:], mode='bilinear', align_corners=False)
         return out, out_a
 
     @staticmethod

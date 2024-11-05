@@ -9,6 +9,7 @@ __pycache__/
 *.pt
 # Distribution / packaging
 .Python
+logs/
 build/
 develop-eggs/
 dist/
