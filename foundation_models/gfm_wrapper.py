@@ -6,6 +6,8 @@ from mmseg.models.decode_heads import UPerHead, FCNHead
 from loguru import logger
 import pdb
 from util.misc import resize
+#assert timm.__version__ == "0.3.2" # version check
+from timm.models.layers import trunc_normal_
 
 # upernet + mae from mmsegmentation
 class UperNet(torch.nn.Module):
@@ -28,17 +30,20 @@ class GFM(nn.Module):
     def __init__(self, config):
         super(GFM, self).__init__()
 
-        self.encoder = build_swin_seg(config) # checkpoint already loaded
+        self.encoder = build_swin_seg(config) if config.task == "segmentation" else build_swin_cls(config) # checkpoint already loaded
         
         self.out_features = config.out_features
-        self.model = self.encoder
         self.task = config.task
 
         if config.freeze_backbone:
             self.freeze(self.encoder)
 
         if config.task == 'classification':
-            raise NotImplementedError("on going")
+            trunc_normal_(self.encoder.head.weight, std=0.01)
+            self.encoder.head = torch.nn.Sequential(torch.nn.BatchNorm1d(\
+                self.encoder.head.in_features, affine=False, eps=1e-6), self.encoder.head)
+            self.unfreeze(self.encoder.head)
+
 
         elif config.task == 'segmentation':
             # create model: upernet + mae
@@ -74,7 +79,7 @@ class GFM(nn.Module):
     def params_to_optimize(self):
         match self.task:
             case 'classification':
-                raise NotImplementedError("on going")
+                return self.encoder.head.parameters()
             case 'segmentation':
                 parameters_to_optimize = (list(self.decoder.parameters()) + \
                         list(self.aux_head.parameters()))
@@ -87,10 +92,18 @@ class GFM(nn.Module):
         for param in module.parameters():
             param.requires_grad = False
 
+    def unfreeze(self, module):
+        for param in module.parameters():
+            param.requires_grad = True
+
     def forward(self, samples):
         match self.task:
             case 'classification':
-                raise NotImplementedError("on going")
+                out_logits, feats = self.encoder(samples)
+                if self.out_features:
+                    return out_logits, feats
+                else:
+                    return out_logits
             case 'segmentation':
                 out, out_aux =  self.seg_model(samples)
                 return out, out_aux
