@@ -21,6 +21,12 @@ pip install loguru
 pip install timm
 pip install git+https://github.com/ServiceNow/geo-bench.git
 pip install torchmetrics
+pip install ftfy
+pip install regex
+pip install einops
+pip install yacs
+pip install kornia
+pip install pydantic
 ```
 
 ### Model Weights
