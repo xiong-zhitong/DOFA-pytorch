@@ -28,10 +28,10 @@ class ClsDataAugmentation(torch.nn.Module):
         return x_out
 
 class ClsGeoBenchTransform(object):
-    def __init__(self, task, split, band_names=None):
+    def __init__(self, task, split, size, band_names=None):
         self.band_names = band_names
         MEAN, STD = task.get_dataset(band_names=band_names).normalization_stats()
-        self.transform = ClsDataAugmentation(mean=MEAN,std=STD,split=split)
+        self.transform = ClsDataAugmentation(mean=MEAN,std=STD,split=split,size=size)
 
     def __call__(self, sample):
         array, band_names = sample.pack_to_3d(band_names=self.band_names, resample=False, fill_value=None, resample_order=3) # h,w,c

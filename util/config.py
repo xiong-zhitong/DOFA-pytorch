@@ -48,7 +48,17 @@ class GeoBench_so2sat_Config(GeoBenchDatasetConfig):
     num_channels = len(band_names)
 
 
-class GeoBench_pv4ger_Config(GeoBenchDatasetConfig):
+class GeoBench_pv4ger_cls_Config(GeoBenchDatasetConfig):
+    benchmark_name = "classification_v1.0"
+    dataset_name = "m-pv4ger"
+    task = "classification"
+    band_names = ['Blue', 'Green', 'Red']
+    band_wavelengths = [0.48, 0.56, 0.66]
+    num_classes = 2
+    multilabel = False
+    num_channels = len(band_names)
+
+class GeoBench_pv4ger_seg_Config(GeoBenchDatasetConfig):
     benchmark_name = "segmentation_v1.0"
     dataset_name = "m-pv4ger-seg"
     task = "segmentation"
@@ -87,7 +97,8 @@ class GeoBench_cashew_10band_Config(GeoBenchDatasetConfig):
 
 dataset_config_registry = {
     "geobench_so2sat" : GeoBench_so2sat_Config,
-    "geobench_pv4ger" : GeoBench_pv4ger_Config,
+    "geobench_pv4ger_seg" : GeoBench_pv4ger_seg_Config,
+    "geobench_pv4ger_cls": GeoBench_pv4ger_cls_Config,
     "geobench_cashew" : GeoBench_cashew_Config,
     "geobench_cashew_10band": GeoBench_cashew_10band_Config,
 }
@@ -236,6 +247,21 @@ class Dinov2_seg_Config(BaseModelConfig):
         validate_assignment = True
 
 
+class Dinov2_cls_Config(BaseModelConfig):
+    model_type: str = "dinov2"
+    dino_size = "dinov2_vitl14"
+    image_resolution = 224
+    out_features = True
+    freeze_backbone = True
+    task = 'classification'
+    embed_dim = 1024
+    num_channels: int = 3  # Define the field for num_channels
+
+    @validator("num_channels")
+    def validate_num_channels(cls, value):
+        if value != 3:
+            raise ValueError("ScaleMAE requires #channels to be 3!")
+        return value
 
 class Dinov2base_seg_Config(Dinov2_seg_Config):
     model_type: str = "dinov2"
@@ -326,4 +352,5 @@ model_config_registry = {
     "softcon_seg": SoftCON_seg_Config,
     "dofa_seg": DOFA_seg_Config,
     "satmae_seg": SatMAE_seg_Config,
+    "dinov2_cls": Dinov2_cls_Config,
 }
