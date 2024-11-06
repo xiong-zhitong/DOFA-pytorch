@@ -47,7 +47,7 @@ class Dinov2(nn.Module):
             self.freeze(self.encoder)
 
         if config.task == 'classification':
-            raise NotImplementedError("on going")
+            self.linear_classifier = torch.nn.Linear(config.embed_dim, config.num_classes)
 
         elif config.task == 'segmentation':
             # create model: upernet + mae
@@ -87,7 +87,7 @@ class Dinov2(nn.Module):
     def params_to_optimize(self):
         match self.task:
             case 'classification':
-                raise NotImplementedError("on going")
+                return self.linear_classifier.parameters()
             case 'segmentation':
                 parameters_to_optimize = (list(self.neck.parameters()) + list(self.decoder.parameters()) + \
                         list(self.aux_head.parameters()))
@@ -101,13 +101,19 @@ class Dinov2(nn.Module):
             param.requires_grad = False
 
     def forward(self, samples):
+        x_dict = {}
+        x_dict['imgs'] = samples
         match self.task:
             case 'classification':
-                raise NotImplementedError("on going")
+                #TODO: add cls token support; key is: x_norm_clstoken
+                out = self.encoder.forward_features(x_dict)
+                global_pooled = out["x_norm_patchtokens"].mean(dim=1)
+                out_logits = self.linear_classifier(global_pooled)
+                if self.out_features:
+                    return out_logits, global_pooled
+                return out_logits
             case 'segmentation':
                 #logger.debug(f'dinov2: {self.config.dino_size}')
-                x_dict = {}
-                x_dict['imgs'] = samples
                 out, out_aux =  self.seg_model(x_dict)
                 return out, out_aux
 
