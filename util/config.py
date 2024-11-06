@@ -161,6 +161,18 @@ class Panopticon_seg_Config(BaseModelConfig):
     full_spectra = False
 
 
+class Panopticon_cls_Config(BaseModelConfig):
+    model_type: str = "panopticon"
+    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/fm_weights/panopticon-v1-1103"
+    image_resolution = 224
+    out_features = True
+    task = 'classification'
+    freeze_backbone = True
+    embed_dim = 768
+    ds_name = "m-pv4ger"
+    full_spectra = False
+
+
 
 class CROMA_cls_Config(BaseModelConfig):
     model_type: str = "croma"
@@ -384,6 +396,7 @@ model_config_registry = {
     "croma_cls": CROMA_cls_Config,
     "croma_seg": CROMA_seg_Config,
     "panopticon_seg": Panopticon_seg_Config,
+    "panopticon_cls": Panopticon_cls_Config,
     "scalemae_seg": ScaleMAE_seg_Config,
     "gfm_seg": GFM_seg_Config,
     "gfm_cls": GFM_cls_Config,
