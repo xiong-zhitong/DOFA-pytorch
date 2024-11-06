@@ -3,7 +3,8 @@ from .DOFA.models_dwv_seg import vit_large_patch16 as vit_large_patch16_seg
 from .DOFA.models_dwv import vit_base_patch16 as vit_base_patch16_cls
 from .DOFA.models_dwv import vit_large_patch16 as vit_large_patch16_cls
 
-
+#assert timm.__version__ == "0.3.2" # version check
+from timm.models.layers import trunc_normal_
 import torch.nn as nn
 import torch
 # use mmsegmentation for upernet+mae
@@ -42,8 +43,8 @@ class DOFA(nn.Module):
         self.encoder = None
         match config.task:
             case "classification":
-                self.encoder = vit_base_patch16_cls(drop_path_rate=0,) if self.config.dofa_size == 'dofa_base'\
-                      else vit_large_patch16_cls(drop_path_rate=0,)
+                self.encoder = vit_base_patch16_cls(num_classes=config.num_classes) if self.config.dofa_size == 'dofa_base'\
+                      else vit_large_patch16_cls(num_classes=config.num_classes)
             case "segmentation":
                 self.encoder = vit_base_patch16_seg(drop_path_rate=0,) if self.config.dofa_size == 'dofa_base' \
                     else vit_large_patch16_seg(drop_path_rate=0,)
@@ -59,7 +60,10 @@ class DOFA(nn.Module):
             self.freeze(self.encoder)
 
         if config.task == 'classification':
-            raise NotImplementedError("on going")
+            trunc_normal_(self.encoder.head.weight, std=0.01)
+            self.encoder.head = torch.nn.Sequential(torch.nn.BatchNorm1d(\
+                self.encoder.head.in_features, affine=False, eps=1e-6), self.encoder.head)
+            self.unfreeze(self.encoder.head)
 
         elif config.task == 'segmentation':
             # create model: upernet + mae
@@ -99,7 +103,7 @@ class DOFA(nn.Module):
     def params_to_optimize(self):
         match self.task:
             case 'classification':
-                raise NotImplementedError("on going")
+                return self.encoder.head.parameters()
             case 'segmentation':
                 parameters_to_optimize = (list(self.neck.parameters()) + list(self.decoder.parameters()) + \
                         list(self.aux_head.parameters()))
@@ -111,14 +115,23 @@ class DOFA(nn.Module):
     def freeze(self, module):
         for param in module.parameters():
             param.requires_grad = False
+    
+    def unfreeze(self, module):
+        for param in module.parameters():
+            param.requires_grad = True
 
     def forward(self, samples):
+        x_dict = {}
+        x_dict['imgs'] = samples
+        x_dict['wavelengths'] = self.config.band_wavelengths
         match self.task:
             case 'classification':
-                raise NotImplementedError("on going")
+                out_logits, feats = self.encoder(samples, self.config.band_wavelengths)
+                if self.out_features:
+                    return out_logits, feats
+                else:
+                    out_logits
+
             case 'segmentation':
-                x_dict = {}
-                x_dict['imgs'] = samples
-                x_dict['wavelengths'] = self.config.band_wavelengths
                 out, out_aux =  self.seg_model(x_dict)
                 return out, out_aux

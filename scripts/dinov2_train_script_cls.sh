@@ -6,7 +6,7 @@ model=dinov2_cls
 dataset=geobench_pv4ger_cls
 task=classification
 batch_size=256
-blr=10
+blr=1
 epochs=50
 
 torchrun --nproc_per_node=1 --master_port=25673 main.py \

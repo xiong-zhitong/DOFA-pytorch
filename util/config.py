@@ -320,6 +320,25 @@ class DOFA_seg_Config(BaseModelConfig):
         validate_assignment = True
 
 
+class DOFA_cls_Config(BaseModelConfig):
+    model_type: str = "dofa"
+    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/fm_weights/DOFA_ViT_large_e100.pth"
+    image_resolution = 224
+    out_features = True
+    freeze_backbone = True
+    task = 'classification'
+    embed_dim = 1024
+    dofa_size = 'dofa_large'
+
+    @validator("dofa_size")
+    def validate_num_channels(cls, value):
+        if value not in ['dofa_base', 'dofa_large']:
+            raise ValueError("DOFA model size should be dofa_base or dofa_large !")
+        return value
+
+    class Config:
+        validate_assignment = True
+
 
 class GFM_seg_Config(BaseModelConfig):
     model_type: str = "gfm"
@@ -353,4 +372,5 @@ model_config_registry = {
     "dofa_seg": DOFA_seg_Config,
     "satmae_seg": SatMAE_seg_Config,
     "dinov2_cls": Dinov2_cls_Config,
+    "dofa_cls": DOFA_cls_Config,
 }
