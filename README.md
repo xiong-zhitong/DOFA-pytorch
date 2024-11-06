@@ -16,6 +16,11 @@ pip install openmim
 mim install mmengine
 mim install "mmcv==2.1.0"
 mim install mmsegmentation
+pip install tensorboard
+pip install loguru
+pip install timm
+pip install git+https://github.com/ServiceNow/geo-bench.git
+pip install torchmetrics
 ```
 
 ### Model Weights
