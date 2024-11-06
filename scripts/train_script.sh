@@ -2,8 +2,8 @@ export CUDA_VISIBLE_DEVICES=0
 export GEO_BENCH_DIR=/home/zhitong/Datasets/geobench/
 export DATA_CONFIG_DIR=/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/foundation_models/PanOpticOn/dinov2/configs/data/
 
-model=softcon_seg
-dataset=geobench_cashew
+model=satmae_seg
+dataset=geobench_cashew_10band
 task=segmentation
 batch_size=12
 blr=0.001

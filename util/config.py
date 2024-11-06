@@ -72,10 +72,24 @@ class GeoBench_cashew_Config(GeoBenchDatasetConfig):
     num_channels = len(band_names)
 
 
+class GeoBench_cashew_10band_Config(GeoBenchDatasetConfig):
+    benchmark_name = "segmentation_v1.0"
+    dataset_name = "m-cashew-plant"
+    task = "segmentation"
+    band_names = ['02 - Blue', '03 - Green', '04 - Red',\
+            '05 - Vegetation Red Edge', '06 - Vegetation Red Edge', '07 - Vegetation Red Edge',\
+            '08 - NIR', '08A - Vegetation Red Edge', '11 - SWIR', '12 - SWIR']
+    num_classes = 7
+    band_wavelengths = [0.49, 0.56, 0.665, 0.705, 0.74, 0.783, 0.842, 0.865, 1.61, 2.19]
+    multilabel = False
+    num_channels = len(band_names)
+
+
 dataset_config_registry = {
     "geobench_so2sat" : GeoBench_so2sat_Config,
     "geobench_pv4ger" : GeoBench_pv4ger_Config,
     "geobench_cashew" : GeoBench_cashew_Config,
+    "geobench_cashew_10band": GeoBench_cashew_10band_Config,
 }
 
 
@@ -106,6 +120,22 @@ class BaseModelConfig(BaseModel):
         if value not in ["scale-mae", "croma", "dofa"]:
             raise ValueError(f"Unsupported model type: {value}")
         return value
+
+    class Config:
+        validate_assignment = True
+
+
+class SatMAE_seg_Config(BaseModelConfig):
+    model_type: str = "satmae"
+    out_features = True
+    task = 'segmentation'
+    freeze_backbone = True
+    embed_dim = 1024
+    image_resolution: int = 96
+    patch_size: int = 8
+    num_channels: int = 10
+    channel_groups: int = ((0, 1, 2, 6), (3, 4, 5, 7), (8, 9))
+    pretrained_path: str = "/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
 
 
 class Panopticon_seg_Config(BaseModelConfig):
@@ -295,4 +325,5 @@ model_config_registry = {
     "dinov2base_seg": Dinov2base_seg_Config,
     "softcon_seg": SoftCON_seg_Config,
     "dofa_seg": DOFA_seg_Config,
+    "satmae_seg": SatMAE_seg_Config,
 }

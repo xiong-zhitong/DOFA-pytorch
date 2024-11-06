@@ -47,8 +47,7 @@ class Dinov2(nn.Module):
             self.freeze(self.encoder)
 
         if config.task == 'classification':
-            #add linear layer
-            pass
+            raise NotImplementedError("on going")
 
         elif config.task == 'segmentation':
             # create model: upernet + mae
@@ -88,7 +87,7 @@ class Dinov2(nn.Module):
     def params_to_optimize(self):
         match self.task:
             case 'classification':
-                pass
+                raise NotImplementedError("on going")
             case 'segmentation':
                 parameters_to_optimize = (list(self.neck.parameters()) + list(self.decoder.parameters()) + \
                         list(self.aux_head.parameters()))
@@ -104,7 +103,7 @@ class Dinov2(nn.Module):
     def forward(self, samples):
         match self.task:
             case 'classification':
-                pass
+                raise NotImplementedError("on going")
             case 'segmentation':
                 #logger.debug(f'dinov2: {self.config.dino_size}')
                 x_dict = {}

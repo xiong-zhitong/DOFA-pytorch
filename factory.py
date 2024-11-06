@@ -1,4 +1,4 @@
-from foundation_models import CROMA, Panopticon, ScaleMAE, GFM, Dinov2, SoftCON, DOFA
+from foundation_models import CROMA, Panopticon, ScaleMAE, GFM, Dinov2, SoftCON, DOFA, SatMAE
 from datasets.geobench_wrapper import GeoBenchDataset
 
 
@@ -10,6 +10,7 @@ model_registry = {
     "dinov2": Dinov2,
     "softcon": SoftCON,
     "dofa": DOFA,
+    "satmae":SatMAE,
     # Add other model mappings here
 }
 

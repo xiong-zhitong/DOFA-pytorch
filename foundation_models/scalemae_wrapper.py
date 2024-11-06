@@ -45,8 +45,7 @@ class ScaleMAE(nn.Module):
             self.freeze(self.encoder)
 
         if config.task == 'classification':
-            #add linear layer
-            pass
+            raise NotImplementedError("on going")
 
         elif config.task == 'segmentation':
             # create model: upernet + mae
@@ -86,7 +85,7 @@ class ScaleMAE(nn.Module):
     def params_to_optimize(self):
         match self.task:
             case 'classification':
-                return self.encoder.GAP_FFN_s2[1].parameters()
+                raise NotImplementedError("on going")
             case 'segmentation':
                 parameters_to_optimize = (list(self.neck.parameters()) + list(self.decoder.parameters()) + \
                         list(self.aux_head.parameters()))
@@ -102,13 +101,7 @@ class ScaleMAE(nn.Module):
     def forward(self, samples):
         match self.task:
             case 'classification':
-                all_output = self.model(optical_images=samples)
-                out_logits = all_output['optical_GAP']
-                out_feats = all_output['optical_encodings']
-                if self.out_features:
-                    return out_logits, out_feats
-                else:
-                    return out_logits
+                raise NotImplementedError("on going")
             case 'segmentation':
                 out, out_aux =  self.seg_model(samples)
                 return out, out_aux
