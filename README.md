@@ -32,11 +32,15 @@ Pretrained model weights are available on [Hugging Face](https://huggingface.co/
 
 This repository includes the following models for evaluation:
 
-- **ScaleMAE**
-- **DOFA**
-- **GFM**
-- **CROMA**
-- **Dinov2** (variants: large, base, with or without registers)
+- CROMA
+- DOFA
+- GFM
+- PanOpticOn
+- RemoteCLIP
+- SatMAE
+- ScaleMAE
+- Skyscript
+- SoftCON
 
 ---
 
@@ -44,7 +48,7 @@ This repository includes the following models for evaluation:
 
 The following datasets are currently supported:
 
-- **GeoBench**
+- GeoBench
 - **Spectral Earth** *(in progress)*
 
 ---
