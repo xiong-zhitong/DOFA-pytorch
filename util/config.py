@@ -266,6 +266,26 @@ class ScaleMAE_seg_Config(BaseModelConfig):
 
 
 
+class ScaleMAE_cls_Config(BaseModelConfig):
+    model_type: str = "scalemae"
+    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/fm_weights/scalemae-vitlarge-800.pth"
+    image_resolution = 224
+    out_features = True
+    freeze_backbone = True
+    task = 'classification'
+    embed_dim = 1024
+    num_channels: int = 3  # Define the field for num_channels
+
+    @validator("num_channels")
+    def validate_num_channels(cls, value):
+        if value != 3:
+            raise ValueError("ScaleMAE requires #channels to be 3!")
+        return value
+    
+    class Config:
+        validate_assignment = True
+
+
 class Dinov2_seg_Config(BaseModelConfig):
     model_type: str = "dinov2"
     dino_size = "dinov2_vitl14"
@@ -425,6 +445,7 @@ model_config_registry = {
     "panopticon_seg": Panopticon_seg_Config,
     "panopticon_cls": Panopticon_cls_Config,
     "scalemae_seg": ScaleMAE_seg_Config,
+    "scalemae_cls": ScaleMAE_cls_Config,
     "gfm_seg": GFM_seg_Config,
     "gfm_cls": GFM_cls_Config,
     "dinov2_seg": Dinov2_seg_Config,

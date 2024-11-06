@@ -1,4 +1,6 @@
-from .ScaleMAE.models_vit_seg import vit_large_patch16
+from .ScaleMAE.models_vit_seg import vit_large_patch16 as vit_large_patch16_seg
+from .ScaleMAE.models_vit import vit_large_patch16 as vit_large_patch16_cls
+
 import torch.nn as nn
 import torch
 # use mmsegmentation for upernet+mae
@@ -30,7 +32,8 @@ class ScaleMAE(nn.Module):
     def __init__(self, config):
         super(ScaleMAE, self).__init__()
 
-        self.encoder = vit_large_patch16(img_size=config.image_resolution, in_chans=3, drop_path_rate=0.)
+        self.encoder = vit_large_patch16_seg(img_size=config.image_resolution, in_chans=3, drop_path_rate=0.) \
+            if config.task == "segmentation" else vit_large_patch16_cls(img_size=config.image_resolution, in_chans=3, drop_path_rate=0.)
         #Load pretrained weights
         checkpoint = torch.load(config.pretrained_path, map_location='cpu')
         checkpoint_model = checkpoint['model']
@@ -45,7 +48,7 @@ class ScaleMAE(nn.Module):
             self.freeze(self.encoder)
 
         if config.task == 'classification':
-            raise NotImplementedError("on going")
+            self.linear_classifier = torch.nn.Linear(config.embed_dim, config.num_classes)
 
         elif config.task == 'segmentation':
             # create model: upernet + mae
@@ -85,7 +88,7 @@ class ScaleMAE(nn.Module):
     def params_to_optimize(self):
         match self.task:
             case 'classification':
-                raise NotImplementedError("on going")
+                return self.linear_classifier.parameters()
             case 'segmentation':
                 parameters_to_optimize = (list(self.neck.parameters()) + list(self.decoder.parameters()) + \
                         list(self.aux_head.parameters()))
@@ -101,7 +104,12 @@ class ScaleMAE(nn.Module):
     def forward(self, samples):
         match self.task:
             case 'classification':
-                raise NotImplementedError("on going")
+                feats = self.encoder.forward_features(samples)
+                out_logits = self.linear_classifier(feats)
+                if self.out_features:
+                    return out_logits, feats
+                else:
+                    return out_logits
             case 'segmentation':
                 out, out_aux =  self.seg_model(samples)
                 return out, out_aux
