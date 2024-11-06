@@ -1,4 +1,4 @@
-# Evaluation of Foundation Models for Earth Observation (EO)
+# Evaluation of Foundation Models for Earth Observation
 
 This repository provides tools for evaluating various foundation models on Earth Observation tasks. For detailed instructions on **pretraining and deploying [DOFA](https://arxiv.org/abs/2403.15356)**, please refer to the [main DOFA repository](https://github.com/zhu-xlab/DOFA).
 
