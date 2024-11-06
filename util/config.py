@@ -42,7 +42,7 @@ class GeoBench_so2sat_Config(GeoBenchDatasetConfig):
     band_names = ['02 - Blue', '02 - Blue', '03 - Green', '04 - Red', \
             '05 - Vegetation Red Edge', '06 - Vegetation Red Edge',   \
             '07 - Vegetation Red Edge', '08 - NIR', '08A - Vegetation Red Edge',\
-            '11 - SWIR', '11 - SWIR', '12 - SWIR']
+            '11 - SWIR', '11 - SWIR', '11 - SWIR', '12 - SWIR']
     num_classes = 17
     multilabel = False
     num_channels = len(band_names)
@@ -198,7 +198,6 @@ class Panopticon_cls_Config(BaseModelConfig):
     embed_dim = 768
     ds_name = "m-pv4ger"
     full_spectra = False
-
 
 
 class CROMA_cls_Config(BaseModelConfig):
@@ -359,6 +358,28 @@ class SoftCON_seg_Config(BaseModelConfig):
 
 
 
+class SoftCON_cls_Config(BaseModelConfig):
+    model_type: str = "softcon"
+    pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/fm_weights/B13_vitb14_softcon.pth"
+    image_resolution = 224
+    softcon_size = "vit_base"
+    out_features = True
+    freeze_backbone = True
+    task = 'classification'
+    embed_dim = 768
+    num_channels: int = 13  # Define the field for num_channels
+
+    @validator("num_channels")
+    def validate_num_channels(cls, value):
+        if value != 13:
+            raise ValueError("SoftCON requires #channels to be 13!")
+        return value
+
+    class Config:
+        validate_assignment = True
+
+
+
 class DOFA_seg_Config(BaseModelConfig):
     model_type: str = "dofa"
     pretrained_path = "/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/fm_weights/DOFA_ViT_large_e100.pth"
@@ -451,6 +472,7 @@ model_config_registry = {
     "dinov2_seg": Dinov2_seg_Config,
     "dinov2base_seg": Dinov2base_seg_Config,
     "softcon_seg": SoftCON_seg_Config,
+    "softcon_cls": SoftCON_cls_Config,
     "dofa_seg": DOFA_seg_Config,
     "satmae_seg": SatMAE_seg_Config,
     "satmae_cls": SatMAE_cls_Config,
