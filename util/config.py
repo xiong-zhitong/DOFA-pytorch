@@ -68,7 +68,6 @@ class GeoBench_cashew_Config(GeoBenchDatasetConfig):
             '08 - NIR', '08A - Vegetation Red Edge', '09 - Water vapour', '11 - SWIR', '11 - SWIR', '12 - SWIR']
     num_classes = 7
     band_wavelengths = [0.44, 0.49, 0.56, 0.665, 0.705, 0.74, 0.783, 0.842, 0.865, 0.945, 1.61, 1.61, 2.19]
-    chn_ids = [it*1000 for it in band_wavelengths]
     multilabel = False
     num_channels = len(band_names)
 
@@ -88,7 +87,6 @@ class BaseModelConfig(BaseModel):
     num_classes: int = 10
     task: Optional[str] = "classification"
     band_wavelengths: Optional[list] = None
-    chn_ids: Optional[list] = None
     freeze_backbone: bool = True
     image_resolution: int = 224
     additional_params: Optional[Dict] = Field(default_factory=dict)
@@ -102,7 +100,6 @@ class BaseModelConfig(BaseModel):
         dataset_config.image_resolution = cls.image_resolution
         # model wavelength determined by dataset
         cls.band_wavelengths = dataset_config.band_wavelengths
-        cls.chn_ids = dataset_config.chn_ids
 
     @validator("model_type")
     def validate_model_type(cls, value):
@@ -119,6 +116,8 @@ class Panopticon_seg_Config(BaseModelConfig):
     task = 'segmentation'
     freeze_backbone = True
     embed_dim = 768
+    ds_name = "ben-s2"
+    full_spectra = False
 
 
 

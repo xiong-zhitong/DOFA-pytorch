@@ -6,9 +6,13 @@ from mmseg.models.decode_heads import UPerHead, FCNHead
 from loguru import logger
 import pdb
 from util.misc import resize
+
 import sys
-sys.path.append("/home/zhitong/OFALL/OFALL_baseline/mae/eval-fm/foundation_models/PanOpticOn")
+import os
+sys.path.append(f"{os.path.dirname(os.path.abspath(__file__))}/PanOpticOn")
+
 from dinov2.eval.setup import parse_model_obj
+from dinov2.utils.data import load_ds_cfg, extract_wavemus
 import math
 from einops import rearrange
 
@@ -114,7 +118,8 @@ class Panopticon(nn.Module):
                 x_dict = {}
                 BSIZE = samples.shape[0]
                 x_dict['imgs'] = samples
-                x_dict['chn_ids'] = torch.tensor(self.config.chn_ids, device=samples.device).unsqueeze(0).repeat([BSIZE,1])
+                chn_ids = extract_wavemus(load_ds_cfg(self.config.ds_name), return_sigmas=self.config.full_spectra)
+                x_dict['chn_ids'] = torch.tensor(chn_ids, dtype=torch.long, device=samples.device).unsqueeze(0).repeat([BSIZE,1])
                 out, out_aux =  self.seg_model(x_dict)
                 return out, out_aux
 

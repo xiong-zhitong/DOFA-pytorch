@@ -14,6 +14,7 @@ bands:
 - id: sentinel2/B8A
 - id: sentinel2/B09
 - id: sentinel2/B11
+- id: sentinel2/B11
 - id: sentinel2/B12
 
 modality: optical #sar, dem, lc
