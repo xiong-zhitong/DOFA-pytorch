@@ -15,7 +15,7 @@ from util.pos_embed import get_2d_sincos_pos_embed, get_1d_sincos_pos_embed_from
 class GroupChannelsVisionTransformer(VisionTransformer):
     """ Vision Transformer with support for global average pooling
     """
-    def __init__(self, global_pool=False, channel_embed=256,
+    def __init__(self, global_pool=True, channel_embed=256,
                  channel_groups=((0, 1, 2, 6), (3, 4, 5, 7), (8, 9)), **kwargs):
         super().__init__(**kwargs)
         img_size = kwargs['img_size']

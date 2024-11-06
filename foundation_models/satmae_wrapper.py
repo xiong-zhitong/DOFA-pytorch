@@ -39,7 +39,7 @@ class SatMAE(nn.Module):
         kwargs['in_chans'] = config.num_channels
         kwargs['channel_groups'] = config.channel_groups
         
-        self.encoder = vit_large_patch16_seg(**kwargs)
+        self.encoder = vit_large_patch16_seg(**kwargs) if config.task == 'segmentation' else vit_large_patch16_cls(**kwargs)
         #Load pretrained weights
         checkpoint = torch.load(config.pretrained_path, map_location='cpu')
         checkpoint_model = checkpoint['model']
@@ -54,8 +54,7 @@ class SatMAE(nn.Module):
             self.freeze(self.encoder)
 
         if config.task == 'classification':
-            #add linear layer
-            pass
+            self.linear_classifier = torch.nn.Linear(config.embed_dim, config.num_classes)
 
         elif config.task == 'segmentation':
             # create model: upernet + mae
@@ -95,7 +94,7 @@ class SatMAE(nn.Module):
     def params_to_optimize(self):
         match self.task:
             case 'classification':
-                raise NotImplementedError("on going")
+                return self.linear_classifier.parameters()
             case 'segmentation':
                 parameters_to_optimize = (list(self.neck.parameters()) + list(self.decoder.parameters()) + \
                         list(self.aux_head.parameters()))
@@ -111,7 +110,12 @@ class SatMAE(nn.Module):
     def forward(self, samples):
         match self.task:
             case 'classification':
-                raise NotImplementedError("on going")
+                feats = self.encoder.forward_features(samples)
+                out_logits = self.linear_classifier(feats)
+                if self.out_features:
+                    return out_logits, feats
+                else:
+                    return out_logits
             case 'segmentation':
                 out, out_aux =  self.seg_model(samples)
                 return out, out_aux

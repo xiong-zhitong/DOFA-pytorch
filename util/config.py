@@ -48,6 +48,19 @@ class GeoBench_so2sat_Config(GeoBenchDatasetConfig):
     num_channels = len(band_names)
 
 
+class GeoBench_so2sat_10band_Config(GeoBenchDatasetConfig):
+    benchmark_name = "classification_v1.0"
+    dataset_name = "m-so2sat"
+    task = "classification"
+    band_names = ['02 - Blue', '03 - Green', '04 - Red',\
+            '05 - Vegetation Red Edge', '06 - Vegetation Red Edge', '07 - Vegetation Red Edge',\
+            '08 - NIR', '08A - Vegetation Red Edge', '11 - SWIR', '12 - SWIR']
+    band_wavelengths = [0.49, 0.56, 0.665, 0.705, 0.74, 0.783, 0.842, 0.865, 1.61, 2.19]
+    num_classes = 17
+    multilabel = False
+    num_channels = len(band_names)
+
+
 class GeoBench_pv4ger_cls_Config(GeoBenchDatasetConfig):
     benchmark_name = "classification_v1.0"
     dataset_name = "m-pv4ger"
@@ -101,6 +114,7 @@ dataset_config_registry = {
     "geobench_pv4ger_cls": GeoBench_pv4ger_cls_Config,
     "geobench_cashew" : GeoBench_cashew_Config,
     "geobench_cashew_10band": GeoBench_cashew_10band_Config,
+    "geobench_so2sat_10band": GeoBench_so2sat_10band_Config,
 }
 
 
@@ -140,6 +154,19 @@ class SatMAE_seg_Config(BaseModelConfig):
     model_type: str = "satmae"
     out_features = True
     task = 'segmentation'
+    freeze_backbone = True
+    embed_dim = 1024
+    image_resolution: int = 96
+    patch_size: int = 8
+    num_channels: int = 10
+    channel_groups: int = ((0, 1, 2, 6), (3, 4, 5, 7), (8, 9))
+    pretrained_path: str = "/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
+
+
+class SatMAE_cls_Config(BaseModelConfig):
+    model_type: str = "satmae"
+    out_features = True
+    task = 'classification'
     freeze_backbone = True
     embed_dim = 1024
     image_resolution: int = 96
@@ -405,6 +432,7 @@ model_config_registry = {
     "softcon_seg": SoftCON_seg_Config,
     "dofa_seg": DOFA_seg_Config,
     "satmae_seg": SatMAE_seg_Config,
+    "satmae_cls": SatMAE_cls_Config,
     "dinov2_cls": Dinov2_cls_Config,
     "dofa_cls": DOFA_cls_Config,
 }
