@@ -34,6 +34,7 @@ pip install python-dotenv
 
 ### Model Weights
 Pretrained model weights are available on [Hugging Face](https://huggingface.co/XShadow/GeoFMs). Download the necessary weights for your evaluation tasks.
+The SoftCon weights are available on a different [HF repo](https://huggingface.co/wangyi111/softcon).
 
 ---
 
