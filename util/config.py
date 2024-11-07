@@ -11,7 +11,9 @@ class BaseDatasetConfig(BaseModel):
 
     @validator("task")
     def validate_task(cls, value):
-        pass  # Implementation missing
+        if value not in ["classification", "segmentation"]:
+            raise ValueError(f"Unsupported task type: {value}")
+        return value
 
 # Example dataset configurations
 class GeoBenchDatasetConfig(BaseDatasetConfig):
@@ -28,7 +30,9 @@ class GeoBenchDatasetConfig(BaseDatasetConfig):
 
     @validator("benchmark_name")
     def validate_benchmark_name(cls, value):
-        pass  # Implementation missing
+        if value not in ["classification_v1.0", "segmentation_v1.0"]:
+            raise ValueError(f"Unsupported task type: {value}")
+        return value
 
 class GeoBench_so2sat_Config(GeoBenchDatasetConfig):
     benchmark_name: str = "classification_v1.0"
@@ -179,11 +183,19 @@ class BaseModelConfig(BaseModel):
     num_channels: int = 12
 
     def apply_dataset(cls, dataset_config: BaseDatasetConfig):
-        pass  # Implementation missing
+        cls.num_classes = dataset_config.num_classes
+        cls.task = dataset_config.task
+        cls.num_channels = dataset_config.num_channels
+        # image_resolution depends on the model
+        dataset_config.image_resolution = cls.image_resolution
+        # model wavelength determined by dataset
+        cls.band_wavelengths = dataset_config.band_wavelengths
 
     @validator("model_type")
     def validate_model_type(cls, value):
-        pass  # Implementation missing
+        if value not in ["scale-mae", "croma", "dofa"]:
+            raise ValueError(f"Unsupported model type: {value}")
+        return value
 
     class Config:
         validate_assignment = True
@@ -247,7 +259,9 @@ class CROMA_cls_Config(BaseModelConfig):
 
     @validator("num_channels")
     def validate_num_channels(cls, value):
-        pass  # Implementation missing
+        if value != 12:
+            raise ValueError("CROMA requires #channels to be 12!")
+        return value
 
     class Config:
         validate_assignment = True
@@ -266,7 +280,9 @@ class CROMA_seg_Config(BaseModelConfig):
 
     @validator("num_channels")
     def validate_num_channels(cls, value):
-        pass  # Implementation missing
+        if value != 12:
+            raise ValueError("CROMA requires #channels to be 12!")
+        return value
 
     class Config:
         validate_assignment = True
