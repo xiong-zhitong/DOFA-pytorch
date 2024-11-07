@@ -18,6 +18,5 @@ torchrun --nproc_per_node=1 --master_port=25673 main.py \
 --batch_size $batch_size \
 --epochs $epochs \
 --lr 0.005 \
---warmup_epochs 0 \
---seed 42 \
---dist_eval
+--warmup_epochs 3 \
+--seed 42

@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=7
+export CUDA_VISIBLE_DEVICES=6
 export GEO_BENCH_DIR=/home/zhitong/Datasets/geobench/
 export DATA_CONFIG_DIR=/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/foundation_models/PanOpticOn/dinov2/configs/data/
 
@@ -17,5 +17,6 @@ torchrun --nproc_per_node=1 --master_port=25673 main.py \
 --num_workers 8 \
 --batch_size $batch_size \
 --epochs $epochs \
+--warmup_epochs 3 \
 --lr 0.001 \
 --seed 42 

@@ -55,7 +55,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
         if mixup_fn is not None:
             samples, targets = mixup_fn(samples, targets)
 
-        with torch.cuda.amp.autocast():
+        with torch.cuda.amp.autocast(enabled=False): # disable if loss nan
             match task:
                 case 'classification':
                     outputs, feats = model(samples)
@@ -157,19 +157,18 @@ def evaluate(data_loader, model, device, dataset_config):
         target = target.to(device, non_blocking=True)
 
         # compute output
-        with torch.no_grad():
-            with torch.cuda.amp.autocast():
-                match task:
-                    case 'classification':
-                        output,_ = model(images)
-                        loss = criterion(output, target)
-                        acc1, acc5 = cls_metric(dataset_config, output, target)
-                        metric_1, metric_2 = 'acc1', 'acc5'
-                    case 'segmentation':
-                        output, output_aux = model(images)
-                        loss = criterion(output, target.long()) + 0.4 * criterion(output_aux, target.long())
-                        miou, acc = seg_metric(dataset_config, output, target)
-                        metric_1, metric_2 = 'miou', 'acc'
+        with torch.cuda.amp.autocast():
+            match task:
+                case 'classification':
+                    output,_ = model(images)
+                    loss = criterion(output, target)
+                    acc1, acc5 = cls_metric(dataset_config, output, target)
+                    metric_1, metric_2 = 'acc1', 'acc5'
+                case 'segmentation':
+                    output, output_aux = model(images)
+                    loss = criterion(output, target.long()) + 0.4 * criterion(output_aux, target.long())
+                    miou, acc = seg_metric(dataset_config, output, target)
+                    metric_1, metric_2 = 'miou', 'acc'
 
         
         batch_size = images.shape[0]

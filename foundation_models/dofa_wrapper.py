@@ -105,9 +105,13 @@ class DOFA(nn.Module):
             case 'classification':
                 return self.encoder.head.parameters()
             case 'segmentation':
-                parameters_to_optimize = (list(self.neck.parameters()) + list(self.decoder.parameters()) + \
-                        list(self.aux_head.parameters()))
-                return parameters_to_optimize
+                param_groups = [
+                    #{'params': self.backbone.parameters(), 'lr': args.lr * 0.1},
+                    {'params': self.neck.parameters(), 'lr': 0.001},
+                    {'params': self.decoder.parameters(), 'lr': 0.001},
+                    {'params': self.aux_head.parameters(), 'lr': 0.001}
+                ]
+                return param_groups
 
     def check_requires_grad(self, module):
         return all(param.requires_grad for param in module.parameters())
