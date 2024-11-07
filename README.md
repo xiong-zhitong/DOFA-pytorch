@@ -27,6 +27,9 @@ pip install einops
 pip install yacs
 pip install kornia
 pip install pydantic
+pip install omegaconf
+pip install wandb
+pip install python-dotenv
 ```
 
 ### Model Weights
