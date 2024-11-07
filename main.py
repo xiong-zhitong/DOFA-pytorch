@@ -130,7 +130,7 @@ def main(args):
     args.log_dir = os.path.join(args.log_dir, dataset_config.dataset_name)
 
 
-    if args.dist_eval:
+    if args.distributed:
         num_tasks = misc.get_world_size()
         global_rank = misc.get_rank()
         sampler_train = torch.utils.data.DistributedSampler(
@@ -202,9 +202,9 @@ def main(args):
     print("accumulate grad iterations: %d" % args.accum_iter)
     print("effective batch size: %d" % eff_batch_size)
 
-    if args.dist_eval:
+    if args.distributed:
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
-        #model_without_ddp = model.module
+        model_without_ddp = model.module
 
     if args.task == "segmentation":
         optimizer = torch.optim.AdamW(model_without_ddp.params_to_optimize(), lr=args.lr)
@@ -232,7 +232,7 @@ def main(args):
     max_accuracy_val_test = 0.0
 
     for epoch in range(args.start_epoch, args.epochs):
-        if args.dist_eval:
+        if args.distributed:
             data_loader_train.sampler.set_epoch(epoch)
         train_stats = train_one_epoch(
             model, criterion, data_loader_train,

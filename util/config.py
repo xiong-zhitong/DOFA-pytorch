@@ -86,14 +86,62 @@ class GeoBench_cashew_Config(GeoBenchDatasetConfig):
     benchmark_name = "segmentation_v1.0"
     dataset_name = "m-cashew-plant"
     task = "segmentation"
-    band_names = ['01 - Coastal aerosol', '02 - Blue', '03 - Green', '04 - Red',\
-            '05 - Vegetation Red Edge', '06 - Vegetation Red Edge', '07 - Vegetation Red Edge',\
-            '08 - NIR', '08A - Vegetation Red Edge', '09 - Water vapour', '11 - SWIR', '11 - SWIR', '12 - SWIR']
+    #band_names = ['01 - Coastal aerosol', '02 - Blue', '03 - Green', '04 - Red',\
+    #        '05 - Vegetation Red Edge', '06 - Vegetation Red Edge', '07 - Vegetation Red Edge',\
+    #        '08 - NIR', '08A - Vegetation Red Edge', '09 - Water vapour', '11 - SWIR', '11 - SWIR', '12 - SWIR']
     num_classes = 7
-    band_wavelengths = [0.44, 0.49, 0.56, 0.665, 0.705, 0.74, 0.783, 0.842, 0.865, 0.945, 1.61, 1.61, 2.19]
+    #band_wavelengths = [0.44, 0.49, 0.56, 0.665, 0.705, 0.74, 0.783, 0.842, 0.865, 0.945, 1.61, 1.61, 2.19]
+
+    band_names = ['04 - Red', '03 - Green', '02 - Blue', '05 - Vegetation Red Edge', '06 - Vegetation Red Edge',\
+                   '07 - Vegetation Red Edge', '08 - NIR', '11 - SWIR', '12 - SWIR']
+    band_wavelengths = [0.66, 0.56, 0.49, 0.7, 0.74, 0.78, 0.84, 1.61, 2.2]
+    
     multilabel = False
     num_channels = len(band_names)
 
+class GeoBench_chesapeake_Config(GeoBenchDatasetConfig):
+    benchmark_name = "segmentation_v1.0"
+    dataset_name = "m-chesapeake"
+    task = "segmentation"
+    band_names = ['Blue', 'Green', 'Red']
+    num_classes = 7
+    band_wavelengths = [0.48, 0.56, 0.66]
+    multilabel = False
+    num_channels = len(band_names)
+
+
+class GeoBench_NeonTree_Config(GeoBenchDatasetConfig):
+    benchmark_name = "segmentation_v1.0"
+    dataset_name = "m-NeonTree"
+    task = "segmentation"
+    band_names = ['Blue', 'Green', 'Red']
+    num_classes = 2
+    band_wavelengths = [0.48, 0.56, 0.66]
+    multilabel = False
+    num_channels = len(band_names)
+
+
+class GeoBench_SAcrop_Config(GeoBenchDatasetConfig):
+    benchmark_name = "segmentation_v1.0"
+    dataset_name = "m-SA-crop-type"
+    task = "segmentation"
+    band_names = band_names = ['01 - Coastal aerosol', '02 - Blue', '03 - Green', '04 - Red', \
+                            '05 - Vegetation Red Edge', '06 - Vegetation Red Edge', '07 - Vegetation Red Edge',\
+                            '08 - NIR', '08A - Vegetation Red Edge', '09 - Water vapour', '11 - SWIR', '11 - SWIR', '12 - SWIR']
+    num_classes = 10
+    band_wavelengths = [0.44, 0.49, 0.56, 0.66, 0.7, 0.74, 0.78, 0.84, 0.86, 0.94, 1.37, 1.61, 2.2]
+    multilabel = False
+    num_channels = len(band_names)
+
+class GeoBench_nzcattle_Config(GeoBenchDatasetConfig):
+    benchmark_name = "segmentation_v1.0"
+    dataset_name = "m-nz-cattle"
+    task = "segmentation"
+    band_names = ['Red', 'Green', 'Blue']
+    num_classes = 2
+    band_wavelengths = [0.66, 0.56, 0.48]
+    multilabel = False
+    num_channels = len(band_names)
 
 class GeoBench_cashew_10band_Config(GeoBenchDatasetConfig):
     benchmark_name = "segmentation_v1.0"
@@ -115,6 +163,9 @@ dataset_config_registry = {
     "geobench_cashew" : GeoBench_cashew_Config,
     "geobench_cashew_10band": GeoBench_cashew_10band_Config,
     "geobench_so2sat_10band": GeoBench_so2sat_10band_Config,
+    "geobench_chesapeake": GeoBench_chesapeake_Config,
+    "geobench_NeonTree": GeoBench_NeonTree_Config,
+    "geobench_nzcattle": GeoBench_nzcattle_Config,
 }
 
 

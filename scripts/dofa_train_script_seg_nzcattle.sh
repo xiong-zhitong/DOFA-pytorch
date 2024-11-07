@@ -2,11 +2,10 @@ export CUDA_VISIBLE_DEVICES=0
 export GEO_BENCH_DIR=/home/zhitong/Datasets/geobench/
 export DATA_CONFIG_DIR=/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/foundation_models/PanOpticOn/dinov2/configs/data/
 
-model=dinov2_cls
-dataset=geobench_pv4ger_cls
-task=classification
-batch_size=128
-blr=0.001
+model=dofa_seg
+dataset=geobench_nzcattle
+task=segmentation
+batch_size=16
 epochs=20
 
 torchrun --nproc_per_node=1 --master_port=25673 main.py \
@@ -18,8 +17,7 @@ torchrun --nproc_per_node=1 --master_port=25673 main.py \
 --num_workers 8 \
 --batch_size $batch_size \
 --epochs $epochs \
---blr $blr \
---lr 0.0005 \
+--lr 0.001 \
 --warmup_epochs 0 \
 --seed 42 \
 --dist_eval
