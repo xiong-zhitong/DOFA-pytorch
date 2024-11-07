@@ -20,5 +20,4 @@ torchrun --nproc_per_node=1 --master_port=25673 main.py \
 --epochs $epochs \
 --blr $blr \
 --warmup_epochs 0 \
---seed 42 \
---dist_eval
+--seed 42

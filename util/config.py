@@ -48,6 +48,7 @@ class GeoBench_so2sat_Config(GeoBenchDatasetConfig):
     multilabel: bool = False
     num_channels: int = len(band_names)
 
+
 class GeoBench_so2sat_10band_Config(GeoBenchDatasetConfig):
     benchmark_name: str = "classification_v1.0"
     dataset_name: str = "m-so2sat"
@@ -368,11 +369,6 @@ class Dinov2base_seg_Config(Dinov2_seg_Config):
     dino_size: str = "dinov2_vitb14"
     embed_dim: int = 768
 
-class Dinov2basereg_seg_Config(Dinov2_seg_Config):
-    model_type: str = "dinov2"
-    dino_size: str = "dinov2_vitb14_reg"
-    embed_dim: int = 768
-
 class SoftCON_seg_Config(BaseModelConfig):
     model_type: str = "softcon"
     pretrained_path: str = "/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/fm_weights/B13_vitb14_softcon.pth"
@@ -500,7 +496,6 @@ model_config_registry = {
     "gfm_cls": GFM_cls_Config,
     "dinov2_seg": Dinov2_seg_Config,
     "dinov2_cls": Dinov2_cls_Config,
-    "dinov2base_seg": Dinov2base_seg_Config,
     "softcon_seg": SoftCON_seg_Config,
     "softcon_cls": SoftCON_cls_Config,
     "dofa_seg": DOFA_seg_Config,
