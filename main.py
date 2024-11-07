@@ -5,6 +5,7 @@
 import argparse
 import datetime
 import json
+import pdb
 import numpy as np
 import os
 import time
@@ -22,7 +23,10 @@ from loguru import logger
 
 #assert timm.__version__ == "0.3.2" # version check
 from timm.models.layers import trunc_normal_
+from timm.data.mixup import Mixup
+from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
 
+import util.lr_decay as lrd
 import util.misc as misc
 from util.pos_embed import interpolate_pos_embed
 from util.misc import NativeScalerWithGradNormCount as NativeScaler
@@ -35,9 +39,9 @@ from util.config import model_config_registry, dataset_config_registry
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Fine-tune foundation models', add_help=False)
-    parser.add_argument('--batch_size', default=512, type=int,
+    parser.add_argument('--batch_size', default=64, type=int,
                         help='Batch size per GPU (effective batch size is batch_size * accum_iter * # gpus')
-    parser.add_argument('--epochs', default=90, type=int)
+    parser.add_argument('--epochs', default=50, type=int)
     parser.add_argument('--accum_iter', default=1, type=int,
                         help='Accumulate gradient iterations (for increasing the effective batch size under memory constraints)')
 
@@ -219,6 +223,7 @@ def main(args):
 
     print("criterion = %s" % str(criterion))
 
+    # for resume training
     misc.load_model(args=args, model_without_ddp=model_without_ddp, optimizer=optimizer, loss_scaler=loss_scaler)
 
     if args.eval:

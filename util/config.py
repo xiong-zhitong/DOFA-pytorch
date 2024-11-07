@@ -94,7 +94,7 @@ class GeoBench_cashew_Config(GeoBenchDatasetConfig):
 
     band_names = ['04 - Red', '03 - Green', '02 - Blue', '05 - Vegetation Red Edge', '06 - Vegetation Red Edge',\
                    '07 - Vegetation Red Edge', '08 - NIR', '11 - SWIR', '12 - SWIR']
-    band_wavelengths = [0.66, 0.56, 0.49, 0.7, 0.74, 0.78, 0.84, 1.61, 2.2]
+    band_wavelengths = [0.665, 0.56, 0.49, 0.705, 0.74, 0.783, 0.842, 1.61, 2.19]
     
     multilabel = False
     num_channels = len(band_names)
