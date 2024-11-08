@@ -63,7 +63,7 @@ dino:
   head_hidden_dim: 2048
   koleo_loss_weight: 0.0
 ibot:
-  loss_weight: 1.0
+  loss_weight: 0.1
   mask_sample_probability: 0.5
   mask_ratio_min_max:
   - 0.1
@@ -92,34 +92,44 @@ train:
       split: train
       modalities: MODALITY_MINIMAL_SET1
   dino_augm:
-    id: ChnSpatialAugmentation
+    id: ChnSpatialAugmentationV2
     global_crops_number: 2
-    global_crops_size:
-    - 13
-    - 224
+    global_crops_size: 224
     global_crops_scale:
     - 0.32
     - 1.0
     local_crops_number: 4
-    local_crops_size:
-    - 6
-    - 98
+    local_crops_size: 98
     local_crops_scale:
     - 0.05
     - 0.32
-  global_smask_absolute_tuple:
-  - 6
-  - 13
-  local_smask_absolute_tuple:
-  - 3
-  - 6
+    global_crops_spectral_size:
+    - 13
+    - 13
+    global_modes_probs:
+    - 1
+    - 0
+    - 0
+    local_crops_spectral_size:
+    - 3
+    - 6
+    local_modes_probs:
+    - 1
+    - 0
+    - 0
+    color_jitter_args:
+      p: 0
+      brightness: 0.4
+      contrast: 0.4
+      saturation: 0.0
+      hue: 0.0
   batch_size_per_gpu: 50
   num_workers: 4
   drop_last: true
   pin_memory: true
   persistent_workers: true
   use_wandb: true
-  output_dir: /global/scratch/users/lewaldm/panopticon/dino_logs/ds4/long+rgbhead+ngpus=8/lr=1e-4_warmup=0_lrmul=backbone=0.2
+  output_dir: /global/scratch/users/lewaldm/panopticon/dino_logs/c7/long/lr=1e-4_warmup=0_lrmul=backbone=0.2_gcsz=[13,13]_lcsz=[3,6]_gprobs=[1,0,0]_lprobs=[1,0,0]_cjitter-p=0
   saveckp_freq: 1
   seed: 21
   OFFICIAL_EPOCH_LENGTH: 1250
@@ -158,13 +168,13 @@ teacher:
   final_momentum_teacher: 1.0
   warmup_teacher_temp: 0.04
   teacher_temp: 0.07
-  warmup_teacher_temp_epochs: 1
+  warmup_teacher_temp_epochs: 30
 optim:
-  epochs: 20
+  epochs: 19
   weight_decay: 0.04
   weight_decay_end: 0.2
   base_lr: 0.0001
-  lr: 6.25e-05
+  lr: 2.2097086912079613e-05
   warmup_epochs: 0
   min_lr: 1.0e-06
   lr_multiplier: backbone=0.2
@@ -178,15 +188,14 @@ eval:
   use_online_eval: false
   eval_period_epoch: 3
   eval_period_iterations: -1
-  config_obj: /global/home/users/lewaldm/code/PanOpticOn/dinov2/configs/eval/offline_train
+  config_obj: /global/home/users/lewaldm/code/PanOpticOn/dinov2/configs/eval/offline_train_linear
   overwrites:
     optim:
       dl:
-        batch_size: 256
         num_workers: 4
-  remove_ckpts: true
+        batch_size: 150
+  remove_ckpts: false
   return_all_results: false
   recompute: false
   include_final_ckpt: true
-  config_dir: /global/home/users/lewaldm/code/PanOpticOn/dinov2/configs/eval/offline_train_linear
 add_args: true

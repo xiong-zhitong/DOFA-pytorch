@@ -164,6 +164,7 @@ class GeoBench_brick_kiln_3_Config(GeoBench_brick_kiln_Config):
         "03 - Green",
         "04 - Red",
     ]
+    num_channels: int = len(band_names)
 
 class GeoBench_so2sat_3_Config(GeoBench_so2sat_10band_Config):
     band_names: List[str] = [
@@ -171,6 +172,7 @@ class GeoBench_so2sat_3_Config(GeoBench_so2sat_10band_Config):
         "03 - Green",
         "04 - Red",
     ]
+    num_channels: int = len(band_names)
 
 class GeoBench_forestnet_3_Config(GeoBench_forestnet_Config):
     band_names: List[str] = [
@@ -178,6 +180,7 @@ class GeoBench_forestnet_3_Config(GeoBench_forestnet_Config):
         "03 - Green",
         "04 - Red",
     ]
+    num_channels: int = len(band_names)
 
 
 class GeoBench_eurosat_3_Config(GeoBench_eurosat_Config):
@@ -186,6 +189,7 @@ class GeoBench_eurosat_3_Config(GeoBench_eurosat_Config):
         "03 - Green",
         "04 - Red",
     ]
+    num_channels: int = len(band_names)
 
 
 class GeoBench_pv4ger_cls_3_Config(GeoBench_pv4ger_cls_Config):
@@ -194,6 +198,7 @@ class GeoBench_pv4ger_cls_3_Config(GeoBench_pv4ger_cls_Config):
         "Green",
         "Red",
     ]
+    num_channels: int = len(band_names)
 
 
 ####################################################
@@ -217,6 +222,7 @@ class GeoBench_brick_kiln_13_Config(GeoBench_brick_kiln_Config):
         "10 - SWIR - Cirrus",
         "12 - SWIR",
     ]
+    num_channels: int = len(band_names)
 
 
 class GeoBench_so2sat_13_Config(GeoBench_so2sat_10band_Config):
@@ -235,6 +241,7 @@ class GeoBench_so2sat_13_Config(GeoBench_so2sat_10band_Config):
         "11 - SWIR",
         "12 - SWIR",
     ]
+    num_channels: int = len(band_names)
 
 class GeoBench_forestnet_13_Config(GeoBench_forestnet_Config):
     band_names: List[str] = [
@@ -252,6 +259,7 @@ class GeoBench_forestnet_13_Config(GeoBench_forestnet_Config):
         "07 - SWIR2",
         "07 - SWIR2",
     ]
+    num_channels: int = len(band_names)
 
 
 class GeoBench_eurosat_13_Config(GeoBench_eurosat_Config):
@@ -270,6 +278,7 @@ class GeoBench_eurosat_13_Config(GeoBench_eurosat_Config):
         "11 - SWIR",
         "12 - SWIR",
     ]
+    num_channels: int = len(band_names)
 
 
 class GeoBench_pv4ger_cls_13_Config(GeoBench_pv4ger_cls_Config):
@@ -288,6 +297,7 @@ class GeoBench_pv4ger_cls_13_Config(GeoBench_pv4ger_cls_Config):
         "Red",
         "Red",
     ]
+    num_channels: int = len(band_names)
 
 ####################################################
 
@@ -310,6 +320,7 @@ class GeoBench_brick_kiln_12_Config(GeoBench_brick_kiln_Config):
         "09 - Water vapour",
         "12 - SWIR",
     ]
+    num_channels: int = len(band_names)
 
 
 class GeoBench_so2sat_12_Config(GeoBench_so2sat_10band_Config):
@@ -327,6 +338,7 @@ class GeoBench_so2sat_12_Config(GeoBench_so2sat_10band_Config):
         "11 - SWIR",
         "12 - SWIR",
     ]
+    num_channels: int = len(band_names)
 
 class GeoBench_forestnet_12_Config(GeoBench_forestnet_Config):
     band_names: List[str] = [
@@ -343,6 +355,7 @@ class GeoBench_forestnet_12_Config(GeoBench_forestnet_Config):
         "07 - SWIR2",
         "07 - SWIR2",
     ]
+    num_channels: int = len(band_names)
 
 
 class GeoBench_eurosat_12_Config(GeoBench_eurosat_Config):
@@ -360,7 +373,7 @@ class GeoBench_eurosat_12_Config(GeoBench_eurosat_Config):
         "11 - SWIR",
         "12 - SWIR",
     ]
-
+    num_channels: int = len(band_names)
 
 class GeoBench_pv4ger_cls_12_Config(GeoBench_pv4ger_cls_Config):
     band_names: List[str] = [
@@ -377,6 +390,7 @@ class GeoBench_pv4ger_cls_12_Config(GeoBench_pv4ger_cls_Config):
         "Red",
         "Red",
     ]
+    num_channels: int = len(band_names)
 
 
 ############ SEGMENTATION #######################
@@ -867,7 +881,7 @@ class SatMAE_seg_Config(BaseModelConfig):
     num_channels: int = 10
     channel_groups: Tuple[Tuple[int, ...], ...] = ((0, 1, 2, 6), (3, 4, 5, 7), (8, 9))
     pretrained_path: str = (
-        "/mnt/data/fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
+        "fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
     )
 
 
@@ -882,13 +896,13 @@ class SatMAE_cls_Config(BaseModelConfig):
     num_channels: int = 10
     channel_groups: Tuple[Tuple[int, ...], ...] = ((0, 1, 2, 6), (3, 4, 5, 7), (8, 9))
     pretrained_path: str = (
-        "/mnt/data/fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
+        "fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
     )
 
 
 class Panopticon_seg_Config(BaseModelConfig):
     model_type: str = "panopticon"
-    pretrained_path: str = "/mnt/data/fm_weights/panopticon-v1-1103"
+    pretrained_path: str = "fm_weights/v2_11-06"
     image_resolution: int = 224
     out_features: bool = True
     task: str = "segmentation"
@@ -900,19 +914,19 @@ class Panopticon_seg_Config(BaseModelConfig):
 
 class Panopticon_cls_Config(BaseModelConfig):
     model_type: str = "panopticon"
-    pretrained_path: str = "/mnt/data/fm_weights/panopticon-v1-1103"
+    pretrained_path: str = "fm_weights/v2_11-06"
     image_resolution: int = 224
     out_features: bool = True
     task: str = "classification"
     freeze_backbone: bool = True
     embed_dim: int = 768
-    ds_name: str = "m-pv4ger"
+    ds_name: str = "ben-s2"
     full_spectra: bool = False
 
 
 class CROMA_cls_Config(BaseModelConfig):
     model_type: str = "croma"
-    pretrained_path: str = "/mnt/data/fm_weights/CROMA_base.pt"
+    pretrained_path: str = "fm_weights/CROMA_base.pt"
     size: str = "base"
     modality: str = "optical"
     image_resolution: int = 120
@@ -933,7 +947,7 @@ class CROMA_cls_Config(BaseModelConfig):
 
 class CROMA_seg_Config(BaseModelConfig):
     model_type: str = "croma"
-    pretrained_path: str = "/mnt/data/fm_weights/CROMA_base.pt"
+    pretrained_path: str = "fm_weights/CROMA_base.pt"
     size: str = "base"
     modality: str = "optical"
     image_resolution: int = 120
@@ -955,7 +969,7 @@ class CROMA_seg_Config(BaseModelConfig):
 
 class ScaleMAE_seg_Config(BaseModelConfig):
     model_type: str = "scalemae"
-    pretrained_path: str = "/mnt/data/fm_weights/scalemae-vitlarge-800.pth"
+    pretrained_path: str = "fm_weights/scalemae-vitlarge-800.pth"
     image_resolution: int = 224
     out_features: bool = True
     freeze_backbone: bool = True
@@ -975,7 +989,7 @@ class ScaleMAE_seg_Config(BaseModelConfig):
 
 class ScaleMAE_cls_Config(BaseModelConfig):
     model_type: str = "scalemae"
-    pretrained_path: str = "/mnt/data/fm_weights/scalemae-vitlarge-800.pth"
+    pretrained_path: str = "fm_weights/scalemae-vitlarge-800.pth"
     image_resolution: int = 224
     out_features: bool = True
     freeze_backbone: bool = True
@@ -1047,7 +1061,7 @@ class Dinov2basereg_seg_Config(Dinov2_seg_Config):
 
 class SoftCON_seg_Config(BaseModelConfig):
     model_type: str = "softcon"
-    pretrained_path: str = "/mnt/data/fm_weights/B13_vitb14_softcon.pth"
+    pretrained_path: str = "fm_weights/B13_vitb14_softcon.pth"
     image_resolution: int = 224
     softcon_size: str = "vit_base"
     out_features: bool = True
@@ -1068,7 +1082,7 @@ class SoftCON_seg_Config(BaseModelConfig):
 
 class SoftCON_cls_Config(BaseModelConfig):
     model_type: str = "softcon"
-    pretrained_path: str = "/mnt/data/fm_weights/B13_vitb14_softcon.pth"
+    pretrained_path: str = "fm_weights/B13_vitb14_softcon.pth"
     image_resolution: int = 224
     softcon_size: str = "vit_base"
     out_features: bool = True
@@ -1089,7 +1103,7 @@ class SoftCON_cls_Config(BaseModelConfig):
 
 class DOFA_seg_Config(BaseModelConfig):
     model_type: str = "dofa"
-    pretrained_path: str = "/mnt/data/fm_weights/DOFA_ViT_large_e100.pth"
+    pretrained_path: str = "fm_weights/DOFA_ViT_large_e100.pth"
     image_resolution: int = 224
     out_features: bool = True
     freeze_backbone: bool = True
@@ -1109,7 +1123,7 @@ class DOFA_seg_Config(BaseModelConfig):
 
 class DOFA_cls_Config(BaseModelConfig):
     model_type: str = "dofa"
-    pretrained_path: str = "/mnt/data/fm_weights/DOFA_ViT_large_e100.pth"
+    pretrained_path: str = "fm_weights/DOFA_ViT_large_e100.pth"
     image_resolution: int = 224
     out_features: bool = True
     freeze_backbone: bool = True
@@ -1129,7 +1143,7 @@ class DOFA_cls_Config(BaseModelConfig):
 
 class GFM_seg_Config(BaseModelConfig):
     model_type: str = "gfm"
-    pretrained_path: str = "/mnt/data/fm_weights/gfm.pth"
+    pretrained_path: str = "fm_weights/gfm.pth"
     image_resolution: int = 192
     out_features: bool = True
     freeze_backbone: bool = True
@@ -1149,7 +1163,7 @@ class GFM_seg_Config(BaseModelConfig):
 
 class GFM_cls_Config(BaseModelConfig):
     model_type: str = "gfm"
-    pretrained_path: str = "/mnt/data/fm_weights/gfm.pth"
+    pretrained_path: str = "fm_weights/gfm.pth"
     image_resolution: int = 192
     out_features: bool = True
     freeze_backbone: bool = True

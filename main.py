@@ -263,6 +263,10 @@ def main(args):
         if val_stats[main_metric] > max_accuracy_val:
             max_accuracy_val = val_stats[main_metric]
             max_accuracy_val_test = test_stats[main_metric]
+            misc.save_model(
+                args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer,
+                loss_scaler=loss_scaler, epoch="best")
+
 
         print(f'Max val {main_metric}: {max_accuracy_val:.2f}%, test {main_metric}: {max_accuracy_val_test:.2f}%')
 
@@ -287,6 +291,7 @@ def main(args):
 
     print('Training time {}'.format(total_time_str))
     print('Finished task {}'.format(dataset_config.dataset_name))
+    print(f"Max Test {main_metric}: {max_accuracy_val_test}")
     print('******************************************')
     # print max accuracies
     print('\n')
