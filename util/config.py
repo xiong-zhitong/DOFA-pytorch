@@ -878,15 +878,6 @@ class BaseModelConfig(BaseModel):
         # model wavelength determined by dataset
         cls.band_wavelengths = dataset_config.band_wavelengths
 
-    @validator("model_type")
-    def validate_model_type(cls, value):
-        if value not in ["scale-mae", "croma", "dofa"]:
-            raise ValueError(f"Unsupported model type: {value}")
-        return value
-
-    class Config:
-        validate_assignment = True
-
 
 class SatMAE_seg_Config(BaseModelConfig):
     model_type: str = "satmae"
