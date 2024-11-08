@@ -275,10 +275,12 @@ def main(args):
             log_writer.add_scalar(f'perf/test_{metrics[-1]}', test_stats[metrics[-1]], epoch)
             log_writer.add_scalar(f'perf/test_loss', test_stats['loss'], epoch)
 
-        log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
-                        **{f'test_{k}': v for k, v in test_stats.items()},
-                        'epoch': epoch,
-                        'n_parameters': n_parameters}
+        log_stats = {'epoch': epoch,
+                    **{f'train_{k}': v for k, v in train_stats.items()},
+                    **{f'test_{k}': v for k, v in test_stats.items()},
+                    'n_parameters': n_parameters,
+                    f'max test {main_metric}': max_accuracy_val_test,
+                    }
 
         if args.output_dir and misc.is_main_process():
             if log_writer is not None:

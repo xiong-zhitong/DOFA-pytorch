@@ -1055,6 +1055,12 @@ class Dinov2_cls_Config(BaseModelConfig):
     embed_dim: int = 1024
     num_channels: int = 3
 
+    @validator("dino_size")
+    def validate_dino_size(cls, value):
+        if value not in ['dinov2_vits14','dinov2_vitb14','dinov2_vitl14','dinov2_vitg14']:
+            raise ValueError("Wrong Dinov2 model.")
+        return value
+
     @validator("num_channels")
     def validate_num_channels(cls, value):
         if value != 3:
@@ -1065,17 +1071,13 @@ class Dinov2_cls_Config(BaseModelConfig):
         validate_assignment = True
 
 
-class Dinov2base_seg_Config(Dinov2_seg_Config):
-    model_type: str = "dinov2"
+class Dinov2_base_cls_Config(Dinov2_cls_Config):
     dino_size: str = "dinov2_vitb14"
     embed_dim: int = 768
 
-
-class Dinov2basereg_seg_Config(Dinov2_seg_Config):
-    model_type: str = "dinov2"
-    dino_size: str = "dinov2_vitb14_reg"
+class Dinov2_base_seg_Config(Dinov2_seg_Config):
+    dino_size: str = "dinov2_vitb14"
     embed_dim: int = 768
-
 
 class SoftCON_seg_Config(BaseModelConfig):
     model_type: str = "softcon"
@@ -1210,6 +1212,8 @@ model_config_registry = {
     "gfm_cls": GFM_cls_Config,
     "dinov2_seg": Dinov2_seg_Config,
     "dinov2_cls": Dinov2_cls_Config,
+    "dinov2_base_seg": Dinov2_base_seg_Config,
+    "dinov2_base_cls": Dinov2_base_cls_Config,
     "softcon_seg": SoftCON_seg_Config,
     "softcon_cls": SoftCON_cls_Config,
     "dofa_seg": DOFA_seg_Config,
