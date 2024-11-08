@@ -852,7 +852,7 @@ dataset_config_registry = {
     "geobench_SAcrop_13": GeoBench_SAcrop_13_Config,
     "geobench_nzcattle_13": GeoBench_nzcattle_13_Config,
     ####### other datasets ######
-    "resics45_rbg": Resics_rgb_Config,
+    "resics45_rgb": Resics_rgb_Config,
 }
 
 #######################################################################################
