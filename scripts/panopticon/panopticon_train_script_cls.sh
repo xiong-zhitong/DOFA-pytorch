@@ -5,8 +5,8 @@ export DATA_CONFIG_DIR=/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/found
 model=panopticon_cls
 dataset=geobench_eurosat_13
 task=classification
-batch_size=256
-blr=1
+batch_size=64
+blr=10
 epochs=50
 
 torchrun --nproc_per_node=1 --master_port=25673 main.py \
