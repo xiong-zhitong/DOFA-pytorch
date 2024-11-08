@@ -30,6 +30,7 @@ pip install pydantic
 pip install omegaconf
 pip install wandb
 pip install python-dotenv
+pip install torchgeo
 ```
 
 ### Model Weights
