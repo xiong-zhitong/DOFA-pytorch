@@ -46,6 +46,22 @@ class GeoBenchDatasetConfig(BaseDatasetConfig):
 
 ############ CLASSSIFICATION #######################
 
+class Resics_rgb_Config(BaseDatasetConfig):
+    dataset_type: str = "resisc45"
+    task: str = "classification"
+    dataset_name: str = "resisc45"
+    num_classes: int = 45
+    num_channels: int = 3
+    data_path: str = "/mnt/data/datasets_classification/resisc45"
+    band_names: str = ["Red", "Green", "Blue"]
+    image_resolution: int = 224
+    band_wavelengths: List[float] = [
+        0.665,
+        0.56,
+        0.49
+    ]
+    multilabel: bool = False
+
 
 class GeoBench_so2sat_10band_Config(GeoBenchDatasetConfig):
     benchmark_name: str = "classification_v1.0"
@@ -835,6 +851,8 @@ dataset_config_registry = {
     "geobench_NeonTree_13": GeoBench_NeonTree_13_Config,
     "geobench_SAcrop_13": GeoBench_SAcrop_13_Config,
     "geobench_nzcattle_13": GeoBench_nzcattle_13_Config,
+    ####### other datasets ######
+    "resics45_rgb": Resics_rgb_Config,
 }
 
 #######################################################################################
