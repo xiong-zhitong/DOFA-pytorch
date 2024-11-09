@@ -21,6 +21,7 @@ import torch.distributed as dist
 #from torch._six import inf
 from torch import inf # pytorch 2.1
 import torch.nn.functional as F
+import pdb
 
 """This is useful because align_corners=True can cause some artifacts or misalignment, 
    especially if the sizes don’t match in specific ways. This check is not done in F.interpolate.
@@ -317,8 +318,11 @@ def get_grad_norm_(parameters, norm_type: float = 2.0) -> torch.Tensor:
     return total_norm
 
 
-def save_model(args, epoch, model, model_without_ddp, optimizer, loss_scaler):
-    output_dir = Path(args.output_dir)
+def save_model(args, epoch, model, model_without_ddp, optimizer, loss_scaler, output_dir=None):
+    if output_dir is None:
+        output_dir = Path(args.output_dir)
+    else:
+        output_dir = Path(output_dir)
     epoch_name = str(epoch)
     if loss_scaler is not None:
         checkpoint_paths = [output_dir / ('checkpoint-%s.pth' % epoch_name)]

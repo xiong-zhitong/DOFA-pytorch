@@ -1,7 +1,3 @@
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
-
-
 import argparse
 import datetime
 import json
@@ -11,17 +7,16 @@ import os
 import time
 from pathlib import Path
 import warnings
+import mlflow
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
 import torch
 import torch.backends.cudnn as cudnn
-from torch.utils.tensorboard import SummaryWriter
 import torchvision.datasets as datasets
 from loguru import logger
 
-#assert timm.__version__ == "0.3.2" # version check
 from timm.models.layers import trunc_normal_
 from timm.data.mixup import Mixup
 from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
@@ -72,8 +67,6 @@ def get_args_parser():
 
     parser.add_argument('--output_dir', default='./output_dir',
                         help='path where to save, empty for no saving')
-    parser.add_argument('--log_dir', default='./output_dir',
-                        help='path where to tensorboard log')
     parser.add_argument('--device', default='cuda',
                         help='device to use for training / testing')
     parser.add_argument('--seed', default=0, type=int)
@@ -105,6 +98,37 @@ def get_args_parser():
     
     return parser
 
+
+def setup_mlflow_experiment(output_dir, model_name, dataset_name):
+    """
+    Setup MLflow experiment with proper naming and structure
+    """
+    import mlflow
+    import datetime
+    from pathlib import Path
+    import os
+
+    # Create a meaningful experiment name
+    experiment_name = f"{model_name}_{dataset_name}_{datetime.datetime.now().strftime('%Y%m%d')}"
+
+    # Set the tracking URI if you want to store MLflow data in a specific location
+    mlflow_dir = os.path.join(output_dir, "mlruns")
+    Path(mlflow_dir).mkdir(parents=True, exist_ok=True)
+    mlflow.set_tracking_uri(f"file:{mlflow_dir}")
+
+    # Get or create the experiment explicitly
+    experiment = mlflow.get_experiment_by_name(experiment_name)
+    if experiment is None:
+        experiment_id = mlflow.create_experiment(name=experiment_name)
+    else:
+        experiment_id = experiment.experiment_id
+
+    # Set the experiment context
+    mlflow.set_experiment(experiment_name)
+
+    return experiment_id
+
+
 def main(args):
     misc.init_distributed_mode(args)
 
@@ -127,12 +151,7 @@ def main(args):
     model.to(device)
 
     dataset_train, dataset_val, dataset_test = create_dataset(dataset_config)
-
-
-    args.output_dir = os.path.join(args.output_dir, dataset_config.dataset_name)
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
-    args.log_dir = os.path.join(args.log_dir, dataset_config.dataset_name)
-
 
     if args.distributed:
         num_tasks = misc.get_world_size()
@@ -147,9 +166,9 @@ def main(args):
                     'This will slightly alter validation results as extra duplicate entries are added to achieve '
                     'equal num of samples per-process.')
             sampler_val = torch.utils.data.DistributedSampler(
-                dataset_val, num_replicas=num_tasks, rank=global_rank, shuffle=True)  # shuffle=True to reduce monitor bias
+                dataset_val, num_replicas=num_tasks, rank=global_rank, shuffle=True)
             sampler_test = torch.utils.data.DistributedSampler(
-                dataset_test, num_replicas=num_tasks, rank=global_rank, shuffle=True)  # shuffle=True to reduce monitor bias
+                dataset_test, num_replicas=num_tasks, rank=global_rank, shuffle=True)
                 
         else:
             sampler_val = torch.utils.data.SequentialSampler(dataset_val)
@@ -158,12 +177,6 @@ def main(args):
         sampler_train = torch.utils.data.RandomSampler(dataset_train)
         sampler_val = torch.utils.data.SequentialSampler(dataset_val)
         sampler_test = torch.utils.data.SequentialSampler(dataset_test)
-
-    if global_rank == 0 and args.log_dir is not None and not args.eval:
-        os.makedirs(args.log_dir, exist_ok=True)
-        log_writer = SummaryWriter(log_dir=args.log_dir)
-    else:
-        log_writer = None
 
     data_loader_train = torch.utils.data.DataLoader(
         dataset_train, sampler=sampler_train,
@@ -236,72 +249,73 @@ def main(args):
     max_accuracy_val = 0.0
     max_accuracy_val_test = 0.0
 
-    for epoch in range(args.start_epoch, args.epochs):
-        if args.distributed:
-            data_loader_train.sampler.set_epoch(epoch)
-        train_stats = train_one_epoch(
-            model, criterion, data_loader_train,
-            optimizer, device, epoch, loss_scaler,
-            max_norm=None,
-            log_writer=log_writer,
-            args=args
-        )
-        if epoch%10==9 and args.output_dir:
-            misc.save_model(
-                args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer,
-                loss_scaler=loss_scaler, epoch=epoch)
-        val_stats = evaluate(data_loader_val, model, device, dataset_config)
-        test_stats = evaluate(data_loader_test, model, device, dataset_config)
-        
-        metrics = ['miou', 'acc'] if 'miou' in test_stats.keys() else ['acc1', 'acc5']
-        main_metric = metrics[0]
+    # Start MLflow run with custom experiment name
+    experiment_id = setup_mlflow_experiment(args.output_dir, args.model, dataset_config.dataset_name)
+    # Ensure all processes have the same experiment context
+    mlflow.set_experiment(experiment_id=experiment_id)
 
-        print(f"Performance of {args.model} on the {len(dataset_val)} val images: {main_metric} - {val_stats[main_metric]:.1f}%")
-        print(f"Performance of {args.model} on the {len(dataset_test)} test images: {main_metric} - {test_stats[main_metric]:.1f}%")
+    with mlflow.start_run(experiment_id=experiment_id, run_name=f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}") as run:
+        # Log all parameters and configs
+        mlflow.log_params(vars(args))
+        mlflow.log_param("n_parameters", n_parameters)
+
+        for epoch in range(args.start_epoch, args.epochs):
+            if args.distributed:
+                data_loader_train.sampler.set_epoch(epoch)
+            train_stats = train_one_epoch(
+                model, criterion, data_loader_train,
+                optimizer, device, epoch, loss_scaler,
+                max_norm=None,
+                log_writer=None,  # We replace TensorBoard with MLflow
+                args=args
+            )
+            val_stats = evaluate(data_loader_val, model, device, dataset_config)
+            test_stats = evaluate(data_loader_test, model, device, dataset_config)
             
+            metrics = ['miou', 'acc'] if 'miou' in test_stats.keys() else ['acc1', 'acc5']
+            main_metric = metrics[0]
 
-        if val_stats[main_metric] > max_accuracy_val:
-            max_accuracy_val = val_stats[main_metric]
-            max_accuracy_val_test = test_stats[main_metric]
-            misc.save_model(
-                args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer,
-                loss_scaler=loss_scaler, epoch="best")
+            print(f"Performance of {args.model} on the {len(dataset_val)} val images: {main_metric} - {val_stats[main_metric]:.1f}%")
+            print(f"Performance of {args.model} on the {len(dataset_test)} test images: {main_metric} - {test_stats[main_metric]:.1f}%")
+                
 
+            if val_stats[main_metric] > max_accuracy_val:
+                max_accuracy_val = val_stats[main_metric]
+                max_accuracy_val_test = test_stats[main_metric]
+                # Save best model checkpoint as an artifact in MLflow
+                # Get the MLflow run's artifact directory
+                artifact_path = mlflow.get_artifact_uri()
+                # Convert the artifact URI to a local file path
+                if artifact_path.startswith('file://'):
+                    artifact_path = artifact_path[7:]  # Remove 'file://' prefix
+        
+                # Create models directory in the MLflow artifacts folder
+                model_save_dir = os.path.join(artifact_path, "models")
+                Path(model_save_dir).mkdir(parents=True, exist_ok=True)
+                
+                best_epoch_checkpoint = "checkpoint-best"
+                misc.save_model(
+                    args=args, model=model, model_without_ddp=model_without_ddp, optimizer=optimizer,
+                    loss_scaler=loss_scaler, epoch=best_epoch_checkpoint, output_dir=model_save_dir)
+                    # Verify file exists before logging
+                #mlflow.log_artifact(model_checkpoint_path, artifact_path="models")
+            print(f'Max val {main_metric}: {max_accuracy_val:.2f}%, test {main_metric}: {max_accuracy_val_test:.2f}%')
 
-        print(f'Max val {main_metric}: {max_accuracy_val:.2f}%, test {main_metric}: {max_accuracy_val_test:.2f}%')
+            # Log metrics to MLflow with step as the current epoch
+            mlflow.log_metric(f'train_loss', train_stats['loss'], step=epoch)
+            mlflow.log_metric(f'val_{main_metric}', val_stats[main_metric], step=epoch)
+            mlflow.log_metric(f'test_{main_metric}', test_stats[main_metric], step=epoch)
+            mlflow.log_metric(f'Max test_{main_metric}', max_accuracy_val_test, step=epoch)
 
-        if log_writer is not None:
-            log_writer.add_scalar(f'perf/test_{main_metric}', test_stats[main_metric], epoch)
-            log_writer.add_scalar(f'perf/test_{metrics[-1]}', test_stats[metrics[-1]], epoch)
-            log_writer.add_scalar(f'perf/test_loss', test_stats['loss'], epoch)
+        total_time = time.time() - start_time
+        total_time_str = str(datetime.timedelta(seconds=int(total_time)))
 
-        log_stats = {'epoch': epoch,
-                    **{f'train_{k}': v for k, v in train_stats.items()},
-                    **{f'test_{k}': v for k, v in test_stats.items()},
-                    'n_parameters': n_parameters,
-                    f'max test {main_metric}': max_accuracy_val_test,
-                    }
-
-        if args.output_dir and misc.is_main_process():
-            if log_writer is not None:
-                log_writer.flush()
-            with open(os.path.join(args.output_dir, "log.txt"), mode="a", encoding="utf-8") as f:
-                f.write(json.dumps(log_stats) + "\n")
-
-    total_time = time.time() - start_time
-    total_time_str = str(datetime.timedelta(seconds=int(total_time)))
-
-    print('Training time {}'.format(total_time_str))
-    print('Finished task {}'.format(dataset_config.dataset_name))
-    print(f"Max Test {main_metric}: {max_accuracy_val_test}")
-    print('******************************************')
-    # print max accuracies
-    print('\n')
-
+        print('Training time {}'.format(total_time_str))
+        print('Finished task {}'.format(dataset_config.dataset_name))
+        print(f"Max Test {main_metric}: {max_accuracy_val_test}")
+        print('******************************************')
 
 if __name__ == '__main__':
     args = get_args_parser()
     args = args.parse_args()
-    if args.output_dir:
-        Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     main(args)
