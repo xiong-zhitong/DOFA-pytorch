@@ -7,10 +7,11 @@ dataset=geobench_cashew
 task=segmentation
 batch_size=12
 epochs=20
+lr=0.001
 
 torchrun --nproc_per_node=1 --master_port=25673 main.py \
---output_dir logs/"${model}_${dataset}_${blr}_${batch_size}_${epochs}" \
---log_dir logs/"${model}_${dataset}_${blr}_${batch_size}_${epochs}" \
+--output_dir logs/"${model}_${dataset}_${lr}_${batch_size}_${epochs}" \
+--log_dir logs/"${model}_${dataset}_${lr}_${batch_size}_${epochs}" \
 --model $model \
 --dataset $dataset \
 --task $task \
@@ -18,5 +19,5 @@ torchrun --nproc_per_node=1 --master_port=25673 main.py \
 --batch_size $batch_size \
 --epochs $epochs \
 --warmup_epochs 3 \
---lr 0.001 \
+--lr $lr \
 --seed 42 

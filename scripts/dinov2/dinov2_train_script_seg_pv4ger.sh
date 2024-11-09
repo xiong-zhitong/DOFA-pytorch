@@ -7,17 +7,18 @@ dataset=geobench_pv4ger_seg
 task=segmentation
 batch_size=16
 epochs=20
+lr=0.005
 
 torchrun --nproc_per_node=1 --master_port=25673 main.py \
---output_dir logs/"${model}_${dataset}_${blr}_${batch_size}_${epochs}" \
---log_dir logs/"${model}_${dataset}_${blr}_${batch_size}_${epochs}" \
+--output_dir logs/"${model}_${dataset}_${lr}_${batch_size}_${epochs}" \
+--log_dir logs/"${model}_${dataset}_${lr}_${batch_size}_${epochs}" \
 --model $model \
 --dataset $dataset \
 --task $task \
 --num_workers 8 \
 --batch_size $batch_size \
 --epochs $epochs \
---lr 0.005 \
+--lr $lr \
 --warmup_epochs 3 \
 --seed 42 \
 --dist_eval
