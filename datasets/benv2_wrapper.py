@@ -267,13 +267,13 @@ class ClsDataAugmentation(torch.nn.Module):
             )
 
     @torch.no_grad()
-    def forward(self, batch: dict[str, ]):
+    def forward(self, sample: dict[str, ]):
         """Torchgeo returns a dictionary with 'image' and 'label' keys, but engine expects a tuple."""
         if self.bands == "rgb":
-            batch["image"] = batch["image"][1:4, ...].flip(dims=(0,))
+            sample["image"] = sample["image"][1:4, ...].flip(dims=(0,))
             # get in rgb order and then normalization can be applied
-        x_out = self.transform(batch["image"]).squeeze(0)
-        return x_out, batch["label"]
+        x_out = self.transform(sample["image"]).squeeze(0)
+        return x_out, sample["label"]
 
 
 class BenV2Dataset():
@@ -284,6 +284,7 @@ class BenV2Dataset():
         self.img_size = (config.image_resolution, config.image_resolution)
         self.root_dir = config.data_path
         self.bands = config.bands
+        self.num_classes = config.num_classes
 
         if self.bands == 'rgb':
             # start with rgb and extract later
@@ -297,8 +298,8 @@ class BenV2Dataset():
         train_transform = ClsDataAugmentation(split="train", size=self.img_size, bands=self.bands)
         eval_transform = ClsDataAugmentation(split="test", size=self.img_size, bands=self.bands)
 
-        dataset_train = BigEarthNetv2(root=self.root_dir, split="train", bands=self.input_bands, transforms=train_transform)
-        dataset_val = BigEarthNetv2(root=self.root_dir, split="val", bands=self.input_bands, transforms=eval_transform)
-        dataset_test = BigEarthNetv2(root=self.root_dir, split="test", bands=self.input_bands, transforms=eval_transform)
+        dataset_train = BigEarthNetv2(root=self.root_dir, num_classes=self.num_classes, split="train", bands=self.input_bands, transforms=train_transform)
+        dataset_val = BigEarthNetv2(root=self.root_dir, num_classes=self.num_classes, split="val", bands=self.input_bands, transforms=eval_transform)
+        dataset_test = BigEarthNetv2(root=self.root_dir, num_classes=self.num_classes, split="test", bands=self.input_bands, transforms=eval_transform)
 
         return dataset_train, dataset_val, dataset_test
