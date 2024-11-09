@@ -31,6 +31,7 @@ pip install omegaconf
 pip install wandb
 pip install python-dotenv
 pip install torchgeo
+pip install fastparquet
 ```
 
 ### Model Weights
