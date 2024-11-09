@@ -129,7 +129,7 @@ def cls_metric(dataset_config, output, target):
     else:
         acc1, acc5 = timm_accuracy(output, target, topk=(1, 5))
 
-        return acc1, acc5
+    return acc1, acc5
 
 def seg_metric(dataset_config, output, target):
     miou = jaccard_index(output, target, task="multiclass", num_classes=dataset_config.num_classes, ignore_index=dataset_config.ignore_index) * 100
