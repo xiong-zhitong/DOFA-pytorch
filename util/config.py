@@ -62,6 +62,30 @@ class Resics_rgb_Config(BaseDatasetConfig):
     ]
     multilabel: bool = False
 
+class Benv2_all_Config(BaseDatasetConfig):
+    dataset_type: str = "benv2"
+    task: str = "classification"
+    dataset_name: str = "benv2"
+    num_classes: int = 19
+    num_channels: int = 14
+    data_path: str = "/mnt/data/datasets_classification/benv2"
+    image_resolution: int = 224 # desired image size for model input
+    band_wavelengths: List[float] = []
+    multilabel: bool = True
+    bands: str = "all" # argument for torchgeo loader
+
+class Benv2_S1_Config(Benv2_all_Config):
+    bands: str = "s1"
+    num_channels: int = 2
+
+class Benv2_S2_Config(Benv2_all_Config):
+    bands: str = "s2"
+    num_channels: int = 12
+
+class Benv2_RGB_Config(Benv2_all_Config):
+    bands: str = "rgb"
+    num_channels: int = 3
+
 
 class GeoBench_so2sat_10band_Config(GeoBenchDatasetConfig):
     benchmark_name: str = "classification_v1.0"
@@ -853,6 +877,10 @@ dataset_config_registry = {
     "geobench_nzcattle_13": GeoBench_nzcattle_13_Config,
     ####### other datasets ######
     "resics45_rgb": Resics_rgb_Config,
+    "benv2_s1": Benv2_S1_Config,
+    "benv2_s2": Benv2_S2_Config,
+    "benv2_rgb": Benv2_RGB_Config,
+    "benv2_all": Benv2_all_Config
 }
 
 #######################################################################################
