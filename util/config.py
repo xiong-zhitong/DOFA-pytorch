@@ -66,7 +66,7 @@ class Benv2_all_Config(BaseDatasetConfig):
     dataset_type: str = "benv2"
     task: str = "classification"
     dataset_name: str = "benv2"
-    num_classes: int = 45
+    num_classes: int = 19
     num_channels: int = 14
     data_path: str = "/mnt/data/datasets_classification/benv2"
     image_resolution: int = 224 # desired image size for model input
