@@ -5,6 +5,8 @@ import json
 import os
 from typing import Callable, Optional
 import kornia.augmentation as K
+from torch.utils.data import Subset, random_split
+from torch import Generator
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -299,7 +301,13 @@ class BenV2Dataset():
         eval_transform = ClsDataAugmentation(split="test", size=self.img_size, bands=self.bands)
 
         dataset_train = BigEarthNetv2(root=self.root_dir, num_classes=self.num_classes, split="train", bands=self.input_bands, transforms=train_transform)
+
+
+        num_subset_samples = int(0.1 * len(dataset_train))
+        # Split the dataset into the subset and the remaining part
+        subset_train, _ = random_split(dataset_train, [num_subset_samples, len(dataset_train) - num_subset_samples], generator=Generator().manual_seed(42))
+
         dataset_val = BigEarthNetv2(root=self.root_dir, num_classes=self.num_classes, split="val", bands=self.input_bands, transforms=eval_transform)
         dataset_test = BigEarthNetv2(root=self.root_dir, num_classes=self.num_classes, split="test", bands=self.input_bands, transforms=eval_transform)
 
-        return dataset_train, dataset_val, dataset_test
+        return subset_train, dataset_val, dataset_test
