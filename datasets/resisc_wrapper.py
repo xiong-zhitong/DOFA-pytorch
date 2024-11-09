@@ -1,6 +1,6 @@
-from torchgeo.datasets import RESISC45
 import kornia.augmentation as K
 import torch
+from torchgeo.datasets import RESISC45
 
 
 class ClsDataAugmentation(torch.nn.Module):

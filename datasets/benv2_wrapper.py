@@ -3,14 +3,13 @@
 import glob
 import os
 from typing import Callable, Optional
-import kornia.augmentation as K
-from torch.utils.data import random_split
-from torch import Generator
 
+import kornia.augmentation as K
+import pandas as pd
 import rasterio
 import torch
-from torch import Tensor
-import pandas as pd
+from torch import Generator, Tensor
+from torch.utils.data import random_split
 from torchgeo.datasets import BigEarthNet
 
 

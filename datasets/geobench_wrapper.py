@@ -1,6 +1,6 @@
 import geobench
-import torch
 import kornia as K
+import torch
 
 # export
 
