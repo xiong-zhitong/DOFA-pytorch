@@ -2,8 +2,8 @@ export CUDA_VISIBLE_DEVICES=6
 export GEO_BENCH_DIR=/home/zhitong/Datasets/geobench/
 export DATA_CONFIG_DIR=/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/foundation_models/PanOpticOn/dinov2/configs/data/
 
-model=dofa_seg
-dataset=geobench_cashew
+model=softcon_seg
+dataset=geobench_cashew_13
 task=segmentation
 batch_size=12
 epochs=20

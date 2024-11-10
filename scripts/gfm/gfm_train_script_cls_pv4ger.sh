@@ -2,8 +2,8 @@ export CUDA_VISIBLE_DEVICES=0
 export GEO_BENCH_DIR=/home/zhitong/Datasets/geobench/
 export DATA_CONFIG_DIR=/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/foundation_models/PanOpticOn/dinov2/configs/data/
 
-model=satmae_cls
-dataset=geobench_so2sat_10band
+model=gfm_cls
+dataset=geobench_pv4ger_cls
 task=classification
 batch_size=256
 blr=1
@@ -11,7 +11,6 @@ epochs=50
 
 torchrun --nproc_per_node=1 --master_port=25673 main.py \
 --output_dir logs/"${model}_${dataset}_${blr}_${batch_size}_${epochs}" \
---log_dir logs/"${model}_${dataset}_${blr}_${batch_size}_${epochs}" \
 --model $model \
 --dataset $dataset \
 --task $task \
