@@ -10,7 +10,7 @@ import torch
 
 from timm.data import Mixup
 from timm.utils import accuracy as timm_accuracy
-from torchmetrics.functional.classification import multilabel_average_precision, multilabel_f1_score
+from torchmetrics.functional.classification import multilabel_average_precision, multilabel_f1_score, multiclass_accuracy, binary_accuracy
 
 from torchmetrics.functional import jaccard_index, accuracy
 from loguru import logger
@@ -123,18 +123,69 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
 
 def cls_metric(dataset_config, output, target):
     if dataset_config.multilabel:
-        score = torch.sigmoid(output).detach()
-        acc1 = multilabel_average_precision(score, target, num_labels=dataset_config.num_classes, average="micro") * 100
-        acc5 = multilabel_f1_score(score, target, num_labels=dataset_config.num_classes, average="micro") * 100
-    else:
-        acc1, acc5 = timm_accuracy(output, target, topk=(1, 5))
+        # Apply sigmoid activation for multilabel classification
+        scores = torch.sigmoid(output).detach()
 
-    return acc1, acc5
+        def precision(average):
+            return multilabel_average_precision(
+                scores,
+                target,
+                num_labels=dataset_config.num_classes,
+                average=average
+            ) * 100
+        
+        def f1_score(average):
+            return multilabel_f1_score(
+                scores,
+                target,
+                num_labels=dataset_config.num_classes,
+                average=average
+            ) * 100
+
+        return {
+            "micro_precision": precision("micro"),
+            "macro_precision": precision("macro"),
+            "micro_f1": f1_score("micro"),
+            "macro_f1": f1_score("macro")
+        }
+    else:
+        # Assuming 'output' contains raw logits 
+        if dataset_config.num_classes == 2:
+            scores = torch.argmax(output, dim=1)
+        else:
+            scores = output
+
+        def comp_accuracy(average, topk):
+            if dataset_config.num_classes > 2:
+                # topk5 needs logits
+                return multiclass_accuracy(
+                    scores,
+                    target,
+                    num_classes=dataset_config.num_classes,
+                    average=average,
+                    top_k=topk
+                ) * 100
+            else:
+                # for binary there is no topk=5, and apply argmax to get the class prediction
+                return binary_accuracy(
+                    scores,
+                    target,
+                ) * 100
+
+        return {
+            "macro_acc1": comp_accuracy("macro", 1),
+            "macro_acc5": comp_accuracy("macro", 5),
+            "micro_acc1": comp_accuracy("micro", 1),
+            "micro_acc5": comp_accuracy("micro", 5)
+        }
 
 def seg_metric(dataset_config, output, target):
     miou = jaccard_index(output, target, task="multiclass", num_classes=dataset_config.num_classes, ignore_index=dataset_config.ignore_index) * 100
     acc = accuracy(output, target, task="multiclass", num_classes=dataset_config.num_classes, ignore_index=dataset_config.ignore_index, top_k=1) * 100
-    return miou, acc
+    return {
+        "macro_miou": miou,
+        "macro_acc": acc
+    }
 
 
 @torch.no_grad()
@@ -162,22 +213,25 @@ def evaluate(data_loader, model, device, dataset_config):
                 case 'classification':
                     output,_ = model(images)
                     loss = criterion(output, target)
-                    acc1, acc5 = cls_metric(dataset_config, output, target)
-                    metric_1, metric_2 = 'acc1', 'acc5'
+                    metrics = cls_metric(dataset_config, output, target)
                 case 'segmentation':
                     output, output_aux = model(images)
                     loss = criterion(output, target.long()) + 0.4 * criterion(output_aux, target.long())
-                    miou, acc = seg_metric(dataset_config, output, target)
-                    metric_1, metric_2 = 'miou', 'acc'
+                    metrics = seg_metric(dataset_config, output, target)
 
         
         batch_size = images.shape[0]
         metric_logger.update(loss=loss.item())
-        metric_logger.meters[metric_1].update(eval(metric_1).item(), n=batch_size)
-        metric_logger.meters[metric_2].update(eval(metric_2).item(), n=batch_size)
+        
+        # Update metric_logger with all metrics from the dictionary
+        for metric_name, metric_value in metrics.items():
+            metric_logger.update(**{metric_name: metric_value}, n=batch_size)
+
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
-    print('* {metric_1} {metric1.global_avg:.3f} {metric_2} {metric2.global_avg:.3f} loss {losses.global_avg:.3f}'
-          .format(metric_1=metric_1, metric1=getattr(metric_logger, metric_1), metric_2=metric_2, metric2=getattr(metric_logger, metric_1), losses=metric_logger.loss))
+    # Convert metrics to a dictionary for printing
+    metrics_dict = {metric: value.global_avg for metric, value in metric_logger.meters.items()}
 
-    return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
+    print(f'* Metrics: {metrics_dict}')
+
+    return metrics_dict
