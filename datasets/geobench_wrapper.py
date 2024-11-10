@@ -14,7 +14,9 @@ class ClsDataAugmentation(torch.nn.Module):
                 K.augmentation.RandomResizedCrop(
                     size=size, scale=(0.8, 1.0), align_corners=True
                 ),  # croma sentinel 2
-                # K.augmentation.RandomHorizontalFlip(p=0.5),
+                K.augmentation.RandomRotation(degrees=90, p=0.5, align_corners=True),
+                K.augmentation.RandomHorizontalFlip(p=0.5),
+                K.augmentation.RandomVerticalFlip(p=0.5),
                 K.augmentation.Normalize(mean=mean, std=std),
             )
         else:
