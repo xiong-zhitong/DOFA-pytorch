@@ -254,6 +254,13 @@ def main(args):
     # Ensure all processes have the same experiment context
     mlflow.set_experiment(experiment_id=experiment_id)
 
+    if args.task == 'classification' and dataset_config.multilabel:
+        main_metric = 'macro_f1'
+    elif args.task == 'classification':
+        main_metric = 'macro_acc1'
+    elif args.task == 'segmentation':
+        main_metric = 'macro_miou'
+
     with mlflow.start_run(experiment_id=experiment_id, run_name=f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}") as run:
         # Log all parameters and configs
         mlflow.log_params(vars(args))
@@ -271,9 +278,6 @@ def main(args):
             )
             val_stats = evaluate(data_loader_val, model, device, dataset_config)
             test_stats = evaluate(data_loader_test, model, device, dataset_config)
-            
-            metrics = ['miou', 'acc'] if 'miou' in test_stats.keys() else ['acc1', 'acc5']
-            main_metric = metrics[0]
 
             print(f"Performance of {args.model} on the {len(dataset_val)} val images: {main_metric} - {val_stats[main_metric]:.1f}%")
             print(f"Performance of {args.model} on the {len(dataset_test)} test images: {main_metric} - {test_stats[main_metric]:.1f}%")
