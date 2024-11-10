@@ -945,7 +945,7 @@ dataset_config_registry = {
     ######## segmentation ##########
     "geobench_pv4ger_seg": GeoBench_pv4ger_seg_Config,
     "geobench_cashew": GeoBench_cashew_Config,
-    "geobench_cashew_10band": GeoBench_cashew_10band_Config,
+    "geobench_cashew_10": GeoBench_cashew_10band_Config,
     "geobench_chesapeake": GeoBench_chesapeake_Config,
     "geobench_NeonTree": GeoBench_NeonTree_Config,
     "geobench_nzcattle": GeoBench_nzcattle_Config,
