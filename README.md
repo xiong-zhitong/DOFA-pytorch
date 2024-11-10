@@ -32,6 +32,7 @@ pip install wandb
 pip install python-dotenv
 pip install torchgeo
 pip install fastparquet
+pip install mlflow
 ```
 
 ### Model Weights
