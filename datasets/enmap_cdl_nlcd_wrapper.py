@@ -389,9 +389,10 @@ class ClsDataAugmentation(torch.nn.Module):
             self.transform = torch.nn.Sequential(
                 K.Resize(_to_tuple(size)),
                 K.RandomResizedCrop(_to_tuple(size), scale=(0.4, 1.0)),
-                K.RandomVerticalFlip(p=0.5),
-                K.RandomHorizontalFlip(p=0.5),
                 K.Normalize(mean=mean, std=std),
+                K.RandomRotation(degrees=90, p=0.5, align_corners=True),
+                K.RandomHorizontalFlip(p=0.5),
+                K.RandomVerticalFlip(p=0.5),
             )
         else:
             self.transform = torch.nn.Sequential(
