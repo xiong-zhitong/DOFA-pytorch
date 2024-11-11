@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "GeoFM"
+version = "0.1.0"
+description = "Project with specific dependencies"
+authors = [
+    { name = "Zhitong Xiong", email = "xiongzhitong@gmail.com" }
+]
+
+
+dependencies = [
+    "torch==2.1.2",
+    "torchvision==0.16.2",
+    "numpy==1.26.4",
+    "openmim",
+    "tensorboard",
+    "loguru",
+    "timm",
+    "geobench",
+    "torchmetrics",
+    "ftfy",
+    "regex",
+    "Cython",
+    "einops",
+    "yacs",
+    "kornia",
+    "pydantic",
+    "omegaconf",
+    "wandb",
+    "python-dotenv",
+    "torchgeo",
+    "fastparquet",
+    "mlflow"
+]
+

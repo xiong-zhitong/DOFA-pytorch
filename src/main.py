@@ -227,7 +227,7 @@ def main(args):
     if args.task == "segmentation":
         optimizer = torch.optim.AdamW(model_without_ddp.params_to_optimize(), lr=args.lr)
     elif args.task == "classification":
-        optimizer = LARS(model_without_ddp.params_to_optimize(), lr=args.lr, weight_decay=args.weight_decay)
+        optimizer = torch.optim.SGD(model_without_ddp.params_to_optimize(), lr=args.lr, weight_decay=args.weight_decay)
     loss_scaler = NativeScaler()
 
     if dataset_config.multilabel:
