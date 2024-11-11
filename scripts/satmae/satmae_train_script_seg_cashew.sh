@@ -5,7 +5,7 @@ export DATA_CONFIG_DIR=/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/found
 model=satmae_seg
 dataset=geobench_cashew_10
 task=segmentation
-batch_size=12
+batch_size=16
 epochs=20
 lr=0.001
 

@@ -9,7 +9,7 @@ batch_size=84
 epochs=20
 lr=0.005
 
-torchrun --nproc_per_node=1 --master_port=25673 main.py \
+torchrun --nproc_per_node=1 --master_port=25670 main.py \
 --output_dir logs/"${model}_${dataset}_${lr}_${batch_size}_${epochs}" \
 --model $model \
 --dataset $dataset \
