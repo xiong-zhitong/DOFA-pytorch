@@ -89,7 +89,7 @@ class GroupChannelsVisionTransformer(VisionTransformer):
         for i,blk in enumerate(self.blocks):
             x = blk(x)
             if i in self.out_indices:
-                out = x[:, 1:]  # 432 = 144 * 3 
+                out = x[:, 1:]  # 432 = 144 * 3 (B, (g s), C) -> (B, s, (g C))
                 out = out.view(BSIZE, G, -1, D).mean(dim=1)  #B,144,C
                 _, hw, _ = out.shape
                 H_shape = W_shape = int(math.sqrt(hw))

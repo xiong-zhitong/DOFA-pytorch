@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 import warnings
 import mlflow
+from pprint import pprint
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -241,7 +242,7 @@ def main(args):
 
     if args.eval:
         test_stats = evaluate(data_loader_test, model, device, dataset_config)
-        print(f"Accuracy of the network on the {len(dataset_test)} test images: {test_stats['acc1']:.1f}%")
+        print(f"Accuracy of the network on the {len(dataset_test)} test images of {dataset_config.dataset_name}: {test_stats['acc1']:.1f}%")
         exit(0)
 
     print(f"Start training for {args.epochs} epochs")
@@ -279,13 +280,13 @@ def main(args):
             val_stats = evaluate(data_loader_val, model, device, dataset_config)
             test_stats = evaluate(data_loader_test, model, device, dataset_config)
 
-            print(f"Performance of {args.model} on the {len(dataset_val)} val images: {main_metric} - {val_stats[main_metric]:.1f}%")
-            print(f"Performance of {args.model} on the {len(dataset_test)} test images: {main_metric} - {test_stats[main_metric]:.1f}%")
-                
+            print(f"Performance of {args.model} on the {len(dataset_val)} val images of {dataset_config.dataset_name}: {main_metric} - {val_stats[main_metric]:.1f}%")
+            print(f"Performance of {args.model} on the {len(dataset_test)} test images of {dataset_config.dataset_name}: {main_metric} - {test_stats[main_metric]:.1f}%")
 
             if val_stats[main_metric] > max_accuracy_val:
                 max_accuracy_val = val_stats[main_metric]
                 max_accuracy_val_test = test_stats[main_metric]
+                max_test_metrics = test_stats
                 # Save best model checkpoint as an artifact in MLflow
                 # Get the MLflow run's artifact directory
                 artifact_path = mlflow.get_artifact_uri()
@@ -303,12 +304,20 @@ def main(args):
                     loss_scaler=loss_scaler, epoch=best_epoch_checkpoint, output_dir=model_save_dir)
                     # Verify file exists before logging
                 #mlflow.log_artifact(model_checkpoint_path, artifact_path="models")
-            print(f'Max val {main_metric}: {max_accuracy_val:.2f}%, test {main_metric}: {max_accuracy_val_test:.2f}%')
+            #print(f'Max val {main_metric}: {max_accuracy_val:.2f}%, test {main_metric}: {max_accuracy_val_test:.2f}%')
+            pprint(max_test_metrics)
+
 
             # Log metrics to MLflow with step as the current epoch
-            mlflow.log_metric(f'train_loss', train_stats['loss'], step=epoch)
-            mlflow.log_metric(f'val_{main_metric}', val_stats[main_metric], step=epoch)
-            mlflow.log_metric(f'test_{main_metric}', test_stats[main_metric], step=epoch)
+            for metric_name, value in train_stats.items():
+                mlflow.log_metric(f'train_{metric_name}', value, step=epoch)
+            
+            for metric_name, value in val_stats.items():
+                mlflow.log_metric(f'val_{metric_name}', value, step=epoch)
+
+            for metric_name, value in test_stats.items():
+                mlflow.log_metric(f'test_{metric_name}', value, step=epoch)
+
             mlflow.log_metric(f'Max test_{main_metric}', max_accuracy_val_test, step=epoch)
 
         total_time = time.time() - start_time

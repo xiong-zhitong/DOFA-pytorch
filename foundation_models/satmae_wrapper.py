@@ -1,6 +1,10 @@
 from .SatMAE.models_vit_group_channels_seg import vit_large_patch16 as vit_large_patch16_seg
 from .SatMAE.models_vit_group_channels import vit_large_patch16 as vit_large_patch16_cls
 
+from .SatMAE.models_vit import vit_large_patch16 as vit_large_patch16_cls_rgb
+from .SatMAE.models_vit_seg import vit_large_patch16 as vit_large_patch16_seg_rgb
+
+
 import torch.nn as nn
 import torch
 # use mmsegmentation for upernet+mae
@@ -37,9 +41,14 @@ class SatMAE(nn.Module):
         kwargs['img_size'] = config.image_resolution
         kwargs['patch_size'] = config.patch_size
         kwargs['in_chans'] = config.num_channels
-        kwargs['channel_groups'] = config.channel_groups
         
-        self.encoder = vit_large_patch16_seg(**kwargs) if config.task == 'segmentation' else vit_large_patch16_cls(**kwargs)
+        match config.num_channels:
+            case 10:
+                kwargs['channel_groups'] = config.channel_groups
+                self.encoder = vit_large_patch16_seg(**kwargs) if config.task == 'segmentation' else vit_large_patch16_cls(**kwargs)
+            case 3:
+                self.encoder = vit_large_patch16_seg_rgb(**kwargs) if config.task == 'segmentation' else vit_large_patch16_cls_rgb(**kwargs)
+
         #Load pretrained weights
         checkpoint = torch.load(config.pretrained_path, map_location='cpu')
         checkpoint_model = checkpoint['model']

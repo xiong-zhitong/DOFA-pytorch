@@ -1015,6 +1015,15 @@ class SatMAE_seg_Config(BaseModelConfig):
         "fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
     )
 
+class SatMAE_seg_rgb_Config(SatMAE_seg_Config):
+    num_channels: int = 3
+    image_resolution: int = 224
+    patch_size: int = 16
+    pretrained_path: str = (
+        "fm_weights/checkpoint_ViT-L_pretrain_fmow_rgb.pth"
+    )
+
+
 
 class SatMAE_cls_Config(BaseModelConfig):
     model_type: str = "satmae"
@@ -1028,6 +1037,14 @@ class SatMAE_cls_Config(BaseModelConfig):
     channel_groups: Tuple[Tuple[int, ...], ...] = ((0, 1, 2, 6), (3, 4, 5, 7), (8, 9))
     pretrained_path: str = (
         "fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
+    )
+
+class SatMAE_cls_rgb_Config(SatMAE_cls_Config):
+    num_channels: int = 3
+    patch_size: int = 16
+    image_resolution: int = 224
+    pretrained_path: str = (
+        "fm_weights/checkpoint_ViT-L_pretrain_fmow_rgb.pth"
     )
 
 
@@ -1353,4 +1370,6 @@ model_config_registry = {
     "dofa_cls": DOFA_cls_Config,
     "satmae_seg": SatMAE_seg_Config,
     "satmae_cls": SatMAE_cls_Config,
+    "satmae_cls_rgb": SatMAE_cls_rgb_Config,
+    "satmae_seg_rgb": SatMAE_seg_rgb_Config,
 }
