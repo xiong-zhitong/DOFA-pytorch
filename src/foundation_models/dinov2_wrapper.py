@@ -36,12 +36,12 @@ class UperNet(torch.nn.Module):
 
 
 class LightningDinov2(pl.LightningModule):
-    def __init__(self, config, data_config):
+    def __init__(self, args, config, data_config):
         super(LightningDinov2, self).__init__()
 
         self.config = config
         self.data_config = data_config
-        self.warmup_epochs = 3
+        self.args = args
         self.encoder = torch.hub.load('facebookresearch/dinov2', config.dino_size)
 
         self.out_features = config.out_features
@@ -183,10 +183,9 @@ class LightningDinov2(pl.LightningModule):
     
     def configure_optimizers(self):
         if self.task == 'classification':
-            from util.lars import LARS
-            optimizer = LARS(self.encoder.head.parameters(), 
-                           lr=self.config.lr,
-                           weight_decay=self.config.weight_decay)
+            optimizer = torch.optim.SGD(self.params_to_optimize(),
+                           lr=self.args.lr,
+                           weight_decay=self.args.weight_decay)
         else:
             param_groups = [
                 {'params': self.neck.parameters(), 'lr': 0.001},
@@ -197,16 +196,16 @@ class LightningDinov2(pl.LightningModule):
             
         
         warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, 
-            lr_lambda=lambda epoch: epoch / self.warmup_epochs if epoch < self.warmup_epochs else 1.0)
+            lr_lambda=lambda epoch: epoch / self.args.warmup_epochs if epoch < self.args.warmup_epochs else 1.0)
 
         cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
             optimizer,
-            T_max=self.trainer.max_epochs-self.warmup_epochs,
+            T_max=self.trainer.max_epochs-self.args.warmup_epochs,
             eta_min=0.0001,
         )
         
         scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer,
-            schedulers=[warmup_scheduler, cosine_scheduler], milestones=[self.warmup_epochs])
+            schedulers=[warmup_scheduler, cosine_scheduler], milestones=[self.args.warmup_epochs])
         return {
             "optimizer": optimizer,
             "lr_scheduler": {

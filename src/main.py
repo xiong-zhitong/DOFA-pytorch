@@ -14,7 +14,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 from factory import create_model
-from util.config import model_config_registry, dataset_config_registry
+from config import model_config_registry, dataset_config_registry
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Fine-tune foundation models', add_help=False)
@@ -34,7 +34,7 @@ def get_args_parser():
     parser.add_argument('--lr', type=float, default=None)
     parser.add_argument('--blr', type=float, default=0.1)
     parser.add_argument('--min_lr', type=float, default=0.)
-    parser.add_argument('--warmup_epochs', type=int, default=10)
+    parser.add_argument('--warmup_epochs', type=int, default=3)
     parser.add_argument('--epochs', type=int, default=20)
     parser.add_argument('--devices', type=list, default=[0])
     parser.add_argument('--strategy', type=str, default='ddp')
@@ -76,7 +76,7 @@ def main(args):
         ModelCheckpoint(
             dirpath=os.path.join(args.output_dir, "checkpoints"),
             filename="best-checkpoint",
-            monitor="val_miou",
+            monitor="val_acc1",
             mode="max",
             save_last=True,
         ),
@@ -100,7 +100,7 @@ def main(args):
     )
     
     # Create model (assumed to be a LightningModule)
-    model = create_model(model_config, dataset_config)
+    model = create_model(args, model_config, dataset_config)
     
     # Train
     trainer.fit(model, data_module, ckpt_path=args.resume if args.resume else None)

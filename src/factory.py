@@ -34,7 +34,7 @@ def create_dataset(config_data):
     return dataset.create_dataset()
 
 
-def create_model(config_model, dataset_config = None):
+def create_model(args, config_model, dataset_config = None):
     model_name = config_model.model_type
     model_class = model_registry.get(model_name)
     if model_class is None:
@@ -43,6 +43,6 @@ def create_model(config_model, dataset_config = None):
     if dataset_config is not None:
         config_model.apply_dataset(dataset_config)
     
-    model = model_class(config_model, dataset_config)
+    model = model_class(args, config_model, dataset_config)
 
     return model
