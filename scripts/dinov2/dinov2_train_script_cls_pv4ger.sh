@@ -5,11 +5,11 @@ export DATA_CONFIG_DIR=/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/found
 model=dinov2_base_cls
 dataset=geobench_pv4ger_cls
 task=classification
-batch_size=32
+batch_size=256
 blr=1
 epochs=50
 
-torchrun --nproc_per_node=1 --master_port=25673 src/main.py \
+torchrun --nproc_per_node=1 --master_port=25673 main.py \
 --output_dir logs/"${model}_${dataset}_${blr}_${batch_size}_${epochs}" \
 --model $model \
 --dataset $dataset \

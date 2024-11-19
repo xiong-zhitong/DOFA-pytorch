@@ -5,11 +5,11 @@ export DATA_CONFIG_DIR=/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/found
 model=dinov2_seg
 dataset=geobench_pv4ger_seg
 task=segmentation
-batch_size=64
+batch_size=16
 epochs=20
 lr=0.005
 
-torchrun --nproc_per_node=1 --master_port=25673 src/main.py \
+torchrun --nproc_per_node=1 --master_port=25673 main.py \
 --output_dir logs/"${model}_${dataset}_${lr}_${batch_size}_${epochs}" \
 --model $model \
 --dataset $dataset \
@@ -19,4 +19,5 @@ torchrun --nproc_per_node=1 --master_port=25673 src/main.py \
 --epochs $epochs \
 --lr $lr \
 --warmup_epochs 3 \
---seed 42 
+--seed 42 \
+--dist_eval

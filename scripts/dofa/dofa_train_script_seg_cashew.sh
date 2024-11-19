@@ -11,7 +11,6 @@ lr=0.001
 
 torchrun --nproc_per_node=1 --master_port=25673 main.py \
 --output_dir logs/"${model}_${dataset}_${lr}_${batch_size}_${epochs}" \
---log_dir logs/"${model}_${dataset}_${lr}_${batch_size}_${epochs}" \
 --model $model \
 --dataset $dataset \
 --task $task \

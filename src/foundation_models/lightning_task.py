@@ -14,6 +14,10 @@ class LightningTask(pl.LightningModule):
     def freeze(self, module):
         for param in module.parameters():
             param.requires_grad = False
+
+    def unfreeze(self, module):
+        for param in module.parameters():
+            param.requires_grad = True
     
     def log_metrics(self, outputs, targets, prefix="train"):
         """Abstract method for logging task-specific metrics."""
