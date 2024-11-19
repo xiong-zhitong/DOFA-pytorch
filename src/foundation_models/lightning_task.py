@@ -51,12 +51,8 @@ class LightningTask(pl.LightningModule):
                            lr=self.args.lr,
                            weight_decay=self.args.weight_decay)
         else:
-            param_groups = [
-                {'params': self.neck.parameters(), 'lr': 0.001},
-                {'params': self.decoder.parameters(), 'lr': 0.001},
-                {'params': self.aux_head.parameters(), 'lr': 0.001}
-            ]
-            optimizer = torch.optim.AdamW(param_groups)
+            optimizer = torch.optim.AdamW(self.params_to_optimize(),
+                           lr=self.args.lr)
             
         
         warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, 

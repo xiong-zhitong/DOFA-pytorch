@@ -60,7 +60,7 @@ class GFMSegmentation(LightningTask):
         
         edim = config.embed_dim
         self.decoder = UPerHead(
-            in_channels=[edim] * 4, in_index=[0, 1, 2, 3], pool_scales=(1, 2, 3, 6),
+            in_channels=[256, 512, 1024, 1024], in_index=[0, 1, 2, 3], pool_scales=(1, 2, 3, 6),
             channels=512, dropout_ratio=0.1, num_classes=config.num_classes,
             norm_cfg=dict(type='SyncBN', requires_grad=True),
             align_corners=False,
