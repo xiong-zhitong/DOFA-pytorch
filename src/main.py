@@ -76,7 +76,7 @@ def main(args):
         ModelCheckpoint(
             dirpath=os.path.join(args.output_dir, "checkpoints"),
             filename="best-checkpoint",
-            monitor="val_acc1",
+            monitor="val_miou",
             mode="max",
             save_last=True,
         ),

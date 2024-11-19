@@ -1,4 +1,4 @@
-from foundation_models import CromaModel, Panopticon, ScaleMAE, GFMModel, DinoV2Model, SoftCON, DofaModel, SatMAE
+from foundation_models import CromaModel, Panopticon, ScaleMAE, GFMModel, DinoV2Model, SoftConModel, DofaModel, SatMAEModel
 from datasets.geobench_wrapper import GeoBenchDataset
 from datasets.resisc_wrapper import Resics45Dataset
 from datasets.benv2_wrapper import BenV2Dataset
@@ -10,9 +10,9 @@ model_registry = {
     "scalemae": ScaleMAE,
     "gfm": GFMModel,
     "dinov2": DinoV2Model,
-    "softcon": SoftCON,
+    "softcon": SoftConModel,
     "dofa": DofaModel,
-    "satmae":SatMAE,
+    "satmae":SatMAEModel,
     # Add other model mappings here
 }
 
