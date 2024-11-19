@@ -7,7 +7,9 @@ class LightningTask(pl.LightningModule):
         self.config = config #model_config
         self.args = args # args for optimization params
         self.data_config = data_config # dataset_config
-        self.criterion = None
+    
+    def loss(self, outputs, labels):
+        raise NotImplementedError("This method should be implemented in task-specific classes")
 
     def freeze(self, module):
         for param in module.parameters():
@@ -24,7 +26,7 @@ class LightningTask(pl.LightningModule):
         images, targets = batch
         targets = targets.long()
         outputs = self(images)
-        loss = self.criterion(outputs, targets)
+        loss = self.loss(outputs, targets)
         self.log_metrics(outputs, targets, prefix="train")
         return loss
 
@@ -32,7 +34,7 @@ class LightningTask(pl.LightningModule):
         images, targets = batch
         targets = targets.long()
         outputs = self(images)
-        loss = self.criterion(outputs, targets)
+        loss = self.loss(outputs, targets)
         self.log_metrics(outputs, targets, prefix="val")
         return loss
     
