@@ -1,6 +1,6 @@
 #
 from .panopticon_wrapper import Panopticon
-from .croma_wrapper import CROMA
+from .croma_wrapper import CromaModel
 from .scalemae_wrapper import ScaleMAE
 from .gfm_wrapper import GFMModel
 from .dinov2_wrapper import DinoV2Model
