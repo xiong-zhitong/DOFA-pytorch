@@ -4,7 +4,7 @@ import mlflow
 import pandas as pd
 import pytorch_lightning as pl
 
-def collect_best_lightning_metrics(logs_dir, metric_name='val_loss', mode='min'):
+def collect_best_lightning_metrics(logs_dir, mode='min'):
     """
     Collect best metrics for PyTorch Lightning MLflow runs.
     
@@ -26,6 +26,13 @@ def collect_best_lightning_metrics(logs_dir, metric_name='val_loss', mode='min')
             continue
         
         mlflow.set_tracking_uri(model_path)
+
+        if "_cls_" in model_path:
+            metric_name = "test_acc1_epoch"
+        elif "_seg_" in model_path:
+            metric_name = "test_miou_epoch"
+        else:
+            raise ValueError("Not supported task")
         
         # Search all experiments
         experiments = mlflow.search_experiments()
@@ -76,7 +83,6 @@ def save_best_metrics(logs_dir, output_file='best_lightning_metrics.csv',
     """
     best_metrics = collect_best_lightning_metrics(
         logs_dir, 
-        metric_name=metric_name, 
         mode=mode
     )
     
@@ -89,8 +95,8 @@ def save_best_metrics(logs_dir, output_file='best_lightning_metrics.csv',
 # Example usage
 if __name__ == '__main__':
     logs_directory = './logs'
+
     save_best_metrics(
         logs_directory, 
-        metric_name='test_acc1_epoch',  # Customize this to your logged metric
-        mode='min'  # Use 'min' for loss, 'max' for accuracy
+        mode='max'  # Use 'min' for loss, 'max' for accuracy
     )

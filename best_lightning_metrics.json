@@ -1,1 +1,0 @@
-[{"model_folder":"dofa_cls_geobench_pv4ger_cls__256_2","experiment_name":"dofa_cls_geobench_pv4ger_cls","run_id":"5cdea26825114341862579ba2f33e614","metrics.test_acc5_step":100.0,"metrics.test_acc5_epoch":100.0,"metrics.test_acc1_step":96.1038970947,"metrics.test_acc1_epoch":96.1961975098,"metrics.test_loss_step":0.1799746752,"metrics.test_loss_epoch":0.2012414932}]

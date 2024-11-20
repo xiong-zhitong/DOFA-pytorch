@@ -80,7 +80,7 @@ class CromaSegmentation(LightningTask):
         return self.criterion(outputs[0], labels) + 0.4 * self.criterion(outputs[1], labels)
 
     def forward(self, samples):
-        feats = self.backbone(optical_images=samples)['out_feats']
+        feats = self.encoder(optical_images=samples)['out_feats']
         feats = self.neck(feats)
         out = self.decoder(feats)
         out = resize(out, size=samples.shape[2:], mode='bilinear', align_corners=False)

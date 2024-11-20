@@ -262,6 +262,7 @@ class GeoBench_brick_kiln_13_Config(GeoBench_brick_kiln_Config):
         "10 - SWIR - Cirrus",
         "12 - SWIR",
     ]
+    band_wavelengths: list[float] = [0.44, 0.49, 0.56, 0.66, 0.7, 0.74, 0.78, 0.84, 0.86, 0.94, 1.37, 1.61, 2.2]
     num_channels: int = len(band_names)
 
 
@@ -333,6 +334,7 @@ class GeoBench_eurosat_13_Config(GeoBench_eurosat_Config):
         "11 - SWIR",
         "12 - SWIR",
     ]
+    band_wavelengths: list[float] = [0.44, 0.49, 0.56, 0.66, 0.7, 0.74, 0.78, 0.84, 0.86, 0.94, 1.37, 1.61, 2.2]
     num_channels: int = len(band_names)
 
 class GeoBench_eurosat_10_Config(GeoBench_eurosat_Config):
@@ -410,21 +412,9 @@ class GeoBench_so2sat_12_Config(GeoBench_so2sat_10band_Config):
     ]
     num_channels: int = len(band_names)
 
-class GeoBench_forestnet_12_Config(GeoBench_forestnet_Config):
-    band_names: List[str] = [
-        "02 - Blue",
-        "02 - Blue",
-        "03 - Green",
-        "04 - Red",
-        "05 - NIR",
-        "06 - SWIR1",
-        "07 - SWIR2",
-        "07 - SWIR2",
-        "07 - SWIR2",
-        "07 - SWIR2",
-        "07 - SWIR2",
-        "07 - SWIR2",
-    ]
+class GeoBench_forestnet_9_Config(GeoBench_forestnet_Config):
+    band_names: List[str] = ['04 - Red', '03 - Green', '02 - Blue', '05 - NIR', '05 - NIR', '05 - NIR', '05 - NIR', '06 - SWIR1', '07 - SWIR2']
+    band_wavelengths: List[float] = [0.66, 0.56, 0.49, 0.86, 0.86, 0.86, 0.86, 1.61, 2.2]
     num_channels: int = len(band_names)
 
 
@@ -919,13 +909,9 @@ class GeoBench_nzcattle_13_Config(GeoBench_nzcattle_Config):
 
 dataset_config_registry = {
     ##### classification #####
-    "geobench_so2sat": GeoBench_so2sat_10band_Config,
+    "geobench_so2sat_cls": GeoBench_so2sat_10band_Config,
     "geobench_pv4ger_cls": GeoBench_pv4ger_cls_Config,
     "geobench_so2sat_10band": GeoBench_so2sat_10band_Config,
-    "geobench_chesapeake": GeoBench_chesapeake_Config,
-    "geobench_NeonTree": GeoBench_NeonTree_Config,
-    "geobench_nzcattle": GeoBench_nzcattle_Config,
-    "geobench_pv4ger_cls_13": GeoBench_pv4ger_cls_13_Config,
     "geobench_forestnet_13": GeoBench_forestnet_13_Config,
     "geobench_so2sat_13": GeoBench_so2sat_13_Config,
     "geobench_brick_kiln_13": GeoBench_brick_kiln_13_Config,
@@ -936,10 +922,9 @@ dataset_config_registry = {
     "geobench_so2sat_3": GeoBench_so2sat_3_Config,
     "geobench_brick_kiln_3": GeoBench_brick_kiln_3_Config,
     "geobench_eurosat_3": GeoBench_eurosat_3_Config,
-    "geobench_pv4ger_cls_3": GeoBench_pv4ger_cls_3_Config,
     "geobench_brick_kiln_12": GeoBench_brick_kiln_12_Config,
     "geobench_so2sat_12": GeoBench_so2sat_12_Config,
-    "geobench_forestnet_12": GeoBench_forestnet_12_Config,
+    "geobench_forestnet_9": GeoBench_forestnet_9_Config,
     "geobench_eurosat_12": GeoBench_eurosat_12_Config,
     "geobench_pv4ger_cls_12": GeoBench_pv4ger_cls_12_Config,
     ######## segmentation ##########
@@ -1017,14 +1002,18 @@ class SatMAE_seg_Config(BaseModelConfig):
         "src/fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
     )
 
-class SatMAE_seg_rgb_Config(SatMAE_seg_Config):
+class SatMAE_seg_rgb_Config(BaseModelConfig):
+    model_type: str = "satmae"
+    out_features: bool = True
+    task: str = "segmentation"
+    freeze_backbone: bool = True
+    embed_dim: int = 1024
     num_channels: int = 3
     image_resolution: int = 224
     patch_size: int = 16
     pretrained_path: str = (
         "src/fm_weights/checkpoint_ViT-L_pretrain_fmow_rgb.pth"
     )
-
 
 
 class SatMAE_cls_Config(BaseModelConfig):
@@ -1041,7 +1030,12 @@ class SatMAE_cls_Config(BaseModelConfig):
         "src/fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
     )
 
-class SatMAE_cls_rgb_Config(SatMAE_cls_Config):
+class SatMAE_cls_rgb_Config(BaseModelConfig):
+    model_type: str = "satmae"
+    out_features: bool = True
+    task: str = "classification"
+    freeze_backbone: bool = True
+    embed_dim: int = 1024
     num_channels: int = 3
     patch_size: int = 16
     image_resolution: int = 224

@@ -1,6 +1,9 @@
 from .SatMAE.models_vit_group_channels_seg import vit_large_patch16 as vit_large_patch16_seg
 from .SatMAE.models_vit_group_channels import vit_large_patch16 as vit_large_patch16_cls
 
+from .SatMAE.models_vit import vit_large_patch16 as vit_large_patch16_cls_rgb
+from .SatMAE.models_vit_seg import vit_large_patch16 as vit_large_patch16_seg_rgb
+
 import torch.nn as nn
 import torch
 # use mmsegmentation for upernet+mae
@@ -22,9 +25,11 @@ class SatMAEClassification(LightningTask):
         kwargs['img_size'] = config.image_resolution
         kwargs['patch_size'] = config.patch_size
         kwargs['in_chans'] = config.num_channels
-        kwargs['channel_groups'] = config.channel_groups
-        
-        self.encoder = vit_large_patch16_cls(**kwargs)
+        if config.num_channels > 3:
+            kwargs['channel_groups'] = config.channel_groups
+            self.encoder = vit_large_patch16_cls(**kwargs)  
+        else:
+            self.encoder = vit_large_patch16_cls_rgb(**kwargs)
         #Load pretrained weights
         checkpoint = torch.load(config.pretrained_path, map_location='cpu')
         checkpoint_model = checkpoint['model']
@@ -66,8 +71,11 @@ class SatMAESegmentation(LightningTask):
         kwargs['img_size'] = config.image_resolution
         kwargs['patch_size'] = config.patch_size
         kwargs['in_chans'] = config.num_channels
-        kwargs['channel_groups'] = config.channel_groups
-        self.encoder = vit_large_patch16_seg(**kwargs)
+        if config.num_channels > 3:
+            kwargs['channel_groups'] = config.channel_groups
+            self.encoder = vit_large_patch16_seg(**kwargs) 
+        else:
+            self.encoder = vit_large_patch16_seg_rgb(**kwargs)
         
         # Load pretrained weights
         checkpoint = torch.load(config.pretrained_path, map_location='cpu')
