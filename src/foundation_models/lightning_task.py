@@ -7,6 +7,7 @@ class LightningTask(pl.LightningModule):
         self.config = config #model_config
         self.args = args # args for optimization params
         self.data_config = data_config # dataset_config
+        self.save_hyperparameters()
     
     def loss(self, outputs, labels):
         raise NotImplementedError("This method should be implemented in task-specific classes")
@@ -43,7 +44,12 @@ class LightningTask(pl.LightningModule):
         return loss
     
     def test_step(self, batch, batch_idx):
-        return self.validation_step(batch, batch_idx)
+        images, targets = batch
+        targets = targets.long()
+        outputs = self(images)
+        loss = self.loss(outputs, targets)
+        self.log_metrics(outputs, targets, prefix="test")
+        return loss
     
     def configure_optimizers(self):
         if self.config.task == 'classification':

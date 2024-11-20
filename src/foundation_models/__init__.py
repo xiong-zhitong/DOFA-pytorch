@@ -1,7 +1,7 @@
 #
-from .panopticon_wrapper import Panopticon
+from .panopticon_wrapper import PanapticonModel
 from .croma_wrapper import CromaModel
-from .scalemae_wrapper import ScaleMAE
+from .scalemae_wrapper import ScaleMAEModel
 from .gfm_wrapper import GFMModel
 from .dinov2_wrapper import DinoV2Model
 from .softcon_wrapper import SoftConModel

@@ -66,18 +66,21 @@ def main(args):
     if args.lr is None:
         args.lr = args.blr * eff_batch_size / 256
     
+    experiment_name = f"{args.model}_{args.dataset}"
     mlf_logger = MLFlowLogger(
-        run_name=f"run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}",
+        experiment_name=experiment_name,
+        run_name=f"{experiment_name}_run_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}",
         tracking_uri=f"file:{os.path.join(args.output_dir, 'mlruns')}"
     )
     
     # Callbacks
+    model_monitor = "val_loss"
     callbacks = [
         ModelCheckpoint(
             dirpath=os.path.join(args.output_dir, "checkpoints"),
-            filename="best-checkpoint",
-            monitor="val_miou",
-            mode="max",
+            filename="best_model-{epoch}",
+            monitor=model_monitor,
+            mode="min",
             save_last=True,
         ),
         LearningRateMonitor(logging_interval="epoch"),
