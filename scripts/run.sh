@@ -1,8 +1,7 @@
 #!/bin/bash
 
-export CUDA_VISIBLE_DEVICES=0
-export GEO_BENCH_DIR=/home/zhitong/Datasets/geobench/
-export DATA_CONFIG_DIR=/home/zhitong/OFALL/OFALL_baseline/mae/DOFA-pytorch/foundation_models/PanOpticOn/dinov2/configs/data/
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4
+export GEO_BENCH_DIR=/home/xshadow/Datasets/geobench/
 
 model=$1        # Pass the model as the first argument
 dataset=$2      # Pass the dataset as the second argument
@@ -11,7 +10,7 @@ batch_size=$4   # Pass the batch size as the fourth argument
 lr=$5           # Pass the learning rate as the fifth argument
 epochs=$6       # Pass the number of epochs as the sixth argument
 
-torchrun --nproc_per_node=1 --master_port=25673 src/main.py \
+torchrun --nproc_per_node=5 --master_port=25673 src/main.py \
 --output_dir logs/"${model}_${dataset}" \
 --model $model \
 --dataset $dataset \
