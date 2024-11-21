@@ -216,22 +216,7 @@ experiments = [
         "lr": 0.005,
     },
     ########################-Panopticon-########################
-    {
-        "model": "panopticon_cls",
-        "dataset": "geobench_so2sat_13",
-        "task": "classification",
-        "lr": 0.5,
-        "batch_size": 256,
-        "epochs": 50,
-    },
-    {
-        "model": "panopticon_cls",
-        "dataset": "geobench_eurosat_13",
-        "task": "classification",
-        "batch_size": 64,
-        "lr": 0.5,
-        "epochs": 50,
-    },
+    
     ########################-Croma-########################
     {
         "model": "croma_cls",

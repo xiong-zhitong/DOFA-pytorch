@@ -1,9 +1,0 @@
-task_id: classification
-num_classes: 2
-
-bands:
-- id: debug/B01
-- id: debug/B02
-- id: debug/B03
-- id: debug/B04
-- id: debug/B05
