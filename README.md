@@ -33,9 +33,12 @@ pip install python-dotenv
 pip install torchgeo
 pip install fastparquet
 ```
+
 Install them by:
 
-```pip install -e .````
+```bash
+pip install -e .
+```
 
 ### Model Weights
 Pretrained model weights are available on [Hugging Face](https://huggingface.co/XShadow/GeoFMs). Download the necessary weights for your evaluation tasks.
