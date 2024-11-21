@@ -374,6 +374,21 @@ experiments = [
     },
 ]
 
+
+# Define all the experiments
+experiments = [
+    ########################-DinoV2-########################
+    {
+        "model": "dinov2_obj_detection",
+        "dataset": "geobench_chesapeake",
+        "task": "segmentation",
+        "batch_size": 84,
+        "epochs": 20,
+        "lr": 0.005,
+    },
+]
+
+
 # Run each experiment
 for exp in experiments:
     print(f"Running experiment: {exp['model']} on {exp['dataset']}")

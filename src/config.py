@@ -1170,6 +1170,25 @@ class Dinov2_seg_Config(BaseModelConfig):
     class Config:
         validate_assignment = True
 
+class Dinov2_object_detection_Config(BaseModelConfig):
+    model_type: str = "dinov2"
+    dino_size: str = "dinov2_vitl14"
+    image_resolution: int = 224
+    out_features: bool = True
+    freeze_backbone: bool = True
+    task: str = "object_detection"
+    embed_dim: int = 1024
+    num_channels: int = 3
+
+    @validator("num_channels")
+    def validate_num_channels(cls, value):
+        if value != 3:
+            raise ValueError("Dinov2 requires num_channels to be 3.")
+        return value
+
+    class Config:
+        validate_assignment = True
+
 
 class Dinov2_cls_Config(BaseModelConfig):
     model_type: str = "dinov2"
@@ -1368,4 +1387,5 @@ model_config_registry = {
     "satmae_cls": SatMAE_cls_Config,
     "satmae_cls_rgb": SatMAE_cls_rgb_Config,
     "satmae_seg_rgb": SatMAE_seg_rgb_Config,
+    "dinov2_obj_detection": Dinov2_object_detection_Config,
 }
