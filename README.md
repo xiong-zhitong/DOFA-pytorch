@@ -46,7 +46,7 @@ The SoftCon weights are available on a different [HF repo](https://huggingface.c
 DOFA weights are available in this [HF repo](https://huggingface.co/XShadow/DOFA).
 SATMAE++ weights are available in this [HF repo](https://huggingface.co/mubashir04/checkpoint_ViT-L_pretrain_fmow_sentinel).
 
-### download the pre-trained weights and put them to the `src/fm\_weights` folder.
+### download the pre-trained weights and put them to the `src/fm_weights` folder.
 ---
 
 ## Available Models
