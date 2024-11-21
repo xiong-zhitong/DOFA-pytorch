@@ -594,8 +594,8 @@ def build_swin(model_config):
     model = SwinTransformer(
         img_size=model_config.image_resolution,
         patch_size=config.MODEL.SWIN.PATCH_SIZE,
-        in_chans=model_config.num_channels,
-        num_classes=model_config.num_classes,
+        in_chans=config.MODEL.SWIN.IN_CHANS,
+        num_classes=config.MODEL.NUM_CLASSES,
         embed_dim=config.MODEL.SWIN.EMBED_DIM,
         depths=config.MODEL.SWIN.DEPTHS,
         num_heads=config.MODEL.SWIN.NUM_HEADS,

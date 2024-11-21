@@ -542,10 +542,9 @@ class EnMAPCorineBenchmarkDataModule(NonGeoDataModule):
 
         self.train_aug = AugmentationSequential(
             K.RandomResizedCrop(_to_tuple(self.patch_size), scale=(0.6, 1.0)),
-            K.Normalize(mean=mean, std=std),
-            K.RandomRotation(degrees=90, p=0.5, align_corners=True),
-            K.RandomHorizontalFlip(p=0.5),
             K.RandomVerticalFlip(p=0.5),
+            K.RandomHorizontalFlip(p=0.5),
+            K.Normalize(mean=mean, std=std),
             data_keys=["image"],
         )
         self.val_aug = AugmentationSequential(

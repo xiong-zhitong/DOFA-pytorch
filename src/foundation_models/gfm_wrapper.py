@@ -1,3 +1,4 @@
+from .lightning_task import LightningTask
 from .GFM import build_swin_cls, build_swin_seg
 import torch.nn as nn
 import torch
@@ -8,106 +9,100 @@ import pdb
 from util.misc import resize
 #assert timm.__version__ == "0.3.2" # version check
 from timm.models.layers import trunc_normal_
+from util.misc import seg_metric, cls_metric
 
-# upernet + mae from mmsegmentation
-class UperNet(torch.nn.Module):
-    def __init__(self, backbone, decode_head, aux_head):
-        super(UperNet, self).__init__()
-        self.backbone = backbone
-        self.decode_head = decode_head
-        self.aux_head = aux_head
-    
-    def forward(self, x):
-        feat = self.backbone(x)
-        out = self.decode_head(feat)
-        out = resize(out, size=x.shape[2:], mode='bilinear', align_corners=False)
-        out_a = self.aux_head(feat)
-        out_a = resize(out_a, size=x.shape[2:], mode='bilinear', align_corners=False)
-        return out, out_a
-
-
-class GFM(nn.Module):
-    def __init__(self, config):
-        super(GFM, self).__init__()
-
-        self.encoder = build_swin_seg(config) if config.task == "segmentation" else build_swin_cls(config) # checkpoint already loaded
+class GFMClassification(LightningTask):
+    def __init__(self, args, config, data_config):
+        super().__init__(args, config, data_config)
         
-        self.out_features = config.out_features
-        self.task = config.task
+        self.encoder = build_swin_cls(config)
 
         if config.freeze_backbone:
             self.freeze(self.encoder)
 
-        if config.task == 'classification':
-            trunc_normal_(self.encoder.head.weight, std=0.01)
-            self.encoder.head = torch.nn.Sequential(torch.nn.BatchNorm1d(\
-                self.encoder.head.in_features, affine=False, eps=1e-6), self.encoder.head)
-            self.unfreeze(self.encoder.head)
+        trunc_normal_(self.encoder.head.weight, std=0.01)
+        self.encoder.head = nn.Sequential(
+            nn.BatchNorm1d(self.encoder.head.in_features, affine=False, eps=1e-6),
+            self.encoder.head
+        )
+        self.unfreeze(self.encoder.head)
 
-
-        elif config.task == 'segmentation':
-            # create model: upernet + mae
-            edim = config.embed_dim
-            self.decoder = UPerHead(
-                in_channels=[256, 512, 1024, 1024],
-                in_index=[0, 1, 2, 3],
-                pool_scales=(1, 2, 3, 6),
-                channels=512,
-                dropout_ratio=0.1,
-                num_classes=config.num_classes,
-                norm_cfg=dict(type='SyncBN', requires_grad=True),
-                align_corners=False,
-                loss_decode=dict(
-                        type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-            )
-            self.aux_head = FCNHead(
-                in_channels=edim,
-                in_index=2,
-                channels=256,
-                num_convs=1,
-                concat_input=False,
-                dropout_ratio=0.1,
-                num_classes=config.num_classes,
-                norm_cfg=dict(type='SyncBN', requires_grad=True),
-                align_corners=False,
-                loss_decode=dict(
-                    type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4),
-            )
-
-            self.seg_model = UperNet(self.encoder, self.decoder, self.aux_head)
+        self.criterion = (nn.MultiLabelSoftMarginLoss() if config.multilabel 
+                          else nn.CrossEntropyLoss())
+        
+    def loss(self, outputs, labels):
+        return self.criterion(outputs[0], labels)
+    
+    def forward(self, samples):
+        out_logits, feats = self.encoder(samples)
+        return (out_logits, feats) if self.config.out_features else out_logits
 
     def params_to_optimize(self):
-        match self.task:
-            case 'classification':
-                return self.encoder.head.parameters()
-            case 'segmentation':
-                parameters_to_optimize = (list(self.decoder.parameters()) + \
-                        list(self.aux_head.parameters()))
-                return parameters_to_optimize
+        return self.encoder.head.parameters()
+    
+    def log_metrics(self, outputs, targets, prefix="train"):
+        # Calculate accuracy and other classification-specific metrics
+        acc1, acc5 = cls_metric(self.data_config, outputs[0], targets)
+        self.log(f'{prefix}_loss', self.loss(outputs, targets), on_step=True, on_epoch=True, prog_bar=True)
+        self.log(f'{prefix}_acc1', acc1, on_step=True, on_epoch=True, prog_bar=True)
+        self.log(f'{prefix}_acc5', acc5, on_step=True, on_epoch=True, prog_bar=True)
 
-    def check_requires_grad(self, module):
-        return all(param.requires_grad for param in module.parameters())
 
-    def freeze(self, module):
-        for param in module.parameters():
-            param.requires_grad = False
 
-    def unfreeze(self, module):
-        for param in module.parameters():
-            param.requires_grad = True
+class GFMSegmentation(LightningTask):
+    def __init__(self, args, config, data_config):
+        super().__init__(args, config, data_config)
+        self.encoder = build_swin_seg(config)
+        # pretrained weights loaded already
+        
+        if config.freeze_backbone:
+            self.freeze(self.encoder)
+        
+        edim = config.embed_dim
+        self.decoder = UPerHead(
+            in_channels=[256, 512, 1024, 1024], in_index=[0, 1, 2, 3], pool_scales=(1, 2, 3, 6),
+            channels=512, dropout_ratio=0.1, num_classes=config.num_classes,
+            norm_cfg=dict(type='SyncBN', requires_grad=True),
+            align_corners=False,
+            loss_decode=dict(type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)
+        )
+        self.aux_head = FCNHead(
+            in_channels=edim, in_index=2, channels=256, num_convs=1, concat_input=False,
+            dropout_ratio=0.1, num_classes=config.num_classes,
+            norm_cfg=dict(type='SyncBN', requires_grad=True),
+            align_corners=False,
+            loss_decode=dict(type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)
+        )
+        self.criterion = nn.CrossEntropyLoss()
+    
+    def loss(self, outputs, labels):
+        return self.criterion(outputs[0], labels) + 0.4 * self.criterion(outputs[1], labels)
 
     def forward(self, samples):
-        match self.task:
-            case 'classification':
-                out_logits, feats = self.encoder(samples)
-                if self.out_features:
-                    return out_logits, feats
-                else:
-                    return out_logits
-            case 'segmentation':
-                out, out_aux =  self.seg_model(samples)
-                return out, out_aux
+        feats = self.encoder(samples)
+        out = self.decoder(feats)
+        out = resize(out, size=samples.shape[2:], mode='bilinear', align_corners=False)
+        out_a = self.aux_head(feats)
+        out_a = resize(out_a, size=samples.shape[2:], mode='bilinear', align_corners=False)
+        return out, out_a
+
+    def params_to_optimize(self):
+        return list(self.decoder.parameters()) + list(self.aux_head.parameters())
+
+    def log_metrics(self, outputs, targets, prefix="train"):
+        # Calculate mIoU and other segmentation-specific metrics
+        miou, acc = seg_metric(self.data_config, outputs[0], targets)
+        loss = self.loss(outputs, targets)
+        self.log(f'{prefix}_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
+        self.log(f'{prefix}_miou', miou, on_step=True, on_epoch=True, prog_bar=True)
+        self.log(f'{prefix}_acc', acc, on_step=True, on_epoch=True, prog_bar=True)
 
 
-
-
+# Model factory for different dinov2 tasks
+def GFMModel(args, config, data_config):
+    if args.task == "classification":
+        return GFMClassification(args, config, data_config)
+    elif args.task == "segmentation":
+        return GFMSegmentation(args, config, data_config)
+    else:
+        raise NotImplementedError("Task not supported")
