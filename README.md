@@ -33,6 +33,9 @@ pip install python-dotenv
 pip install torchgeo
 pip install fastparquet
 ```
+Install them by:
+
+```pip install -e .````
 
 ### Model Weights
 Pretrained model weights are available on [Hugging Face](https://huggingface.co/XShadow/GeoFMs). Download the necessary weights for your evaluation tasks.
@@ -49,12 +52,11 @@ This repository includes the following models for evaluation:
 - CROMA
 - DOFA
 - GFM
-- PanOpticOn
 - RemoteCLIP
 - SatMAE
 - ScaleMAE
-- Skyscript
 - SoftCON
+- on-going...
 
 ---
 
@@ -90,7 +92,7 @@ To add a new model or dataset for evaluation, follow these steps:
 To run the evaluation script, use the following command:
 
 ```bash
-sh scripts/train_linear_geobench_cls_croma.sh
+python scripts/exp_config.py
 ```
 
 This script initiates training for model evaluation on GeoBench with CROMA.
