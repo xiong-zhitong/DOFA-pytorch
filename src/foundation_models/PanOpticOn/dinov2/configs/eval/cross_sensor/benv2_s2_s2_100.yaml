@@ -1,0 +1,50 @@
+task:
+  id: multilabelclassification
+  val_metrics: # first metric will always be used to determine best classifier
+  - id: MultiLabelAveragePrecision
+    average: micro
+  - id: MultiLabelAveragePrecision
+    average: macro
+
+_vars: # not explicitly used in config, only as variables
+  transform: # output is 120x120
+  - id: Resize
+    size: 196 # divisible by 14
+
+train_dataset:
+  id: benv2
+  split: train
+  root: ${env:RDIR}/datasets/benv2
+  bands: s2
+  multimodal: false
+  # subset: 0.10
+  transform: ${_vars.transform}
+
+val_dataset:
+  id: benv2
+  split: validation
+  root: ${env:RDIR}/datasets/benv2
+  bands: s2
+  multimodal: false
+  # subset: 0.10
+  transform: ${_vars.transform}
+
+test_datasets_list:
+  - id: benv2
+    split: test
+    root: ${env:RDIR}/datasets/benv2
+    bands: s2
+    multimodal: false
+    subset: -1
+    transform: ${_vars.transform}
+
+
+optim:
+  epochs: 20 # or max_iter
+  dl:
+    batch_size: 800
+    num_workers: 16
+    persistent_workers: true
+
+  save_checkpoint_frequency_epoch: 10
+  eval_period_epoch: 2

@@ -1,0 +1,17 @@
+
+
+train:
+  dataset:
+    subset: 4
+  batch_size_per_gpu: 2
+  num_workers: 1
+  OFFICIAL_EPOCH_LENGTH: -1
+  scaling_rule: sqrt_wrt_1024,find_lr
+
+optim:
+  epochs: 1
+  use_wandb: False
+  saveckp_freq: 10
+
+evaluation:
+  eval_period_epoch: 10

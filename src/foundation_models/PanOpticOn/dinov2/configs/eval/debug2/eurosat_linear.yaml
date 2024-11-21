@@ -1,0 +1,38 @@
+task:
+  id: classification
+
+_vars: # not explicitly used in config, only as variables
+  transforms:
+  - id: Resize
+    size: 56
+    
+train_dataset:
+  id: geobench.m-eurosat
+  split: train
+  subset: 10
+  transform: ${_vars.transforms}
+
+val_dataset:
+  id: geobench.m-eurosat
+  split: val
+  subset: 10
+  display_name: m-eurosat
+  transform: ${_vars.transforms}
+
+test_datasets_list:
+  - id: geobench.m-eurosat
+    split: test
+    subset: 10
+    display_name: m-eurosat
+    transform: ${_vars.transforms}
+
+
+optim:
+  epochs: 1 # or max_iter
+  save_checkpoint_frequency_epoch: 50
+  eval_period_epoch: 2
+
+  dl:
+    batch_size: 10
+    num_workers: 4
+    persistent_workers: true
