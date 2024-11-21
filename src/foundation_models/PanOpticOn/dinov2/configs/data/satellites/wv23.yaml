@@ -1,0 +1,61 @@
+processing_level: 'SR'
+
+# Worldview-2 and Worldview-3_VNIR
+# In the corresponding dataset, either of the two above satellites are used. However, since
+# their bands have the same properties, we use the same file for both
+bands:
+  B01:
+    name: 'coastal'
+    gaussian:
+      mu: 427.4
+      sigma: 6.34
+    GSD: 1.24
+
+  B02:
+    name: 'blue'
+    gaussian:
+      mu: 478.3
+      sigma: 7.5
+    GSD: 1.24
+
+  B03:
+    name: 'green'
+    gaussian:
+      mu: 545.8
+      sigma: 8.22
+    GSD: 1.24
+
+  B04:
+    name: 'yellow'
+    gaussian:
+      mu: 607.7
+      sigma: 4.91
+    GSD: 1.24
+
+  B05:
+    name: 'red'
+    gaussian:
+      mu: 658.8
+      sigma: 7.09
+    GSD: 1.24
+
+  B06:
+    name: 'red edge'
+    gaussian:
+      mu: 724.1
+      sigma: 5.18
+    GSD: 1.24
+
+  B07:
+    name: 'nir1'
+    gaussian:
+      mu: 832.9
+      sigma: 13.98
+    GSD: 1.24
+
+  B08:
+    name: 'nir2'
+    gaussian:
+      mu: 949.3 
+      sigma: 19.05
+    GSD: 1.24

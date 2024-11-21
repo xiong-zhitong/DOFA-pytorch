@@ -26,7 +26,8 @@ class DinoV2Classification(LightningTask):
         return self.criterion(outputs[0], labels)
     
     def forward(self, samples):
-        out = self.encoder.forward_features(samples)
+        x_dict = {"imgs": samples}
+        out = self.encoder.forward_features(x_dict)
         global_pooled = out["x_norm_patchtokens"].mean(dim=1)
         out_logits = self.linear_classifier(global_pooled)
         return out_logits, global_pooled
@@ -72,7 +73,8 @@ class DinoV2Segmentation(LightningTask):
         return self.criterion(outputs[0], labels) + 0.4 * self.criterion(outputs[1], labels)
 
     def forward(self, samples):
-        outputs = self.encoder.get_intermediate_layers(samples, [4, 6, 10, 11])
+        x_dict = {"imgs":samples}
+        outputs = self.encoder.get_intermediate_layers(x_dict, [4, 6, 10, 11])
         feats = [rearrange(out, "n (h w) c -> n c h w", h=int(out.size(1)**0.5)) for out in outputs]
         feats = self.neck(feats)
         out = self.decoder(feats)

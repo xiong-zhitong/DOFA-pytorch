@@ -1,5 +1,4 @@
-#
-#from .panopticon_wrapper import PanapticonModel
+from .panopticon_wrapper import PanopticonModel
 from .croma_wrapper import CromaModel
 from .scalemae_wrapper import ScaleMAEModel
 from .gfm_wrapper import GFMModel

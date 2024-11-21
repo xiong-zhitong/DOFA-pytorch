@@ -1,0 +1,29 @@
+task:
+  id: knn
+
+_vars: # not explicitly used in config, only as variables
+  transforms:
+  - id: Resize
+    size: 56
+
+train_dataset:
+  id: geobench.m-eurosat
+  split: train
+  subset: 50
+  transform: ${_vars.transforms}
+
+test_dataset:
+  id: geobench.m-eurosat
+  split: test
+  subset: 50
+  transform: ${_vars.transforms}
+
+heads: 
+  nb_knn: [20]
+  n_tries: 1
+
+optim:
+  dl:
+    batch_size: 10
+    num_workers: 1
+    persistent_workers: true

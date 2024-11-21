@@ -1,0 +1,71 @@
+
+# pretrained_weights: /data/panopticon/logs/dino_logs/out/bl_dino_rgb/model_0024999.pth
+
+
+model:
+  id: dinov2
+  model_kwargs:
+    arch: vit_base
+    patch_size: 14
+    embed_layer: PatchEmbed
+    pos_emb_img_size: 224
+  autocast_dtype: fp16
+  pretrained_weights:
+  # - path: /data/panopticon/logs/dino_logs/dino_rgb/bl_dino_rgb/model_final.pth
+  - path: /data/panopticon/logs/dino_logs/bl_dino_rgb/model_final.pth
+    include: teacher.backbone.
+    prefix_map:
+      teacher.backbone.: ''
+
+  # id: dofa
+  # model_kwargs:
+  #   arch: vit_base_patch16
+  #   global_pool: False
+  # pretrained_weights:
+  # - path: ${oc.env:RESOURCE_DIR}/other_model_ckpts/DOFA/DOFA_ViT_base_e120.pth
+
+
+heads:
+  pooling: [DOFA_no_globalpool]
+
+task:
+  id: classification
+
+vars: # not explicitly used in config, only as variables
+  transforms:
+    - id: Listify
+    - id: ListCenterCrop
+      size: 56
+    - id: ChnSelect
+      idxs: [3,2,1]
+    - id: Resize
+      size: 224
+
+train_dataset:
+  id: geobench.m-eurosat
+  split: train
+  transform: ${vars.transforms}
+
+val_dataset:
+  id: geobench.m-eurosat
+  split: val
+  display_name: m-eurosat
+  transform: ${vars.transforms}
+
+test_datasets_list:
+  - id: geobench.m-eurosat
+    split: test
+    display_name: m-eurosat
+    transform: ${vars.transforms}
+
+dl:
+  batch_size: 140
+  num_workers: 12
+  persistent_workers: true
+
+optim:
+  epochs: 10 # or max_iter
+  # iter_per_epoch: 5  # -1 for full dataset or any number for cycling
+
+  save_checkpoint_frequency_epoch: 50
+  eval_period_epoch: 1

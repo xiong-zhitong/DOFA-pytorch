@@ -1,0 +1,36 @@
+task:
+  id: knn
+  is_multilabel: true
+
+_vars: # not explicitly used in config, only as variables
+  transforms:
+  - id: Resize
+    size: 112 # divisible by 14
+
+train_dataset:
+  id: benv2
+  split: train
+  root: ${env:RDIR}/datasets/benv2
+  bands: s2
+  multimodal: false
+  subset: 0.01
+  transform: ${_vars.transforms}
+
+test_dataset:
+  id: benv2
+  split: validation
+  root: ${env:RDIR}/datasets/benv2
+  bands: s2
+  multimodal: false
+  subset: 0.01
+  transform: ${_vars.transforms}
+  
+heads: 
+  nb_knn: [20]
+  n_tries: 1
+
+optim:
+  dl:
+    batch_size: 200
+    num_workers: 12
+    persistent_workers: true

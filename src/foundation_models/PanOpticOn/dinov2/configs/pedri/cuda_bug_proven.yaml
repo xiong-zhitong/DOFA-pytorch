@@ -1,0 +1,100 @@
+MODEL:
+  pretrained_weights: []
+train:
+  dataset:
+    id: FmowDataset
+    split: fmow/metadata_v2/fmow_iwm_onid_train_val_presorted.parquet
+    root: /data/panopticon/datasets/
+    num_sens: 2
+    subset: 10
+    transform:
+    - id: ChnSpatialAugmentation
+      global_crops_scale:
+      - 0.32
+      - 1.0
+      local_crops_number: 4
+      local_crops_scale:
+      - 0.05
+      - 0.32
+      global_crops_size: [13,224]
+      local_crops_size: [6,96]
+  global_smask_absolute_tuple: [6,13]
+  local_smask_absolute_tuple: [1,6] 
+  
+  batch_size_per_gpu: 10
+  num_workers: 1
+
+  use_wandb: False
+  output_dir: .
+  saveckp_freq: 1
+  seed: 0
+  OFFICIAL_EPOCH_LENGTH: 5
+  cache_dataset: true
+  centering: "centering" # or "sinkhorn_knopp"
+  log_every_n_steps: 2
+student:
+  arch: vit_base
+  embed_layer: PatchEmbed
+  patch_size: 16
+  drop_path_rate: 0.3
+  layerscale: 1.0e-05
+  drop_path_uniform: true
+  ffn_layer: "mlp"
+  block_chunks: 0
+  qkv_bias: true
+  proj_bias: true
+  ffn_bias: true
+  num_register_tokens: 0
+  interpolate_antialias: false
+  interpolate_offset: 0.1
+teacher:
+  momentum_teacher: 0.992
+  final_momentum_teacher: 1
+  warmup_teacher_temp: 0.04
+  teacher_temp: 0.07
+  warmup_teacher_temp_epochs: 30
+optim:
+  epochs: 10
+  weight_decay: 0.04
+  weight_decay_end: 0.4
+  base_lr: 0.004  # learning rate for a batch size of 1024
+  lr: 0.  # will be set after applying scaling rule
+  warmup_epochs: 0
+  min_lr: 1.0e-06
+  clip_grad: 3.0
+  scaling_rule: sqrt_wrt_1024
+  patch_embed_lr_mult: 0.2
+  layerwise_decay: 0.9
+  adamw_beta1: 0.9
+  adamw_beta2: 0.999
+
+
+evaluation:
+  eval_period_epoch: 1
+  nb_knn: [5, 10]
+  train_dataset:
+    id: geobench.m-eurosat
+    split: train
+    subset: 100
+    transform:
+    - id: Listify
+    - id: ListCenterCrop
+      size: 64
+    - id: ChnSelect
+      idxs: [3,2,1]
+  val_dataset:
+    id: geobench.m-eurosat
+    split: val
+    subset: 100
+    transform:
+    - id: Listify
+    - id: ListCenterCrop
+      size: 64
+    - id: ChnSelect
+      idxs: [3,2,1]
+  dl_cfg:
+    batch_size: 50 # per gpu
+    num_workers: 5
+    persistent_workers: true
+    pin_memory: true
+  eval_sleep_time: 0
