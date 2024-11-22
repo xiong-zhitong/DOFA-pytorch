@@ -540,7 +540,7 @@ class GeoBench_SAcrop_Config(GeoBenchDatasetConfig):
         0.84,
         0.86,
         0.94,
-        1.37,
+        1.61,
         1.61,
         2.2,
     ]
@@ -560,10 +560,10 @@ class GeoBench_SAcrop_10_Config(GeoBench_SAcrop_Config):
         "07 - Vegetation Red Edge",
         "08 - NIR",
         "08A - Vegetation Red Edge",
-        "09 - Water vapour",
         "12 - SWIR",
     ]
     band_wavelengths: List[float] = [
+        0.44,
         0.49,
         0.56,
         0.66,
@@ -572,7 +572,6 @@ class GeoBench_SAcrop_10_Config(GeoBench_SAcrop_Config):
         0.78,
         0.84,
         0.86,
-        0.94,
         2.2,
     ]
     num_channels: int = len(band_names)

@@ -28,6 +28,8 @@ class LightningTask(pl.LightningModule):
         raise NotImplementedError("This method should be implemented in task-specific classes")
 
     def training_step(self, batch, batch_idx):
+        #current_lr = self.optimizers().param_groups[0]['lr']
+        #print(current_lr) Debug
         images, targets = batch
         targets = targets.long()
         outputs = self(images)
@@ -50,7 +52,8 @@ class LightningTask(pl.LightningModule):
         loss = self.loss(outputs, targets)
         self.log_metrics(outputs, targets, prefix="test")
         return loss
-    
+
+        
     def configure_optimizers(self):
         if self.config.task == 'classification':
             optimizer = torch.optim.SGD(self.params_to_optimize(),
@@ -59,15 +62,23 @@ class LightningTask(pl.LightningModule):
         else:
             optimizer = torch.optim.AdamW(self.params_to_optimize(),
                            lr=self.args.lr)
-            
         
-        warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, 
-            lr_lambda=lambda epoch: epoch / self.args.warmup_epochs if epoch < self.args.warmup_epochs else 1.0)
+        def lr_lambda_func(current_step: int):
+            num_warmup_steps = len(self.trainer.datamodule.train_dataloader()) * self.args.warmup_epochs
+            if current_step < num_warmup_steps:
+                return float(current_step) / float(max(1, num_warmup_steps))
+            return 1.0
+    
+        warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer,
+            lr_lambda=lambda step: lr_lambda_func(self.trainer.global_step))
+        
+        if self.config.task == "segmentation":
+            assert self.args.warmup_epochs == 3
 
         cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
             optimizer,
-            T_max=self.trainer.max_epochs-self.args.warmup_epochs,
-            eta_min=0.0001,
+            T_max=2 * (self.args.epochs - self.args.warmup_epochs),
+            eta_min=0.000001,
         )
         
         scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer,
@@ -76,6 +87,6 @@ class LightningTask(pl.LightningModule):
             "optimizer": optimizer,
             "lr_scheduler": {
                 "scheduler": scheduler,
-                "interval": "epoch",
+                "interval": "step",
             },
         }

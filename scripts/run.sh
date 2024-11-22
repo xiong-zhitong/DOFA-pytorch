@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export CUDA_VISIBLE_DEVICES=0,1,2,3,4
+export CUDA_VISIBLE_DEVICES=0
 export GEO_BENCH_DIR=/home/xshadow/Datasets/geobench/
 
 model=$1        # Pass the model as the first argument
@@ -9,8 +9,9 @@ task=$3         # Pass the task as the third argument
 batch_size=$4   # Pass the batch size as the fourth argument
 lr=$5           # Pass the learning rate as the fifth argument
 epochs=$6       # Pass the number of epochs as the sixth argument
+warmup_epochs=$7
 
-torchrun --nproc_per_node=5 --master_port=25673 src/main.py \
+torchrun --nproc_per_node=1 --master_port=25673 src/main.py \
 --output_dir logs/"${model}_${dataset}" \
 --model $model \
 --dataset $dataset \
@@ -19,5 +20,5 @@ torchrun --nproc_per_node=5 --master_port=25673 src/main.py \
 --batch_size $batch_size \
 --epochs $epochs \
 --lr $lr \
---warmup_epochs 0 \
+--warmup_epochs ${warmup_epochs:-0} \
 --seed 42

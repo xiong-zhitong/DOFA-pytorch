@@ -74,13 +74,13 @@ def main(args):
     )
     
     # Callbacks
-    model_monitor = "val_loss"
+    model_monitor = "val_miou" if args.task=="segmentation" else "val_acc1"
     callbacks = [
         ModelCheckpoint(
             dirpath=os.path.join(args.output_dir, "checkpoints"),
             filename="best_model-{epoch}",
             monitor=model_monitor,
-            mode="min",
+            mode="max",
             save_last=True,
         ),
         LearningRateMonitor(logging_interval="epoch"),
@@ -92,6 +92,7 @@ def main(args):
         callbacks=callbacks,
         strategy=DDPStrategy(find_unused_parameters=False) if args.strategy == "ddp" else args.strategy,
         max_epochs=args.epochs,
+        num_sanity_val_steps=0,
     )
     
     # Initialize data module
