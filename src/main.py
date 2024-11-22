@@ -74,13 +74,13 @@ def main(args):
     )
     
     # Callbacks
-    model_monitor = "val_loss"
+    model_monitor = "val_miou"
     callbacks = [
         ModelCheckpoint(
             dirpath=os.path.join(args.output_dir, "checkpoints"),
             filename="best_model-{epoch}",
             monitor=model_monitor,
-            mode="min",
+            mode="max",
             save_last=True,
         ),
         LearningRateMonitor(logging_interval="epoch"),

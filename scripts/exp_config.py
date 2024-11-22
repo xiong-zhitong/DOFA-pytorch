@@ -1,7 +1,7 @@
 import subprocess
 
 # Define all the experiments
-experiments = [
+'''
     ########################-DinoV2-########################
     {
         "model": "dinov2_base_seg",
@@ -43,15 +43,20 @@ experiments = [
         "epochs": 20,
         "lr": 0.001,
     },
+
+'''
+experiments = [
     ########################-DOFA-########################
     {
         "model": "dofa_seg",
-        "dataset": "geobench_NeonTree",
+        "dataset": "geobench_NeonTree_3",
         "task": "segmentation",
         "batch_size": 16,
         "epochs": 20,
-        "lr": 0.001,
+        "lr": 0.005,
+        "warmup_epochs": 3,
     },
+
     {
         "model": "dofa_seg",
         "dataset": "geobench_chesapeake",
@@ -59,6 +64,7 @@ experiments = [
         "batch_size": 84,
         "epochs": 20,
         "lr": 0.005,
+        "warmup_epochs": 3,
     },
     {
         "model": "dofa_seg",
@@ -66,15 +72,17 @@ experiments = [
         "task": "segmentation",
         "batch_size": 12,
         "epochs": 20,
-        "lr": 0.001,
+        "lr": 0.005,
+        "warmup_epochs": 3,
     },
     {
         "model": "dofa_seg",
         "dataset": "geobench_SAcrop_10",
         "task": "segmentation",
-        "batch_size": 84,
+        "batch_size": 80,
         "epochs": 20,
         "lr": 0.005,
+        "warmup_epochs": 3,
     },
     {
         "model": "dofa_seg",
@@ -83,6 +91,7 @@ experiments = [
         "batch_size": 16,
         "epochs": 20,
         "lr": 0.005,
+        "warmup_epochs": 3,
     },
     {
         "model": "dofa_seg",
@@ -91,6 +100,7 @@ experiments = [
         "batch_size": 16,
         "epochs": 20,
         "lr": 0.005,
+        "warmup_epochs": 3,
     },
     {
         "model": "dofa_cls",
@@ -374,25 +384,10 @@ experiments = [
     },
 ]
 
-
-# Define all the experiments
-experiments = [
-    ########################-DinoV2-########################
-    {
-        "model": "dinov2_obj_detection",
-        "dataset": "geobench_chesapeake",
-        "task": "segmentation",
-        "batch_size": 84,
-        "epochs": 20,
-        "lr": 0.005,
-    },
-]
-
-
 # Run each experiment
 for exp in experiments:
     print(f"Running experiment: {exp['model']} on {exp['dataset']}")
-    exp["epochs"] = 1  # This is for debug
+    #exp["epochs"] = 1  # This is for debug
     subprocess.run(
         [
             "bash", "scripts/run.sh",  # Path to the template script
@@ -402,6 +397,7 @@ for exp in experiments:
             str(exp["batch_size"]),
             str(exp["lr"]),
             str(exp["epochs"]),
+            str(exp["warmup_epochs"]),
         ],
         check=True,
     )

@@ -28,6 +28,7 @@ class LightningTask(pl.LightningModule):
         raise NotImplementedError("This method should be implemented in task-specific classes")
 
     def training_step(self, batch, batch_idx):
+        #current_lr = self.optimizers().param_groups[0]['lr']
         images, targets = batch
         targets = targets.long()
         outputs = self(images)
@@ -50,7 +51,8 @@ class LightningTask(pl.LightningModule):
         loss = self.loss(outputs, targets)
         self.log_metrics(outputs, targets, prefix="test")
         return loss
-    
+
+        
     def configure_optimizers(self):
         if self.config.task == 'classification':
             optimizer = torch.optim.SGD(self.params_to_optimize(),
@@ -59,23 +61,20 @@ class LightningTask(pl.LightningModule):
         else:
             optimizer = torch.optim.AdamW(self.params_to_optimize(),
                            lr=self.args.lr)
-            
         
-        warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, 
-            lr_lambda=lambda epoch: epoch / self.args.warmup_epochs if epoch < self.args.warmup_epochs else 1.0)
-
-        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        num_warmup_steps = len(self.trainer.datamodule.train_dataloader()) * self.args.warmup_epochs
+        total_steps = len(self.trainer.datamodule.train_dataloader()) * self.args.epochs
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(
             optimizer,
-            T_max=self.trainer.max_epochs-self.args.warmup_epochs,
-            eta_min=0.0001,
+            max_lr=self.args.lr,
+            total_steps=total_steps,
+            anneal_strategy="cos",  # Cosine annealing
+            pct_start=float(num_warmup_steps) / float(total_steps),  # Percentage of warmup
         )
-        
-        scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer,
-            schedulers=[warmup_scheduler, cosine_scheduler], milestones=[self.args.warmup_epochs])
         return {
             "optimizer": optimizer,
             "lr_scheduler": {
                 "scheduler": scheduler,
-                "interval": "epoch",
+                "interval": "step",
             },
         }

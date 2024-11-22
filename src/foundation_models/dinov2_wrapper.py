@@ -9,11 +9,7 @@ from util.misc import resize
 from .lightning_task import LightningTask
 from einops import rearrange
 from util.misc import seg_metric, cls_metric
-# MMDetection imports
-from mmdet.models import BACKBONES, build_backbone
-from mmdet.models.dense_heads import YOLOHead, RetinaHead  # You can choose different heads
-from mmdet.models.builder import build_head
-from mmdet.models.necks import FPN
+
 
 
 class DinoV2Classification(LightningTask):
@@ -99,125 +95,11 @@ class DinoV2Segmentation(LightningTask):
         self.log(f'{prefix}_miou', miou, on_step=True, on_epoch=True, prog_bar=True)
         self.log(f'{prefix}_acc', acc, on_step=True, on_epoch=True, prog_bar=True)
 
-
-class DinoV2ObjectDetection(LightningTask):
-    def __init__(self, args, config, data_config):
-        super().__init__(args, config, data_config)
-        self.encoder = torch.hub.load('facebookresearch/dinov2', config.dino_size)
-        if config.freeze_backbone:
-            self.freeze(self.encoder)
-        # Neck configuration (Feature Pyramid Network)
-        neck_cfg = dict(
-            type='FPN',
-            in_channels=[backbone_cfg['embed_dim']] * 4,  # Use Dinov2 embedding dim
-            out_channels=256,
-            num_outs=5
-        )
-        
-        # Head configuration (example with RetinaHead)
-        head_cfg = dict(
-            type='RetinaHead',
-            num_classes=config.num_classes,
-            in_channels=256,
-            stacked_convs=3,
-            feat_channels=256,
-            anchor_generator=dict(
-                type='AnchorGenerator',
-                octave_base_scale=4,
-                scales_per_octave=3,
-                ratios=[0.5, 1.0, 2.0],
-                strides=[8, 16, 32, 64, 128]
-            ),
-            loss_cls=dict(
-                type='FocalLoss', 
-                use_sigmoid=True, 
-                gamma=2.0, 
-                alpha=0.25
-            ),
-            loss_bbox=dict(
-                type='IoULoss'
-            )
-        )
-        
-        # Build model components
-        self.neck = FPN(**neck_cfg)
-        self.head = build_head(head_cfg)
-        
-        self.config = config
-        self.data_config = data_config
-
-    def forward(self, x):
-        # Extract features from backbone
-        x = self.encoder(x)
-        # Apply neck (FPN)
-        x = self.neck(x)
-        
-        # Get detection results
-        return self.head(x)
-
-    def training_step(self, batch, batch_idx):
-        imgs, targets = batch
-        
-        x = self.encoder(imgs)
-        x = self.neck(x)
-        # Compute losses
-        loss_inputs = self.head.forward_train(x, targets)
-        
-        # Log losses
-        loss_dict = self.head.loss(*loss_inputs)
-        
-        # Log individual losses
-        for key, value in loss_dict.items():
-            self.log(f'train_{key}', value, on_step=True, on_epoch=True, prog_bar=True)
-        
-        # Return total loss
-        return loss_dict['loss']
-
-    def validation_step(self, batch, batch_idx):
-        imgs, targets = batch
-        
-        # Extract features
-        x = self.encoder(imgs)
-        x = self.neck(x)
-        # Compute losses
-        loss_inputs = self.head.forward_train(x, targets)
-        # Compute loss dict
-        loss_dict = self.head.loss(*loss_inputs)
-        # Log individual losses
-        for key, value in loss_dict.items():
-            self.log(f'val_{key}', value, on_step=True, on_epoch=True, prog_bar=True)
-        
-        # Return total loss
-        return loss_dict['loss']
-    
-    def test_step(self, batch, batch_idx):
-        imgs, targets = batch
-        
-        # Extract features
-        x = self.encoder(imgs)
-        x = self.neck(x)
-        # Compute losses
-        loss_inputs = self.head.forward_train(x, targets)
-        # Compute loss dict
-        loss_dict = self.head.loss(*loss_inputs)
-        # Log individual losses
-        for key, value in loss_dict.items():
-            self.log(f'test_{key}', value, on_step=True, on_epoch=True, prog_bar=True)
-        
-        # Return total loss
-        return loss_dict['loss']
-
-    def params_to_optimize(self):
-        return list(self.neck.parameters()) + list(self.decoder.parameters())
-
-
 # Model factory for different dinov2 tasks
 def DinoV2Model(args, config, data_config):
     if args.task == "classification":
         return DinoV2Classification(args, config, data_config)
     elif args.task == "segmentation":
         return DinoV2Segmentation(args, config, data_config)
-    elif args.task == "object_detection":
-        return DinoV2ObjectDetection(args, config, data_config)
     else:
         raise NotImplementedError("Task not supported")
