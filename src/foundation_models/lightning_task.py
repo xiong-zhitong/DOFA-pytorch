@@ -29,7 +29,6 @@ class LightningTask(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         #current_lr = self.optimizers().param_groups[0]['lr']
-        #print(current_lr) Debug
         images, targets = batch
         targets = targets.long()
         outputs = self(images)
@@ -63,26 +62,15 @@ class LightningTask(pl.LightningModule):
             optimizer = torch.optim.AdamW(self.params_to_optimize(),
                            lr=self.args.lr)
         
-        def lr_lambda_func(current_step: int):
-            num_warmup_steps = len(self.trainer.datamodule.train_dataloader()) * self.args.warmup_epochs
-            if current_step < num_warmup_steps:
-                return float(current_step) / float(max(1, num_warmup_steps))
-            return 1.0
-    
-        warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer,
-            lr_lambda=lambda step: lr_lambda_func(self.trainer.global_step))
-        
-        if self.config.task == "segmentation":
-            assert self.args.warmup_epochs == 3
-
-        cosine_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        num_warmup_steps = len(self.trainer.datamodule.train_dataloader()) * self.args.warmup_epochs
+        total_steps = len(self.trainer.datamodule.train_dataloader()) * self.args.epochs
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(
             optimizer,
-            T_max=2 * (self.args.epochs - self.args.warmup_epochs),
-            eta_min=0.000001,
+            max_lr=self.args.lr,
+            total_steps=total_steps,
+            anneal_strategy="cos",  # Cosine annealing
+            pct_start=float(num_warmup_steps) / float(total_steps),  # Percentage of warmup
         )
-        
-        scheduler = torch.optim.lr_scheduler.SequentialLR(optimizer,
-            schedulers=[warmup_scheduler, cosine_scheduler], milestones=[self.args.warmup_epochs])
         return {
             "optimizer": optimizer,
             "lr_scheduler": {
