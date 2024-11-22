@@ -1,7 +1,5 @@
 from foundation_models import CromaModel, ScaleMAEModel, GFMModel, DinoV2Model, SoftConModel, DofaModel, SatMAEModel
 from datasets.geobench_wrapper import GeoBenchDataset
-from datasets.resisc_wrapper import Resics45Dataset
-from datasets.benv2_wrapper import BenV2Dataset
 
 
 model_registry = {
@@ -17,8 +15,6 @@ model_registry = {
 
 dataset_registry = {
     "geobench": GeoBenchDataset,
-    "resisc45": Resics45Dataset,
-    "benv2": BenV2Dataset
     # Add other dataset mappings here
 }
 
