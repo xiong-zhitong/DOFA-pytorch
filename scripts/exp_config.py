@@ -1,6 +1,6 @@
 import subprocess
 
-experiments = [
+'''
 # Define all the experiments
     ########################-DOFA-########################
     {
@@ -36,7 +36,7 @@ experiments = [
         "model": "dofa_seg",
         "dataset": "geobench_SAcrop_9",
         "task": "segmentation",
-        "batch_size": 84,
+        "batch_size": 80,
         "epochs": 20,
         "lr": 0.005,
         "warmup_epochs": 3,
@@ -59,12 +59,14 @@ experiments = [
         "lr": 0.005,
         "warmup_epochs": 3,
     },
+'''
+experiments = [
     {
         "model": "dofa_cls",
         "dataset": "geobench_so2sat_cls",
         "task": "classification",
         "batch_size": 256,
-        "lr": 0.5,
+        "lr": 0.05,
         "epochs": 50,
     },
     {
@@ -105,6 +107,8 @@ experiments = [
 for exp in experiments:
     print(f"Running experiment: {exp['model']} on {exp['dataset']}")
     #exp["epochs"] = 1  # This is for debug
+    if not 'warmup_epochs' in exp.keys():
+        exp["warmup_epochs"] = 0
     subprocess.run(
         [
             "bash", "scripts/run.sh",  # Path to the template script
