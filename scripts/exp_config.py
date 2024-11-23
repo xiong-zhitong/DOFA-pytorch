@@ -1,6 +1,6 @@
 import subprocess
 
-'''
+experiments = [
 # Define all the experiments
     ########################-DOFA-########################
     {
@@ -31,9 +31,7 @@ import subprocess
         "lr": 0.005,
         "warmup_epochs": 3,
     },
-'''
 
-experiments = [
     {
         "model": "dofa_seg",
         "dataset": "geobench_SAcrop_9",
