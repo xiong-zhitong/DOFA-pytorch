@@ -75,6 +75,7 @@ def main(args):
     
     # Callbacks
     model_monitor = "val_miou" if args.task=="segmentation" else "val_acc1"
+    #model_monitor = "val_loss"
     callbacks = [
         ModelCheckpoint(
             dirpath=os.path.join(args.output_dir, "checkpoints"),

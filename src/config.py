@@ -549,29 +549,27 @@ class GeoBench_SAcrop_Config(GeoBenchDatasetConfig):
     num_channels: int = len(band_names)
 
 
-class GeoBench_SAcrop_10_Config(GeoBench_SAcrop_Config):
+class GeoBench_SAcrop_9_Config(GeoBench_SAcrop_Config):
     band_names: List[str] = [
-        "01 - Coastal aerosol",
-        "02 - Blue",
-        "03 - Green",
-        "04 - Red",
-        "05 - Vegetation Red Edge",
-        "06 - Vegetation Red Edge",
-        "07 - Vegetation Red Edge",
-        "08 - NIR",
-        "08A - Vegetation Red Edge",
-        "12 - SWIR",
-    ]
+        '04 - Red', 
+        '03 - Green', 
+        '02 - Blue', 
+        '05 - Vegetation Red Edge', 
+        '06 - Vegetation Red Edge', 
+        '07 - Vegetation Red Edge', 
+        '08 - NIR', 
+        '11 - SWIR', 
+        '12 - SWIR'
+        ]
     band_wavelengths: List[float] = [
-        0.44,
-        0.49,
-        0.56,
-        0.66,
-        0.7,
-        0.74,
-        0.78,
-        0.84,
-        0.86,
+        0.66, 
+        0.56, 
+        0.49, 
+        0.7, 
+        0.74, 
+        0.78, 
+        0.84, 
+        1.61, 
         2.2,
     ]
     num_channels: int = len(band_names)
@@ -934,7 +932,7 @@ dataset_config_registry = {
     "geobench_NeonTree": GeoBench_NeonTree_Config,
     "geobench_nzcattle": GeoBench_nzcattle_Config,
     "geobench_SAcrop": GeoBench_SAcrop_Config,
-    "geobench_SAcrop_10": GeoBench_SAcrop_10_Config,
+    "geobench_SAcrop_9": GeoBench_SAcrop_9_Config,
     "geobench_pv4ger_seg_3": GeoBench_pv4ger_seg_3_Config,
     "geobench_cashew_3": GeoBench_cashew_3_Config,
     "geobench_chesapeak_3": GeoBench_chesapeak_3_Config,
