@@ -28,7 +28,8 @@ class LightningTask(pl.LightningModule):
         raise NotImplementedError("This method should be implemented in task-specific classes")
 
     def training_step(self, batch, batch_idx):
-        #current_lr = self.optimizers().param_groups[0]['lr']
+        current_lr = self.optimizers().param_groups[0]['lr']
+        print(current_lr)
         images, targets = batch
         targets = targets.long()
         outputs = self(images)
@@ -62,8 +63,8 @@ class LightningTask(pl.LightningModule):
             optimizer = torch.optim.AdamW(self.params_to_optimize(),
                            lr=self.args.lr)
         
-        num_warmup_steps = len(self.trainer.datamodule.train_dataloader()) * self.args.warmup_epochs
-        total_steps = len(self.trainer.datamodule.train_dataloader()) * self.args.epochs
+        num_warmup_steps = len(self.trainer.datamodule.train_dataloader()) * self.args.warmup_epochs // self.args.num_gpus
+        total_steps = len(self.trainer.datamodule.train_dataloader()) * self.args.epochs // self.args.num_gpus
         scheduler = torch.optim.lr_scheduler.OneCycleLR(
             optimizer,
             max_lr=self.args.lr,
