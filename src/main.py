@@ -11,7 +11,7 @@ from datasets.data_module import LightningDataModule
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
-
+warnings.filterwarnings("ignore")
 
 from factory import create_model
 from config import model_config_registry, dataset_config_registry
@@ -30,13 +30,12 @@ def get_args_parser():
     parser.add_argument('--task', default='segmentation', type=str, metavar='TASK')
     
     # Optimizer parameters
+    parser.add_argument('--num_gpus', type=int, default=1)
     parser.add_argument('--weight_decay', type=float, default=0)
     parser.add_argument('--lr', type=float, default=None)
-    parser.add_argument('--blr', type=float, default=0.1)
     parser.add_argument('--min_lr', type=float, default=0.)
     parser.add_argument('--warmup_epochs', type=int, default=3)
     parser.add_argument('--epochs', type=int, default=20)
-    parser.add_argument('--devices', type=list, default=[0])
     parser.add_argument('--strategy', type=str, default='ddp')
 
     
@@ -60,11 +59,9 @@ def main(args):
     model_config = model_config_registry.get(args.model)()
     
     # Calculate effective batch size and learning rate
-    devices = args.devices if isinstance(args.devices, int) else len(args.devices)
-    eff_batch_size = args.batch_size * devices
+    eff_batch_size = args.batch_size * args.num_gpus
     
-    if args.lr is None:
-        args.lr = args.blr * eff_batch_size / 256
+    args.lr = args.lr * args.num_gpus
     
     experiment_name = f"{args.model}_{args.dataset}"
     mlf_logger = MLFlowLogger(
@@ -74,7 +71,8 @@ def main(args):
     )
     
     # Callbacks
-    model_monitor = "val_miou"
+    model_monitor = "val_miou" if args.task=="segmentation" else "val_acc1"
+    #model_monitor = "val_loss"
     callbacks = [
         ModelCheckpoint(
             dirpath=os.path.join(args.output_dir, "checkpoints"),
@@ -91,7 +89,11 @@ def main(args):
         logger=mlf_logger,
         callbacks=callbacks,
         strategy=DDPStrategy(find_unused_parameters=False) if args.strategy == "ddp" else args.strategy,
+        devices="auto",
         max_epochs=args.epochs,
+        num_sanity_val_steps=0,
+        gradient_clip_val=1.0,  # Maximum gradient norm (clip value)
+        gradient_clip_algorithm="norm",  # Clips gradients by their L2 norm
     )
     
     # Initialize data module

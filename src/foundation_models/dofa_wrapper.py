@@ -52,7 +52,7 @@ class DofaClassification(LightningTask):
     def log_metrics(self, outputs, targets, prefix="train"):
         # Calculate accuracy and other classification-specific metrics
         acc1, acc5 = cls_metric(self.data_config, outputs[0], targets)
-        self.log(f'{prefix}_loss', self.loss(outputs, targets), on_step=True, on_epoch=True, prog_bar=True)
+        self.log(f'{prefix}_loss', self.loss(outputs, targets), on_step=False, on_epoch=True, prog_bar=True)
         self.log(f'{prefix}_acc1', acc1, on_step=True, on_epoch=True, prog_bar=True)
         self.log(f'{prefix}_acc5', acc5, on_step=True, on_epoch=True, prog_bar=True)
 

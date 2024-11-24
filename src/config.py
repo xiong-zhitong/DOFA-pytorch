@@ -540,7 +540,7 @@ class GeoBench_SAcrop_Config(GeoBenchDatasetConfig):
         0.84,
         0.86,
         0.94,
-        1.37,
+        1.61,
         1.61,
         2.2,
     ]
@@ -549,30 +549,27 @@ class GeoBench_SAcrop_Config(GeoBenchDatasetConfig):
     num_channels: int = len(band_names)
 
 
-class GeoBench_SAcrop_10_Config(GeoBench_SAcrop_Config):
+class GeoBench_SAcrop_9_Config(GeoBench_SAcrop_Config):
     band_names: List[str] = [
-        "01 - Coastal aerosol",
-        "02 - Blue",
-        "03 - Green",
-        "04 - Red",
-        "05 - Vegetation Red Edge",
-        "06 - Vegetation Red Edge",
-        "07 - Vegetation Red Edge",
-        "08 - NIR",
-        "08A - Vegetation Red Edge",
-        "09 - Water vapour",
-        "12 - SWIR",
-    ]
+        '04 - Red', 
+        '03 - Green', 
+        '02 - Blue', 
+        '05 - Vegetation Red Edge', 
+        '06 - Vegetation Red Edge', 
+        '07 - Vegetation Red Edge', 
+        '08 - NIR', 
+        '11 - SWIR', 
+        '12 - SWIR'
+        ]
     band_wavelengths: List[float] = [
-        0.49,
-        0.56,
-        0.66,
-        0.7,
-        0.74,
-        0.78,
-        0.84,
-        0.86,
-        0.94,
+        0.66, 
+        0.56, 
+        0.49, 
+        0.7, 
+        0.74, 
+        0.78, 
+        0.84, 
+        1.61, 
         2.2,
     ]
     num_channels: int = len(band_names)
@@ -935,7 +932,7 @@ dataset_config_registry = {
     "geobench_NeonTree": GeoBench_NeonTree_Config,
     "geobench_nzcattle": GeoBench_nzcattle_Config,
     "geobench_SAcrop": GeoBench_SAcrop_Config,
-    "geobench_SAcrop_10": GeoBench_SAcrop_10_Config,
+    "geobench_SAcrop_9": GeoBench_SAcrop_9_Config,
     "geobench_pv4ger_seg_3": GeoBench_pv4ger_seg_3_Config,
     "geobench_cashew_3": GeoBench_cashew_3_Config,
     "geobench_chesapeak_3": GeoBench_chesapeak_3_Config,
@@ -1170,25 +1167,6 @@ class Dinov2_seg_Config(BaseModelConfig):
     class Config:
         validate_assignment = True
 
-class Dinov2_object_detection_Config(BaseModelConfig):
-    model_type: str = "dinov2"
-    dino_size: str = "dinov2_vitl14"
-    image_resolution: int = 224
-    out_features: bool = True
-    freeze_backbone: bool = True
-    task: str = "object_detection"
-    embed_dim: int = 1024
-    num_channels: int = 3
-
-    @validator("num_channels")
-    def validate_num_channels(cls, value):
-        if value != 3:
-            raise ValueError("Dinov2 requires num_channels to be 3.")
-        return value
-
-    class Config:
-        validate_assignment = True
-
 
 class Dinov2_cls_Config(BaseModelConfig):
     model_type: str = "dinov2"
@@ -1387,5 +1365,4 @@ model_config_registry = {
     "satmae_cls": SatMAE_cls_Config,
     "satmae_cls_rgb": SatMAE_cls_rgb_Config,
     "satmae_seg_rgb": SatMAE_seg_rgb_Config,
-    "dinov2_obj_detection": Dinov2_object_detection_Config,
 }
