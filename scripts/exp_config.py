@@ -75,8 +75,6 @@ import subprocess
         "lr": 0.05,
         "epochs": 50,
     },
-'''
-experiments = [
     {
         "model": "dofa_cls",
         "dataset": "geobench_brick_kiln_13",
@@ -85,13 +83,15 @@ experiments = [
         "lr": 0.05,
         "epochs": 10,
     },
+'''
+experiments = [
      {
         "model": "dofa_cls",
         "dataset": "geobench_forestnet_9",
         "task": "classification",
-        "batch_size": 256,
-        "lr": 0.05,
-        "epochs": 50,
+        "batch_size": 128,
+        "lr": 0.01,
+        "epochs": 10,
     },
      {
         "model": "dofa_cls",

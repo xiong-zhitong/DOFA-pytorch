@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, validator
 from typing import Optional, Dict, List, Tuple
+import pdb
 
 # Pre-define the band_wavelengths dict
 band_names = [
@@ -21,7 +22,7 @@ class BaseDatasetConfig(BaseModel):
     num_classes: int
     num_channels: int
     data_path: str
-    band_wavelengths: str
+    band_wavelengths: Optional[List[float]] = None
 
     @validator("task")
     def validate_task(cls, value):
@@ -412,6 +413,7 @@ class GeoBench_so2sat_12_Config(GeoBench_so2sat_10band_Config):
 
 class GeoBench_forestnet_9_Config(GeoBench_forestnet_Config):
     band_names: List[str] = ['04 - Red', '03 - Green', '02 - Blue', '05 - NIR', '05 - NIR', '05 - NIR', '05 - NIR', '06 - SWIR1', '07 - SWIR2']
+    band_wavelengths: list[float] = [0.66, 0.56, 0.49, 0.86, 0.86, 0.86, 0.86, 1.61, 2.2]
     num_channels: int = len(band_names)
 
 
@@ -933,7 +935,8 @@ class BaseModelConfig(BaseModel):
         # image_resolution depends on the model
         dataset_config.image_resolution = cls.image_resolution
         # model wavelength determined by dataset
-        dataset_config.set_band_wavelengths()
+        if len(dataset_config.band_wavelengths) == 0:
+            dataset_config.set_band_wavelengths()
         cls.band_wavelengths = dataset_config.band_wavelengths
         cls.multilabel = dataset_config.multilabel
 
