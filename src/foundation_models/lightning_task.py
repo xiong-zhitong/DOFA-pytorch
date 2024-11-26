@@ -28,8 +28,7 @@ class LightningTask(pl.LightningModule):
         raise NotImplementedError("This method should be implemented in task-specific classes")
 
     def training_step(self, batch, batch_idx):
-        current_lr = self.optimizers().param_groups[0]['lr']
-        print(current_lr)
+        #current_lr = self.optimizers().param_groups[0]['lr']
         images, targets = batch
         targets = targets.long()
         outputs = self(images)

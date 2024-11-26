@@ -1,6 +1,18 @@
 from pydantic import BaseModel, Field, validator
 from typing import Optional, Dict, List, Tuple
 
+# Pre-define the band_wavelengths dict
+band_names = [
+    "01 - Coastal aerosol", "02 - Blue", "03 - Green", "04 - Red",
+    "05 - Vegetation Red Edge", "06 - Vegetation Red Edge", "07 - Vegetation Red Edge",
+    "08 - NIR", "08A - Vegetation Red Edge", "09 - Water vapour",
+    "10 - SWIR - Cirrus", "11 - SWIR", "12 - SWIR"
+]
+
+band_wavelengths: list[float] = [0.443, 0.490, 0.560, 0.665, 0.705, 0.740, 0.783, 0.842, 0.865, 0.945, 1.375, 1.610, 2.190]
+BAND_WAVELENGTHS_DICT = dict(zip(band_names, band_wavelengths))
+
+
 
 # Dataset Config
 class BaseDatasetConfig(BaseModel):
@@ -9,6 +21,7 @@ class BaseDatasetConfig(BaseModel):
     num_classes: int
     num_channels: int
     data_path: str
+    band_wavelengths: str
 
     @validator("task")
     def validate_task(cls, value):
@@ -16,6 +29,11 @@ class BaseDatasetConfig(BaseModel):
             raise ValueError(f"Unsupported task type: {value}")
         return value
 
+    def set_band_wavelengths(cls):
+        band_names = cls.band_names
+        # Map band names to wavelengths using the predefined dictionary
+        cls.band_wavelengths = [BAND_WAVELENGTHS_DICT.get(band, None) for band in band_names]
+    
 
 # Example dataset configurations
 class GeoBenchDatasetConfig(BaseDatasetConfig):
@@ -55,11 +73,6 @@ class Resics_rgb_Config(BaseDatasetConfig):
     data_path: str = "/mnt/data/datasets_classification/resisc45"
     band_names: str = ["Red", "Green", "Blue"]
     image_resolution: int = 224
-    band_wavelengths: List[float] = [
-        0.665,
-        0.56,
-        0.49
-    ]
     multilabel: bool = False
 
 class Benv2_all_Config(BaseDatasetConfig):
@@ -103,18 +116,6 @@ class GeoBench_so2sat_10band_Config(GeoBenchDatasetConfig):
         "11 - SWIR",
         "12 - SWIR",
     ]
-    band_wavelengths: List[float] = [
-        0.49,
-        0.56,
-        0.665,
-        0.705,
-        0.74,
-        0.783,
-        0.842,
-        0.865,
-        1.61,
-        2.19,
-    ]
     num_classes: int = 17
     multilabel: bool = False
     num_channels: int = len(band_names)
@@ -125,7 +126,6 @@ class GeoBench_pv4ger_cls_Config(GeoBenchDatasetConfig):
     dataset_name: str = "m-pv4ger"
     task: str = "classification"
     band_names: List[str] = ["Blue", "Green", "Red"]
-    band_wavelengths: List[float] = [0.48, 0.56, 0.66]
     num_classes: int = 2
     multilabel: bool = False
     num_channels: int = len(band_names)
@@ -250,7 +250,6 @@ class GeoBench_brick_kiln_13_Config(GeoBench_brick_kiln_Config):
     band_names: List[str] = [
         "01 - Coastal aerosol",
         "02 - Blue",
-        "02 - Blue",
         "03 - Green",
         "04 - Red",
         "05 - Vegetation Red Edge",
@@ -260,9 +259,9 @@ class GeoBench_brick_kiln_13_Config(GeoBench_brick_kiln_Config):
         "08A - Vegetation Red Edge",
         "09 - Water vapour",
         "10 - SWIR - Cirrus",
+        "11 - SWIR",
         "12 - SWIR",
     ]
-    band_wavelengths: list[float] = [0.44, 0.49, 0.56, 0.66, 0.7, 0.74, 0.78, 0.84, 0.86, 0.94, 1.37, 1.61, 2.2]
     num_channels: int = len(band_names)
 
 
@@ -334,7 +333,6 @@ class GeoBench_eurosat_13_Config(GeoBench_eurosat_Config):
         "11 - SWIR",
         "12 - SWIR",
     ]
-    band_wavelengths: list[float] = [0.44, 0.49, 0.56, 0.66, 0.7, 0.74, 0.78, 0.84, 0.86, 0.94, 1.37, 1.61, 2.2]
     num_channels: int = len(band_names)
 
 class GeoBench_eurosat_10_Config(GeoBench_eurosat_Config):
@@ -414,7 +412,6 @@ class GeoBench_so2sat_12_Config(GeoBench_so2sat_10band_Config):
 
 class GeoBench_forestnet_9_Config(GeoBench_forestnet_Config):
     band_names: List[str] = ['04 - Red', '03 - Green', '02 - Blue', '05 - NIR', '05 - NIR', '05 - NIR', '05 - NIR', '06 - SWIR1', '07 - SWIR2']
-    band_wavelengths: List[float] = [0.66, 0.56, 0.49, 0.86, 0.86, 0.86, 0.86, 1.61, 2.2]
     num_channels: int = len(band_names)
 
 
@@ -482,7 +479,6 @@ class GeoBench_cashew_Config(GeoBenchDatasetConfig):
         "11 - SWIR",
         "12 - SWIR",
     ]
-    band_wavelengths: List[float] = [0.66, 0.56, 0.49, 0.7, 0.74, 0.78, 0.84, 1.61, 2.2]
     num_classes: int = 7
     multilabel: bool = False
     num_channels: int = len(band_names)
@@ -504,7 +500,6 @@ class GeoBench_NeonTree_Config(GeoBenchDatasetConfig):
     dataset_name: str = "m-NeonTree"
     task: str = "segmentation"
     band_names: List[str] = ["Blue", "Green", "Red"]
-    band_wavelengths: List[float] = [0.48, 0.56, 0.66]
     num_classes: int = 2
     multilabel: bool = False
     num_channels: int = len(band_names)
@@ -529,21 +524,6 @@ class GeoBench_SAcrop_Config(GeoBenchDatasetConfig):
         "11 - SWIR",
         "12 - SWIR",
     ]
-    band_wavelengths: List[float] = [
-        0.44,
-        0.49,
-        0.56,
-        0.66,
-        0.7,
-        0.74,
-        0.78,
-        0.84,
-        0.86,
-        0.94,
-        1.61,
-        1.61,
-        2.2,
-    ]
     num_classes: int = 10
     multilabel: bool = False
     num_channels: int = len(band_names)
@@ -561,17 +541,6 @@ class GeoBench_SAcrop_9_Config(GeoBench_SAcrop_Config):
         '11 - SWIR', 
         '12 - SWIR'
         ]
-    band_wavelengths: List[float] = [
-        0.66, 
-        0.56, 
-        0.49, 
-        0.7, 
-        0.74, 
-        0.78, 
-        0.84, 
-        1.61, 
-        2.2,
-    ]
     num_channels: int = len(band_names)
 
 class GeoBench_nzcattle_Config(GeoBenchDatasetConfig):
@@ -601,18 +570,6 @@ class GeoBench_cashew_10band_Config(GeoBenchDatasetConfig):
         "11 - SWIR",
         "12 - SWIR",
     ]
-    band_wavelengths: List[float] = [
-        0.49,
-        0.56,
-        0.665,
-        0.705,
-        0.74,
-        0.783,
-        0.842,
-        0.865,
-        1.61,
-        2.19,
-    ]
     num_classes: int = 7
     multilabel: bool = False
     num_channels: int = len(band_names)
@@ -636,17 +593,14 @@ class GeoBench_cashew_3_Config(GeoBench_cashew_Config):
         "03 - Green",
         "02 - Blue",
     ]
-    band_wavelengths: List[float] = [0.66, 0.56, 0.49]
     num_channels: int = len(band_names)
 
 class GeoBench_chesapeak_3_Config(GeoBench_chesapeake_Config):
     band_names: List[str] = ["Blue", "Green", "Red"]
-    band_wavelengths: List[float] = [0.48, 0.56, 0.66]
     num_channels: int = len(band_names)
 
 class GeoBench_NeonTree_3_Config(GeoBench_NeonTree_Config):
     band_names: List[str] = ["Blue", "Green", "Red"]
-    band_wavelengths: List[float] = [0.48, 0.56, 0.66]
     num_channels: int = len(band_names)
 
 class GeoBench_SAcrop_3_Config(GeoBench_SAcrop_Config):
@@ -655,12 +609,10 @@ class GeoBench_SAcrop_3_Config(GeoBench_SAcrop_Config):
         "03 - Green",
         "04 - Red",
     ]
-    band_wavelengths: List[float] = [0.49, 0.56, 0.665]
     num_channels: int = len(band_names)
 
 class GeoBench_nzcattle_3_Config(GeoBench_nzcattle_Config):
     band_names: List[str] = ["Red", "Green", "Blue"]
-    band_wavelengths: List[float] = [0.66, 0.56, 0.48]
     num_channels: int = len(band_names)
 
 
@@ -981,6 +933,7 @@ class BaseModelConfig(BaseModel):
         # image_resolution depends on the model
         dataset_config.image_resolution = cls.image_resolution
         # model wavelength determined by dataset
+        dataset_config.set_band_wavelengths()
         cls.band_wavelengths = dataset_config.band_wavelengths
         cls.multilabel = dataset_config.multilabel
 

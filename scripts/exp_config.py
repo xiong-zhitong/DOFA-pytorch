@@ -32,8 +32,6 @@ import subprocess
         "warmup_epochs": 3,
     },
 
-'''
-experiments = [
     {
         "model": "dofa_seg",
         "dataset": "geobench_SAcrop_9",
@@ -49,7 +47,7 @@ experiments = [
         "task": "segmentation",
         "batch_size": 16,
         "epochs": 20,
-        "lr": 0.005,
+        "lr": 0.001,
         "warmup_epochs": 3,
     },
     {
@@ -58,7 +56,7 @@ experiments = [
         "task": "segmentation",
         "batch_size": 16,
         "epochs": 20,
-        "lr": 0.005,
+        "lr": 0.001,
         "warmup_epochs": 3,
     },
     {
@@ -74,23 +72,25 @@ experiments = [
         "dataset": "geobench_pv4ger_cls",
         "task": "classification",
         "batch_size": 256,
-        "lr": 0.5,
+        "lr": 0.05,
         "epochs": 50,
     },
+'''
+experiments = [
     {
         "model": "dofa_cls",
         "dataset": "geobench_brick_kiln_13",
         "task": "classification",
-        "batch_size": 256,
-        "lr": 0.5,
-        "epochs": 50,
+        "batch_size": 128,
+        "lr": 0.05,
+        "epochs": 10,
     },
      {
         "model": "dofa_cls",
         "dataset": "geobench_forestnet_9",
         "task": "classification",
         "batch_size": 256,
-        "lr": 0.5,
+        "lr": 0.05,
         "epochs": 50,
     },
      {
@@ -98,7 +98,7 @@ experiments = [
         "dataset": "geobench_eurosat_13",
         "task": "classification",
         "batch_size": 256,
-        "lr": 0.5,
+        "lr": 0.05,
         "epochs": 50,
     },
 ]
