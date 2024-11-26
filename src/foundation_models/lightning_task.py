@@ -1,5 +1,7 @@
 import pytorch_lightning as pl
 import torch
+from torchlars import LARS
+
 
 class LightningTask(pl.LightningModule):
     def __init__(self, args, config, data_config):

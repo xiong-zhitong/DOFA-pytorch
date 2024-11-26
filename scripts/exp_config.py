@@ -36,7 +36,7 @@ import subprocess
         "model": "dofa_seg",
         "dataset": "geobench_SAcrop_9",
         "task": "segmentation",
-        "batch_size": 80,
+        "batch_size": 84,
         "epochs": 20,
         "lr": 0.005,
         "warmup_epochs": 3,
@@ -59,8 +59,6 @@ import subprocess
         "lr": 0.005,
         "warmup_epochs": 3,
     },
-'''
-experiments = [
     {
         "model": "dofa_cls",
         "dataset": "geobench_so2sat_cls",
@@ -77,29 +75,32 @@ experiments = [
         "lr": 0.5,
         "epochs": 50,
     },
+
     {
         "model": "dofa_cls",
         "dataset": "geobench_brick_kiln_13",
         "task": "classification",
-        "batch_size": 256,
-        "lr": 0.5,
-        "epochs": 50,
+        "batch_size": 128,
+        "lr": 1.0,
+        "epochs": 10,
     },
+'''
+experiments = [
      {
         "model": "dofa_cls",
         "dataset": "geobench_forestnet_9",
         "task": "classification",
-        "batch_size": 256,
-        "lr": 0.5,
-        "epochs": 50,
+        "batch_size": 128,
+        "lr": 0.01,
+        "epochs": 10,
     },
      {
         "model": "dofa_cls",
         "dataset": "geobench_eurosat_13",
         "task": "classification",
         "batch_size": 256,
-        "lr": 0.5,
-        "epochs": 50,
+        "lr": 0.05,
+        "epochs": 10,
     },
 ]
 
@@ -108,7 +109,7 @@ for exp in experiments:
     print(f"Running experiment: {exp['model']} on {exp['dataset']}")
     #exp["epochs"] = 1  # This is for debug
     if not 'warmup_epochs' in exp.keys():
-        exp["warmup_epochs"] = 0
+        exp["warmup_epochs"] = 3
     subprocess.run(
         [
             "bash", "scripts/run.sh",  # Path to the template script
