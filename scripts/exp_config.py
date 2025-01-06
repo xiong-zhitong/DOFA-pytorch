@@ -86,13 +86,23 @@ import subprocess
 '''
 experiments = [
      {
+        "model": "anysat_cls",
+        "dataset": "geobench_pv4ger_cls",
+        "task": "classification",
+        "batch_size": 128,
+        "lr": 0.0001,
+        "epochs": 100,
+     },
+
+     {
         "model": "dofa_cls",
         "dataset": "geobench_forestnet_9",
         "task": "classification",
         "batch_size": 128,
         "lr": 0.01,
         "epochs": 10,
-    },
+     },
+
      {
         "model": "dofa_cls",
         "dataset": "geobench_eurosat_13",

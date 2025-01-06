@@ -1,4 +1,4 @@
-from foundation_models import CromaModel, ScaleMAEModel, GFMModel, DinoV2Model, SoftConModel, DofaModel, SatMAEModel, PanopticonModel
+from foundation_models import CromaModel, ScaleMAEModel, GFMModel, DinoV2Model, SoftConModel, DofaModel, SatMAEModel, AnySatModel
 from datasets.geobench_wrapper import GeoBenchDataset
 from datasets.resisc_wrapper import Resics45Dataset
 from datasets.benv2_wrapper import BenV2Dataset
@@ -6,13 +6,14 @@ import pdb
 
 model_registry = {
     "croma": CromaModel,
-    "panopticon": PanopticonModel,
+    #"panopticon": PanopticonModel,
     "scalemae": ScaleMAEModel,
     "gfm": GFMModel,
     "dinov2": DinoV2Model,
     "softcon": SoftConModel,
     "dofa": DofaModel,
     "satmae":SatMAEModel,
+    "anysat": AnySatModel,
     # Add other model mappings here
 }
 

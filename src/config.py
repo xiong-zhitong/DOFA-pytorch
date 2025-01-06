@@ -7,10 +7,10 @@ band_names = [
     "01 - Coastal aerosol", "02 - Blue", "03 - Green", "04 - Red",
     "05 - Vegetation Red Edge", "06 - Vegetation Red Edge", "07 - Vegetation Red Edge",
     "08 - NIR", "08A - Vegetation Red Edge", "09 - Water vapour",
-    "10 - SWIR - Cirrus", "11 - SWIR", "12 - SWIR"
+    "10 - SWIR - Cirrus", "11 - SWIR", "12 - SWIR", "Blue", "Green", "Red",
 ]
 
-band_wavelengths: list[float] = [0.443, 0.490, 0.560, 0.665, 0.705, 0.740, 0.783, 0.842, 0.865, 0.945, 1.375, 1.610, 2.190]
+band_wavelengths: list[float] = [0.443, 0.490, 0.560, 0.665, 0.705, 0.740, 0.783, 0.842, 0.865, 0.945, 1.375, 1.610, 2.190, 0.490, 0.560, 0.665]
 BAND_WAVELENGTHS_DICT = dict(zip(band_names, band_wavelengths))
 
 
@@ -937,7 +937,9 @@ class BaseModelConfig(BaseModel):
         # model wavelength determined by dataset
         if len(dataset_config.band_wavelengths) == 0:
             dataset_config.set_band_wavelengths()
-        cls.band_wavelengths = dataset_config.band_wavelengths
+            if dataset_config.band_wavelengths[0] is None:
+                raise ValueError("Unknown band name")
+        #cls.band_wavelengths = dataset_config.band_wavelengths
         cls.multilabel = dataset_config.multilabel
 
 
@@ -1150,6 +1152,26 @@ class Dinov2_cls_Config(BaseModelConfig):
         validate_assignment = True
 
 
+class AnySat_cls_Config(BaseModelConfig):
+    model_type: str = "anysat"
+    dino_size: str = "dinov2_vitl14"
+    image_resolution: int = 224
+    out_features: bool = True
+    freeze_backbone: bool = True
+    task: str = "classification"
+    embed_dim: int = 768
+    num_channels: int = 3
+
+    @validator("num_channels")
+    def validate_num_channels(cls, value):
+        if value != 3:
+            raise ValueError("Dinov2 requires num_channels to be 3.")
+        return value
+
+    class Config:
+        validate_assignment = True
+
+
 class Dinov2_base_cls_Config(Dinov2_cls_Config):
     dino_size: str = "dinov2_vitb14"
     embed_dim: int = 768
@@ -1310,6 +1332,7 @@ model_config_registry = {
     "gfm_cls": GFM_cls_Config,
     "dinov2_seg": Dinov2_seg_Config,
     "dinov2_cls": Dinov2_cls_Config,
+    "anysat_cls": AnySat_cls_Config,
     "dinov2_base_seg": Dinov2_base_seg_Config,
     "dinov2_base_cls": Dinov2_base_cls_Config,
     "softcon_seg": SoftCON_seg_Config,

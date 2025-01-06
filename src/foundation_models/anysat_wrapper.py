@@ -11,12 +11,12 @@ from einops import rearrange
 from util.misc import seg_metric, cls_metric
 
 
-
-class DinoV2Classification(LightningTask):
+class AnySatClassification(LightningTask):
     def __init__(self, args, config, data_config):
         super().__init__(args, config, data_config)
         
-        self.encoder = torch.hub.load('facebookresearch/dinov2', config.dino_size)
+        self.encoder = torch.hub.load('gastruc/anysat', 'anysat', pretrained=True, flash_attn=False)
+
         if config.freeze_backbone:
             self.freeze(self.encoder)
         self.linear_classifier = nn.Linear(config.embed_dim, config.num_classes)
@@ -27,9 +27,9 @@ class DinoV2Classification(LightningTask):
         return self.criterion(outputs[0], labels)
     
     def forward(self, samples):
-        x_dict = {"imgs": samples}
-        out = self.encoder.forward_features(samples)
-        global_pooled = out["x_norm_patchtokens"].mean(dim=1)
+        data = {"spot": samples}
+        features = self.encoder(data, patch_size=16, output='tile', output_modality="spot") 
+        global_pooled = features
         out_logits = self.linear_classifier(global_pooled)
         return out_logits, global_pooled
 
@@ -45,12 +45,11 @@ class DinoV2Classification(LightningTask):
 
 
 
-
-
-class DinoV2Segmentation(LightningTask):
+class AnySatSegmentation(LightningTask):
     def __init__(self, args, config, data_config):
         super().__init__(args, config, data_config)
-        self.encoder = torch.hub.load('facebookresearch/dinov2', config.dino_size)
+        self.encoder = torch.hub.load('gastruc/anysat', 'anysat', pretrained=True, flash_attn=False)
+
         if config.freeze_backbone:
             self.freeze(self.encoder)
         
@@ -76,9 +75,7 @@ class DinoV2Segmentation(LightningTask):
         return self.criterion(outputs[0], labels) + 0.4 * self.criterion(outputs[1], labels)
 
     def forward(self, samples):
-        x_dict = {"imgs":samples}
-        outputs = self.encoder.get_intermediate_layers(x_dict, [4, 6, 10, 11])
-        feats = [rearrange(out, "n (h w) c -> n c h w", h=int(out.size(1)**0.5)) for out in outputs]
+        feats = self.encoder(samples, patch_size=16, output='dense', output_modality="aerial")
         feats = self.neck(feats)
         out = self.decoder(feats)
         out = resize(out, size=samples.shape[2:], mode='bilinear', align_corners=False)
@@ -97,15 +94,11 @@ class DinoV2Segmentation(LightningTask):
         self.log(f'{prefix}_miou', miou, on_step=True, on_epoch=True, prog_bar=True)
         self.log(f'{prefix}_acc', acc, on_step=True, on_epoch=True, prog_bar=True)
 
-
-
-
-
 # Model factory for different dinov2 tasks
-def DinoV2Model(args, config, data_config):
+def AnySatModel(args, config, data_config):
     if args.task == "classification":
-        return DinoV2Classification(args, config, data_config)
+        return AnySatClassification(args, config, data_config)
     elif args.task == "segmentation":
-        return DinoV2Segmentation(args, config, data_config)
+        return AnySatSegmentation(args, config, data_config)
     else:
         raise NotImplementedError("Task not supported")
