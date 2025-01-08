@@ -1,5 +1,0 @@
-bands:
-  - id: sentinel1/B01
-  - id: sentinel1/B02
-
-modality: sar
