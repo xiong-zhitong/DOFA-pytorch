@@ -1108,12 +1108,12 @@ class ScaleMAE_cls_Config(BaseModelConfig):
 
 class Dinov2_seg_Config(BaseModelConfig):
     model_type: str = "dinov2"
-    dino_size: str = "dinov2_vitl14"
+    dino_size: str = "dinov2_vitb14"
     image_resolution: int = 224
     out_features: bool = True
     freeze_backbone: bool = True
     task: str = "segmentation"
-    embed_dim: int = 1024
+    embed_dim: int = 768
     num_channels: int = 3
 
     @validator("num_channels")

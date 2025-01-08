@@ -4,7 +4,7 @@ from functools import partial
 import torch
 import torch.nn as nn
 import torch.utils.checkpoint as cp
-from ops.modules import MSDeformAttn
+from .ops.modules import MSDeformAttn
 from timm.models.layers import DropPath
 
 _logger = logging.getLogger(__name__)
@@ -249,8 +249,8 @@ class SpatialPriorModule(nn.Module):
             nn.Conv2d(inplanes, inplanes, kernel_size=3, stride=1, padding=1, bias=False),
             nn.SyncBatchNorm(inplanes),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
-            nn.AdaptiveAvgPool2d((64, 64))  # Force output to 64x64
+            nn.MaxPool2d(kernel_size=2, stride=2, padding=0),
+            nn.AdaptiveMaxPool2d((64, 64))  # Force output to 64x64
         ])
         self.conv2 = nn.Sequential(*[
             nn.Conv2d(inplanes, 2 * inplanes, kernel_size=3, stride=2, padding=1, bias=False),

@@ -51,7 +51,6 @@ class LightningTask(pl.LightningModule):
         loss = self.loss(outputs, targets)
         self.log_metrics(outputs, targets, prefix="test")
         return loss
-
         
     def configure_optimizers(self):
         if self.config.task == 'classification':
