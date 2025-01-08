@@ -3,6 +3,17 @@ import subprocess
 # Define all the experiments
     ########################-DOFA-########################
 experiments = [
+
+    {
+        "model": "dinov2_seg",
+        "dataset": "geobench_nzcattle",
+        "task": "segmentation",
+        "batch_size": 16,
+        "epochs": 30,
+        "lr": 0.002,
+        "warmup_epochs": 3,
+    },
+
     {
         "model": "dinov2_seg",
         "dataset": "geobench_pv4ger_seg",
