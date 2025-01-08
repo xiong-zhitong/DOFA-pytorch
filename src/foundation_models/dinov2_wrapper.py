@@ -10,11 +10,11 @@ from .lightning_task import LightningTask
 from einops import rearrange
 from util.misc import seg_metric, cls_metric
 import torch.nn.functional as F
-from modules import MSDeformAttn
+#from modules import MSDeformAttn
 from timm.models.layers import trunc_normal_
 from torch.nn.init import normal_
 
-from modules import SpatialPriorModule, InteractionBlock, deform_inputs
+#from modules import SpatialPriorModule, InteractionBlock, deform_inputs
 
 
 class DinoV2Classification(LightningTask):
