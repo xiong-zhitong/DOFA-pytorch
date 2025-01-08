@@ -90,7 +90,7 @@ To add a new model or dataset for evaluation, follow these steps:
 To run the evaluation script, use the following command:
 
 ```bash
-sh scripts/train_linear_geobench_cls_croma.sh
+python scripts/exp_config.py
 ```
 
 This script initiates training for model evaluation on GeoBench with CROMA.
