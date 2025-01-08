@@ -26,26 +26,26 @@ def get_reference_points(spatial_shapes, device):
 
 
 def deform_inputs(x):
+    base_spatial_size=7
     bs, c, h, w = x.shape
-    spatial_shapes = torch.as_tensor([(h // 8, w // 8),
-                                      (h // 16, w // 16),
-                                      (h // 32, w // 32)],
+    spatial_shapes = torch.as_tensor([(h // base_spatial_size, w // base_spatial_size),
+                                      (h // (base_spatial_size*2), w // (base_spatial_size*2)),
+                                      (h // (base_spatial_size*4), w // (base_spatial_size*4))],
                                      dtype=torch.long, device=x.device)
     level_start_index = torch.cat((spatial_shapes.new_zeros(
         (1,)), spatial_shapes.prod(1).cumsum(0)[:-1]))
-    reference_points = get_reference_points([(h // 16, w // 16)], x.device)
+    reference_points = get_reference_points([(h // (base_spatial_size*2), w // (base_spatial_size*2))], x.device)
     deform_inputs1 = [reference_points, spatial_shapes, level_start_index]
     
-    spatial_shapes = torch.as_tensor([(h // 16, w // 16)], dtype=torch.long, device=x.device)
+    spatial_shapes = torch.as_tensor([(h // (base_spatial_size*2), w // (base_spatial_size*2))], dtype=torch.long, device=x.device)
     level_start_index = torch.cat((spatial_shapes.new_zeros(
         (1,)), spatial_shapes.prod(1).cumsum(0)[:-1]))
-    reference_points = get_reference_points([(h // 8, w // 8),
-                                             (h // 16, w // 16),
-                                             (h // 32, w // 32)], x.device)
+    reference_points = get_reference_points([(h // (base_spatial_size), w // (base_spatial_size)),
+                                             (h // (base_spatial_size*2), w // (base_spatial_size*2)),
+                                             (h // (base_spatial_size*4), w // (base_spatial_size*4))], x.device)
     deform_inputs2 = [reference_points, spatial_shapes, level_start_index]
     
     return deform_inputs1, deform_inputs2
-
 
 class ConvFFN(nn.Module):
     def __init__(self, in_features, hidden_features=None, out_features=None,
@@ -179,7 +179,8 @@ class InteractionBlock(nn.Module):
                           feat=c, spatial_shapes=deform_inputs1[1],
                           level_start_index=deform_inputs1[2])
         for idx, blk in enumerate(blocks):
-            x = blk(x, H, W)
+            #x = blk(x, H, W)
+            x = blk(x)
         c = self.extractor(query=c, reference_points=deform_inputs2[0],
                            feat=x, spatial_shapes=deform_inputs2[1],
                            level_start_index=deform_inputs2[2], H=H, W=W)
@@ -219,7 +220,8 @@ class InteractionBlockWithCls(nn.Module):
                           level_start_index=deform_inputs1[2])
         x = torch.cat((cls, x), dim=1)
         for idx, blk in enumerate(blocks):
-            x = blk(x, H, W)
+            #x = blk(x, H, W)
+            x = blk(x)
         cls, x = x[:, :1, ], x[:, 1:, ]
         c = self.extractor(query=c, reference_points=deform_inputs2[0],
                            feat=x, spatial_shapes=deform_inputs2[1],
@@ -247,7 +249,8 @@ class SpatialPriorModule(nn.Module):
             nn.Conv2d(inplanes, inplanes, kernel_size=3, stride=1, padding=1, bias=False),
             nn.SyncBatchNorm(inplanes),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+            nn.AdaptiveAvgPool2d((64, 64))  # Force output to 64x64
         ])
         self.conv2 = nn.Sequential(*[
             nn.Conv2d(inplanes, 2 * inplanes, kernel_size=3, stride=2, padding=1, bias=False),

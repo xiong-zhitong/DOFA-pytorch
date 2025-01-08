@@ -8,7 +8,9 @@ __pycache__/
 *.pth
 *.pt
 *.csv
+panopticon_wrapper.py
 # Distribution / packaging
+PanOpticOn/
 .Python
 logs/
 build/
