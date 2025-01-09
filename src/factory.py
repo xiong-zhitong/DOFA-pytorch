@@ -1,4 +1,13 @@
-from foundation_models import CromaModel, ScaleMAEModel, GFMModel, DinoV2Model, SoftConModel, DofaModel, SatMAEModel, AnySatModel
+from foundation_models import (
+    CromaModel,
+    ScaleMAEModel,
+    GFMModel,
+    DinoV2Model,
+    SoftConModel,
+    DofaModel,
+    SatMAEModel,
+    AnySatModel,
+)
 from datasets.geobench_wrapper import GeoBenchDataset
 from datasets.resisc_wrapper import Resics45Dataset
 from datasets.benv2_wrapper import BenV2Dataset
@@ -6,13 +15,13 @@ import pdb
 
 model_registry = {
     "croma": CromaModel,
-    #"panopticon": PanopticonModel,
+    # "panopticon": PanopticonModel,
     "scalemae": ScaleMAEModel,
     "gfm": GFMModel,
     "dinov2": DinoV2Model,
     "softcon": SoftConModel,
     "dofa": DofaModel,
-    "satmae":SatMAEModel,
+    "satmae": SatMAEModel,
     "anysat": AnySatModel,
     # Add other model mappings here
 }
@@ -20,7 +29,7 @@ model_registry = {
 dataset_registry = {
     "geobench": GeoBenchDataset,
     "resisc45": Resics45Dataset,
-    "benv2": BenV2Dataset
+    "benv2": BenV2Dataset,
     # Add other dataset mappings here
 }
 
@@ -35,7 +44,7 @@ def create_dataset(config_data):
     return dataset.create_dataset()
 
 
-def create_model(args, config_model, dataset_config = None):
+def create_model(args, config_model, dataset_config=None):
     model_name = config_model.model_type
     model_class = model_registry.get(model_name)
     if model_class is None:
@@ -43,7 +52,7 @@ def create_model(args, config_model, dataset_config = None):
 
     if dataset_config is not None:
         config_model.apply_dataset(dataset_config)
-    
+
     model = model_class(args, config_model, dataset_config)
 
     return model

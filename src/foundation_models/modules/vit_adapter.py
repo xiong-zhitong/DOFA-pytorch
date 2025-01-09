@@ -16,34 +16,59 @@ _logger = logging.getLogger(__name__)
 
 
 class ViTAdapter(nn.Module):
-    def __init__(self, pretrain_size=224, num_heads=12, conv_inplane=64, n_points=4, deform_num_heads=6,
-                 init_values=0., interaction_indexes=None, with_cffn=True, cffn_ratio=0.25,
-                 deform_ratio=1.0, add_vit_feature=True, use_extra_extractor=True, *args, **kwargs):
+    def __init__(
+        self,
+        pretrain_size=224,
+        num_heads=12,
+        conv_inplane=64,
+        n_points=4,
+        deform_num_heads=6,
+        init_values=0.0,
+        interaction_indexes=None,
+        with_cffn=True,
+        cffn_ratio=0.25,
+        deform_ratio=1.0,
+        add_vit_feature=True,
+        use_extra_extractor=True,
+        *args,
+        **kwargs,
+    ):
         super().__init__()
 
         # self.num_classes = 80
         self.cls_token = None
-        self.encoder = torch.hub.load('facebookresearch/dinov2', "dinov2_vitb14")
+        self.encoder = torch.hub.load("facebookresearch/dinov2", "dinov2_vitb14")
         self.num_block = len(self.encoder.blocks)
         self.pretrain_size = (pretrain_size, pretrain_size)
         self.interaction_indexes = interaction_indexes
         self.add_vit_feature = add_vit_feature
-        self.drop_path_rate = 0.
+        self.drop_path_rate = 0.0
         self.norm_layer = nn.LayerNorm
 
         embed_dim = self.encoder.embed_dim
 
         self.level_embed = nn.Parameter(torch.zeros(3, embed_dim))
-        self.spm = SpatialPriorModule(inplanes=conv_inplane,
-                                      embed_dim=embed_dim)
-        self.interactions = nn.Sequential(*[
-            InteractionBlock(dim=embed_dim, num_heads=deform_num_heads, n_points=n_points,
-                             init_values=init_values, drop_path=self.drop_path_rate,
-                             norm_layer=self.norm_layer, with_cffn=with_cffn,
-                             cffn_ratio=cffn_ratio, deform_ratio=deform_ratio,
-                             extra_extractor=((True if i == len(interaction_indexes) - 1 else False) and use_extra_extractor))
-            for i in range(len(interaction_indexes))
-        ])
+        self.spm = SpatialPriorModule(inplanes=conv_inplane, embed_dim=embed_dim)
+        self.interactions = nn.Sequential(
+            *[
+                InteractionBlock(
+                    dim=embed_dim,
+                    num_heads=deform_num_heads,
+                    n_points=n_points,
+                    init_values=init_values,
+                    drop_path=self.drop_path_rate,
+                    norm_layer=self.norm_layer,
+                    with_cffn=with_cffn,
+                    cffn_ratio=cffn_ratio,
+                    deform_ratio=deform_ratio,
+                    extra_extractor=(
+                        (True if i == len(interaction_indexes) - 1 else False)
+                        and use_extra_extractor
+                    ),
+                )
+                for i in range(len(interaction_indexes))
+            ]
+        )
         self.up = nn.ConvTranspose2d(embed_dim, embed_dim, 2, 2)
         self.norm1 = nn.SyncBatchNorm(embed_dim)
         self.norm2 = nn.SyncBatchNorm(embed_dim)
@@ -58,7 +83,7 @@ class ViTAdapter(nn.Module):
 
     def _init_weights(self, m):
         if isinstance(m, nn.Linear):
-            trunc_normal_(m.weight, std=.02)
+            trunc_normal_(m.weight, std=0.02)
             if isinstance(m, nn.Linear) and m.bias is not None:
                 nn.init.constant_(m.bias, 0)
         elif isinstance(m, nn.LayerNorm) or isinstance(m, nn.BatchNorm2d):
@@ -73,9 +98,13 @@ class ViTAdapter(nn.Module):
 
     def _get_pos_embed(self, pos_embed, H, W):
         pos_embed = pos_embed.reshape(
-            1, self.pretrain_size[0] // 14, self.pretrain_size[1] // 14, -1).permute(0, 3, 1, 2)
-        pos_embed = F.interpolate(pos_embed, size=(H, W), mode='bicubic', align_corners=False).\
-            reshape(1, -1, H * W).permute(0, 2, 1)
+            1, self.pretrain_size[0] // 14, self.pretrain_size[1] // 14, -1
+        ).permute(0, 3, 1, 2)
+        pos_embed = (
+            F.interpolate(pos_embed, size=(H, W), mode="bicubic", align_corners=False)
+            .reshape(1, -1, H * W)
+            .permute(0, 2, 1)
+        )
         return pos_embed
 
     def _init_deform_weights(self, m):
@@ -98,26 +127,35 @@ class ViTAdapter(nn.Module):
         c = torch.cat([c2, c3, c4], dim=1)
 
         # Patch Embedding forward
-        #pdb.set_trace()
+        # pdb.set_trace()
         x = self.encoder.patch_embed(x)
-        #x, H, W = self.encoder.patch_embed(x)
+        # x, H, W = self.encoder.patch_embed(x)
         bs, n, dim = x.shape
         H = W = int(math.sqrt(n))
-        #pos_embed = self._get_pos_embed(self.encoder.pos_embed[:, 1:], H, W)
-        pos_embed = self.encoder.interpolate_pos_encoding(x,self.pretrain_size[0],self.pretrain_size[1])
-        pos_embed = pos_embed[:,1:]
+        # pos_embed = self._get_pos_embed(self.encoder.pos_embed[:, 1:], H, W)
+        pos_embed = self.encoder.interpolate_pos_encoding(
+            x, self.pretrain_size[0], self.pretrain_size[1]
+        )
+        pos_embed = pos_embed[:, 1:]
         x = x + pos_embed
 
         # Interaction
         for i, layer in enumerate(self.interactions):
             indexes = self.interaction_indexes[i]
-            x, c = layer(x, c, self.encoder.blocks[indexes[0]:indexes[-1] + 1],
-                         deform_inputs1, deform_inputs2, H, W)
+            x, c = layer(
+                x,
+                c,
+                self.encoder.blocks[indexes[0] : indexes[-1] + 1],
+                deform_inputs1,
+                deform_inputs2,
+                H,
+                W,
+            )
 
         # Split & Reshape
-        c2 = c[:, 0:c2.size(1), :]
-        c3 = c[:, c2.size(1):c2.size(1) + c3.size(1), :]
-        c4 = c[:, c2.size(1) + c3.size(1):, :]
+        c2 = c[:, 0 : c2.size(1), :]
+        c3 = c[:, c2.size(1) : c2.size(1) + c3.size(1), :]
+        c4 = c[:, c2.size(1) + c3.size(1) :, :]
 
         c2 = c2.transpose(1, 2).view(bs, dim, H * 2, W * 2).contiguous()
         c3 = c3.transpose(1, 2).view(bs, dim, H, W).contiguous()
@@ -126,9 +164,11 @@ class ViTAdapter(nn.Module):
 
         if self.add_vit_feature:
             x3 = x.transpose(1, 2).view(bs, dim, H, W).contiguous()
-            x1 = F.interpolate(x3, scale_factor=4, mode='bilinear', align_corners=False)
-            x2 = F.interpolate(x3, scale_factor=2, mode='bilinear', align_corners=False)
-            x4 = F.interpolate(x3, scale_factor=0.5, mode='bilinear', align_corners=False)
+            x1 = F.interpolate(x3, scale_factor=4, mode="bilinear", align_corners=False)
+            x2 = F.interpolate(x3, scale_factor=2, mode="bilinear", align_corners=False)
+            x4 = F.interpolate(
+                x3, scale_factor=0.5, mode="bilinear", align_corners=False
+            )
             c1, c2, c3, c4 = c1 + x1, c2 + x2, c3 + x3, c4 + x4
 
         # Final Norm
@@ -139,9 +179,11 @@ class ViTAdapter(nn.Module):
         return [f1, f2, f3, f4]
 
 
-if __name__=="__main__":
-    vitadapter = ViTAdapter(interaction_indexes=[[0, 5], [6, 11], [12, 17], [18, 23]]).cuda()
-    x = torch.randn([2,3,224,224]).cuda()
+if __name__ == "__main__":
+    vitadapter = ViTAdapter(
+        interaction_indexes=[[0, 5], [6, 11], [12, 17], [18, 23]]
+    ).cuda()
+    x = torch.randn([2, 3, 224, 224]).cuda()
     out = vitadapter(x)
     print(out[0].shape)
     print(out[1].shape)

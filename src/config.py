@@ -4,15 +4,43 @@ import pdb
 
 # Pre-define the band_wavelengths dict
 band_names = [
-    "01 - Coastal aerosol", "02 - Blue", "03 - Green", "04 - Red",
-    "05 - Vegetation Red Edge", "06 - Vegetation Red Edge", "07 - Vegetation Red Edge",
-    "08 - NIR", "08A - Vegetation Red Edge", "09 - Water vapour",
-    "10 - SWIR - Cirrus", "11 - SWIR", "12 - SWIR", "Blue", "Green", "Red",
+    "01 - Coastal aerosol",
+    "02 - Blue",
+    "03 - Green",
+    "04 - Red",
+    "05 - Vegetation Red Edge",
+    "06 - Vegetation Red Edge",
+    "07 - Vegetation Red Edge",
+    "08 - NIR",
+    "08A - Vegetation Red Edge",
+    "09 - Water vapour",
+    "10 - SWIR - Cirrus",
+    "11 - SWIR",
+    "12 - SWIR",
+    "Blue",
+    "Green",
+    "Red",
 ]
 
-band_wavelengths: list[float] = [0.443, 0.490, 0.560, 0.665, 0.705, 0.740, 0.783, 0.842, 0.865, 0.945, 1.375, 1.610, 2.190, 0.490, 0.560, 0.665]
+band_wavelengths: list[float] = [
+    0.443,
+    0.490,
+    0.560,
+    0.665,
+    0.705,
+    0.740,
+    0.783,
+    0.842,
+    0.865,
+    0.945,
+    1.375,
+    1.610,
+    2.190,
+    0.490,
+    0.560,
+    0.665,
+]
 BAND_WAVELENGTHS_DICT = dict(zip(band_names, band_wavelengths))
-
 
 
 # Dataset Config
@@ -33,8 +61,10 @@ class BaseDatasetConfig(BaseModel):
     def set_band_wavelengths(cls):
         band_names = cls.band_names
         # Map band names to wavelengths using the predefined dictionary
-        cls.band_wavelengths = [BAND_WAVELENGTHS_DICT.get(band, None) for band in band_names]
-    
+        cls.band_wavelengths = [
+            BAND_WAVELENGTHS_DICT.get(band, None) for band in band_names
+        ]
+
 
 # Example dataset configurations
 class GeoBenchDatasetConfig(BaseDatasetConfig):
@@ -65,6 +95,7 @@ class GeoBenchDatasetConfig(BaseDatasetConfig):
 
 ############ CLASSSIFICATION #######################
 
+
 class Resics_rgb_Config(BaseDatasetConfig):
     dataset_type: str = "resisc45"
     task: str = "classification"
@@ -76,6 +107,7 @@ class Resics_rgb_Config(BaseDatasetConfig):
     image_resolution: int = 224
     multilabel: bool = False
 
+
 class Benv2_all_Config(BaseDatasetConfig):
     dataset_type: str = "benv2"
     task: str = "classification"
@@ -83,18 +115,21 @@ class Benv2_all_Config(BaseDatasetConfig):
     num_classes: int = 19
     num_channels: int = 14
     data_path: str = "/mnt/data/datasets_classification/benv2"
-    image_resolution: int = 224 # desired image size for model input
+    image_resolution: int = 224  # desired image size for model input
     band_wavelengths: List[float] = []
     multilabel: bool = True
-    bands: str = "all" # argument for torchgeo loader
+    bands: str = "all"  # argument for torchgeo loader
+
 
 class Benv2_S1_Config(Benv2_all_Config):
     bands: str = "s1"
     num_channels: int = 2
 
+
 class Benv2_S2_Config(Benv2_all_Config):
     bands: str = "s2"
     num_channels: int = 12
+
 
 class Benv2_RGB_Config(Benv2_all_Config):
     bands: str = "rgb"
@@ -193,11 +228,13 @@ class GeoBench_eurosat_Config(GeoBenchDatasetConfig):
     multilabel: bool = False
     num_channels: int = len(band_names)
 
+
 ###################################################
 
 #### SCALEMAE with 3 channels #######################
 
 ###################################################
+
 
 class GeoBench_brick_kiln_3_Config(GeoBench_brick_kiln_Config):
     band_names: List[str] = [
@@ -207,6 +244,7 @@ class GeoBench_brick_kiln_3_Config(GeoBench_brick_kiln_Config):
     ]
     num_channels: int = len(band_names)
 
+
 class GeoBench_so2sat_3_Config(GeoBench_so2sat_10band_Config):
     band_names: List[str] = [
         "02 - Blue",
@@ -214,6 +252,7 @@ class GeoBench_so2sat_3_Config(GeoBench_so2sat_10band_Config):
         "04 - Red",
     ]
     num_channels: int = len(band_names)
+
 
 class GeoBench_forestnet_3_Config(GeoBench_forestnet_Config):
     band_names: List[str] = [
@@ -245,6 +284,7 @@ class GeoBench_pv4ger_cls_3_Config(GeoBench_pv4ger_cls_Config):
 ####################################################
 
 #### SOFTCON with 13 channels #######################
+
 
 #####################################################
 class GeoBench_brick_kiln_13_Config(GeoBench_brick_kiln_Config):
@@ -281,6 +321,7 @@ class GeoBench_brick_kiln_10_Config(GeoBench_brick_kiln_Config):
     ]
     num_channels: int = len(band_names)
 
+
 class GeoBench_so2sat_13_Config(GeoBench_so2sat_10band_Config):
     band_names: List[str] = [
         "02 - Blue",
@@ -298,6 +339,7 @@ class GeoBench_so2sat_13_Config(GeoBench_so2sat_10band_Config):
         "12 - SWIR",
     ]
     num_channels: int = len(band_names)
+
 
 class GeoBench_forestnet_13_Config(GeoBench_forestnet_Config):
     band_names: List[str] = [
@@ -336,6 +378,7 @@ class GeoBench_eurosat_13_Config(GeoBench_eurosat_Config):
     ]
     num_channels: int = len(band_names)
 
+
 class GeoBench_eurosat_10_Config(GeoBench_eurosat_Config):
     band_names: List[str] = [
         "02 - Blue",
@@ -370,11 +413,13 @@ class GeoBench_pv4ger_cls_13_Config(GeoBench_pv4ger_cls_Config):
     ]
     num_channels: int = len(band_names)
 
+
 ####################################################
 
 ########## 12 Channels CROMA - cirrus removed #######################
 
 ####################################################
+
 
 class GeoBench_brick_kiln_12_Config(GeoBench_brick_kiln_Config):
     band_names: List[str] = [
@@ -411,9 +456,30 @@ class GeoBench_so2sat_12_Config(GeoBench_so2sat_10band_Config):
     ]
     num_channels: int = len(band_names)
 
+
 class GeoBench_forestnet_9_Config(GeoBench_forestnet_Config):
-    band_names: List[str] = ['04 - Red', '03 - Green', '02 - Blue', '05 - NIR', '05 - NIR', '05 - NIR', '05 - NIR', '06 - SWIR1', '07 - SWIR2']
-    band_wavelengths: list[float] = [0.66, 0.56, 0.49, 0.86, 0.86, 0.86, 0.86, 1.61, 2.2]
+    band_names: List[str] = [
+        "04 - Red",
+        "03 - Green",
+        "02 - Blue",
+        "05 - NIR",
+        "05 - NIR",
+        "05 - NIR",
+        "05 - NIR",
+        "06 - SWIR1",
+        "07 - SWIR2",
+    ]
+    band_wavelengths: list[float] = [
+        0.66,
+        0.56,
+        0.49,
+        0.86,
+        0.86,
+        0.86,
+        0.86,
+        1.61,
+        2.2,
+    ]
     num_channels: int = len(band_names)
 
 
@@ -433,6 +499,7 @@ class GeoBench_eurosat_12_Config(GeoBench_eurosat_Config):
         "12 - SWIR",
     ]
     num_channels: int = len(band_names)
+
 
 class GeoBench_pv4ger_cls_12_Config(GeoBench_pv4ger_cls_Config):
     band_names: List[str] = [
@@ -533,17 +600,18 @@ class GeoBench_SAcrop_Config(GeoBenchDatasetConfig):
 
 class GeoBench_SAcrop_9_Config(GeoBench_SAcrop_Config):
     band_names: List[str] = [
-        '04 - Red', 
-        '03 - Green', 
-        '02 - Blue', 
-        '05 - Vegetation Red Edge', 
-        '06 - Vegetation Red Edge', 
-        '07 - Vegetation Red Edge', 
-        '08 - NIR', 
-        '11 - SWIR', 
-        '12 - SWIR'
-        ]
+        "04 - Red",
+        "03 - Green",
+        "02 - Blue",
+        "05 - Vegetation Red Edge",
+        "06 - Vegetation Red Edge",
+        "07 - Vegetation Red Edge",
+        "08 - NIR",
+        "11 - SWIR",
+        "12 - SWIR",
+    ]
     num_channels: int = len(band_names)
+
 
 class GeoBench_nzcattle_Config(GeoBenchDatasetConfig):
     benchmark_name: str = "segmentation_v1.0"
@@ -577,12 +645,12 @@ class GeoBench_cashew_10band_Config(GeoBenchDatasetConfig):
     num_channels: int = len(band_names)
 
 
-
 ############################################################
 
 ############### SEGMENTATION 3 Channels ########################
 
 ############################################################
+
 
 class GeoBench_pv4ger_seg_3_Config(GeoBench_pv4ger_seg_Config):
     band_names: List[str] = ["Blue", "Green", "Red"]
@@ -597,13 +665,16 @@ class GeoBench_cashew_3_Config(GeoBench_cashew_Config):
     ]
     num_channels: int = len(band_names)
 
+
 class GeoBench_chesapeak_3_Config(GeoBench_chesapeake_Config):
     band_names: List[str] = ["Blue", "Green", "Red"]
     num_channels: int = len(band_names)
 
+
 class GeoBench_NeonTree_3_Config(GeoBench_NeonTree_Config):
     band_names: List[str] = ["Blue", "Green", "Red"]
     num_channels: int = len(band_names)
+
 
 class GeoBench_SAcrop_3_Config(GeoBench_SAcrop_Config):
     band_names: List[str] = [
@@ -612,6 +683,7 @@ class GeoBench_SAcrop_3_Config(GeoBench_SAcrop_Config):
         "04 - Red",
     ]
     num_channels: int = len(band_names)
+
 
 class GeoBench_nzcattle_3_Config(GeoBench_nzcattle_Config):
     band_names: List[str] = ["Red", "Green", "Blue"]
@@ -629,7 +701,7 @@ class GeoBench_pv4ger_seg_12_Config(GeoBench_pv4ger_seg_Config):
     band_names: List[str] = [
         "Blue",
         "Blue",
-        "Green", 
+        "Green",
         "Red",
         "Red",
         "Red",
@@ -641,6 +713,7 @@ class GeoBench_pv4ger_seg_12_Config(GeoBench_pv4ger_seg_Config):
         "Red",
     ]
     num_channels: int = len(band_names)
+
 
 class GeoBench_cashew_12_Config(GeoBench_cashew_Config):
     band_names: List[str] = [
@@ -659,6 +732,7 @@ class GeoBench_cashew_12_Config(GeoBench_cashew_Config):
     ]
     num_channels: int = len(band_names)
 
+
 class GeoBench_cashew_10_Config(GeoBench_cashew_Config):
     band_names: List[str] = [
         "02 - Blue",
@@ -674,11 +748,12 @@ class GeoBench_cashew_10_Config(GeoBench_cashew_Config):
     ]
     num_channels: int = len(band_names)
 
+
 class GeoBench_chesapeak_12_Config(GeoBench_chesapeake_Config):
     band_names: List[str] = [
         "Blue",
         "Blue",
-        "Green", 
+        "Green",
         "Red",
         "Red",
         "Red",
@@ -691,11 +766,12 @@ class GeoBench_chesapeak_12_Config(GeoBench_chesapeake_Config):
     ]
     num_channels: int = len(band_names)
 
+
 class GeoBench_NeonTree_12_Config(GeoBench_NeonTree_Config):
     band_names: List[str] = [
         "Blue",
         "Blue",
-        "Green", 
+        "Green",
         "Red",
         "Red",
         "Red",
@@ -707,6 +783,7 @@ class GeoBench_NeonTree_12_Config(GeoBench_NeonTree_Config):
         "Red",
     ]
     num_channels: int = len(band_names)
+
 
 class GeoBench_SAcrop_12_Config(GeoBench_SAcrop_Config):
     band_names: List[str] = [
@@ -725,6 +802,7 @@ class GeoBench_SAcrop_12_Config(GeoBench_SAcrop_Config):
     ]
     num_channels: int = len(band_names)
 
+
 class GeoBench_nzcattle_12_Config(GeoBench_nzcattle_Config):
     band_names: List[str] = [
         "Red",
@@ -742,17 +820,19 @@ class GeoBench_nzcattle_12_Config(GeoBench_nzcattle_Config):
     ]
     num_channels: int = len(band_names)
 
+
 ##############################################################
 
 ################## SEGMENTATION 13 channels ###################
 
 ##############################################################
 
+
 class GeoBench_pv4ger_seg_13_Config(GeoBench_pv4ger_seg_Config):
     band_names: List[str] = [
         "Blue",
         "Blue",
-        "Green", 
+        "Green",
         "Red",
         "Red",
         "Red",
@@ -765,6 +845,7 @@ class GeoBench_pv4ger_seg_13_Config(GeoBench_pv4ger_seg_Config):
         "Red",
     ]
     num_channels: int = len(band_names)
+
 
 class GeoBench_cashew_13_Config(GeoBench_cashew_Config):
     band_names: List[str] = [
@@ -784,11 +865,12 @@ class GeoBench_cashew_13_Config(GeoBench_cashew_Config):
     ]
     num_channels: int = len(band_names)
 
+
 class GeoBench_chesapeak_13_Config(GeoBench_chesapeake_Config):
     band_names: List[str] = [
         "Blue",
         "Blue",
-        "Green", 
+        "Green",
         "Red",
         "Red",
         "Red",
@@ -802,11 +884,12 @@ class GeoBench_chesapeak_13_Config(GeoBench_chesapeake_Config):
     ]
     num_channels: int = len(band_names)
 
+
 class GeoBench_NeonTree_13_Config(GeoBench_NeonTree_Config):
     band_names: List[str] = [
         "Blue",
         "Blue",
-        "Green", 
+        "Green",
         "Red",
         "Red",
         "Red",
@@ -819,6 +902,7 @@ class GeoBench_NeonTree_13_Config(GeoBench_NeonTree_Config):
         "Red",
     ]
     num_channels: int = len(band_names)
+
 
 class GeoBench_SAcrop_13_Config(GeoBench_SAcrop_Config):
     band_names: List[str] = [
@@ -838,11 +922,12 @@ class GeoBench_SAcrop_13_Config(GeoBench_SAcrop_Config):
     ]
     num_channels: int = len(band_names)
 
+
 class GeoBench_nzcattle_13_Config(GeoBench_nzcattle_Config):
     band_names: List[str] = [
         "Blue",
         "Blue",
-        "Green", 
+        "Green",
         "Red",
         "Red",
         "Red",
@@ -855,7 +940,6 @@ class GeoBench_nzcattle_13_Config(GeoBench_nzcattle_Config):
         "Red",
     ]
     num_channels: int = len(band_names)
-
 
 
 dataset_config_registry = {
@@ -910,7 +994,7 @@ dataset_config_registry = {
     "benv2_s1": Benv2_S1_Config,
     "benv2_s2": Benv2_S2_Config,
     "benv2_rgb": Benv2_RGB_Config,
-    "benv2_all": Benv2_all_Config
+    "benv2_all": Benv2_all_Config,
 }
 
 #######################################################################################
@@ -939,7 +1023,7 @@ class BaseModelConfig(BaseModel):
             dataset_config.set_band_wavelengths()
             if dataset_config.band_wavelengths[0] is None:
                 raise ValueError("Unknown band name")
-        #cls.band_wavelengths = dataset_config.band_wavelengths
+        # cls.band_wavelengths = dataset_config.band_wavelengths
         cls.multilabel = dataset_config.multilabel
 
 
@@ -953,9 +1037,8 @@ class SatMAE_seg_Config(BaseModelConfig):
     patch_size: int = 8
     num_channels: int = 10
     channel_groups: Tuple[Tuple[int, ...], ...] = ((0, 1, 2, 6), (3, 4, 5, 7), (8, 9))
-    pretrained_path: str = (
-        "src/fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
-    )
+    pretrained_path: str = "src/fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
+
 
 class SatMAE_seg_rgb_Config(BaseModelConfig):
     model_type: str = "satmae"
@@ -966,9 +1049,7 @@ class SatMAE_seg_rgb_Config(BaseModelConfig):
     num_channels: int = 3
     image_resolution: int = 224
     patch_size: int = 16
-    pretrained_path: str = (
-        "src/fm_weights/checkpoint_ViT-L_pretrain_fmow_rgb.pth"
-    )
+    pretrained_path: str = "src/fm_weights/checkpoint_ViT-L_pretrain_fmow_rgb.pth"
 
 
 class SatMAE_cls_Config(BaseModelConfig):
@@ -981,9 +1062,8 @@ class SatMAE_cls_Config(BaseModelConfig):
     patch_size: int = 8
     num_channels: int = 10
     channel_groups: Tuple[Tuple[int, ...], ...] = ((0, 1, 2, 6), (3, 4, 5, 7), (8, 9))
-    pretrained_path: str = (
-        "src/fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
-    )
+    pretrained_path: str = "src/fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
+
 
 class SatMAE_cls_rgb_Config(BaseModelConfig):
     model_type: str = "satmae"
@@ -994,9 +1074,7 @@ class SatMAE_cls_rgb_Config(BaseModelConfig):
     num_channels: int = 3
     patch_size: int = 16
     image_resolution: int = 224
-    pretrained_path: str = (
-        "src/fm_weights/checkpoint_ViT-L_pretrain_fmow_rgb.pth"
-    )
+    pretrained_path: str = "src/fm_weights/checkpoint_ViT-L_pretrain_fmow_rgb.pth"
 
 
 class Panopticon_seg_Config(BaseModelConfig):
@@ -1138,7 +1216,12 @@ class Dinov2_cls_Config(BaseModelConfig):
 
     @validator("dino_size")
     def validate_dino_size(cls, value):
-        if value not in ['dinov2_vits14','dinov2_vitb14','dinov2_vitl14','dinov2_vitg14']:
+        if value not in [
+            "dinov2_vits14",
+            "dinov2_vitb14",
+            "dinov2_vitl14",
+            "dinov2_vitg14",
+        ]:
             raise ValueError("Wrong Dinov2 model.")
         return value
 
@@ -1176,9 +1259,11 @@ class Dinov2_base_cls_Config(Dinov2_cls_Config):
     dino_size: str = "dinov2_vitb14"
     embed_dim: int = 768
 
+
 class Dinov2_base_seg_Config(Dinov2_seg_Config):
     dino_size: str = "dinov2_vitb14"
     embed_dim: int = 768
+
 
 class SoftCON_seg_Config(BaseModelConfig):
     model_type: str = "softcon"
@@ -1260,6 +1345,7 @@ class DOFA_base_seg_Config(BaseModelConfig):
 
     class Config:
         validate_assignment = True
+
 
 class DOFA_cls_Config(BaseModelConfig):
     model_type: str = "dofa"
