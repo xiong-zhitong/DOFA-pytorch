@@ -11,7 +11,11 @@
 
 from functools import partial
 from einops.layers.torch import Rearrange
-from .wave_dynamic_layer import Dynamic_MLP_OFA, Dynamic_MLP_Decoder, Dynamic_Patch_Embed
+from .wave_dynamic_layer import (
+    Dynamic_MLP_OFA,
+    Dynamic_MLP_Decoder,
+    Dynamic_Patch_Embed,
+)
 from operator import mul
 from torch.nn.modules.utils import _pair
 from torch.nn import Conv2d, Dropout
@@ -22,12 +26,26 @@ from functools import reduce
 
 from timm.models.vision_transformer import PatchEmbed, Block
 
+
 class OFAViT(nn.Module):
-    """ Masked Autoencoder with VisionTransformer backbone
-    """
-    def __init__(self, img_size=224, patch_size=16, drop_rate=0., out_indices=None, drop_path_rate=0.,
-                 embed_dim=1024, depth=24, num_heads=16, wv_planes=128, num_classes=45,
-                 global_pool=True, mlp_ratio=4., norm_layer=nn.LayerNorm):
+    """Masked Autoencoder with VisionTransformer backbone"""
+
+    def __init__(
+        self,
+        img_size=224,
+        patch_size=16,
+        drop_rate=0.0,
+        out_indices=None,
+        drop_path_rate=0.0,
+        embed_dim=1024,
+        depth=24,
+        num_heads=16,
+        wv_planes=128,
+        num_classes=45,
+        global_pool=True,
+        mlp_ratio=4.0,
+        norm_layer=nn.LayerNorm,
+    ):
         super().__init__()
 
         self.wv_planes = wv_planes
@@ -35,7 +53,9 @@ class OFAViT(nn.Module):
 
         # --------------------------------------------------------------------------
         # MAE encoder specifics
-        self.patch_embed = Dynamic_MLP_OFA(wv_planes=128, inter_dim=128, kernel_size=16, embed_dim=embed_dim)
+        self.patch_embed = Dynamic_MLP_OFA(
+            wv_planes=128, inter_dim=128, kernel_size=16, embed_dim=embed_dim
+        )
         self.img_size = img_size
         if isinstance(img_size, tuple):
             self.img_size = self.img_size[0]
@@ -44,23 +64,34 @@ class OFAViT(nn.Module):
         self.patch_embed.num_patches = self.num_patches
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
-        #---------------------------------------------------------------------------
-        #prompt setting
-        self.pos_embed = nn.Parameter(torch.zeros(1, self.num_patches + 1, embed_dim), requires_grad=False)  # fixed sin-cos embedding
+        # ---------------------------------------------------------------------------
+        # prompt setting
+        self.pos_embed = nn.Parameter(
+            torch.zeros(1, self.num_patches + 1, embed_dim), requires_grad=False
+        )  # fixed sin-cos embedding
 
-        self.blocks = nn.ModuleList([
-            Block(embed_dim, num_heads, mlp_ratio, qkv_bias=True, norm_layer=norm_layer)
-            for i in range(depth)])
+        self.blocks = nn.ModuleList(
+            [
+                Block(
+                    embed_dim,
+                    num_heads,
+                    mlp_ratio,
+                    qkv_bias=True,
+                    norm_layer=norm_layer,
+                )
+                for i in range(depth)
+            ]
+        )
 
     def forward_features(self, x, wave_list):
         # embed patches
         wavelist = torch.tensor(wave_list, device=x.device).float()
         self.waves = wavelist
-        #TODO #1 how to convert coordinates to higher dimension
-        x,_ = self.patch_embed(x, self.waves)
+        # TODO #1 how to convert coordinates to higher dimension
+        x, _ = self.patch_embed(x, self.waves)
 
         hw = self.img_size // self.patch_embed.kernel_size
-        hw_shape = (hw,hw)
+        hw_shape = (hw, hw)
 
         # add pos embed w/o cls token
         x = x + self.pos_embed[:, 1:, :]
@@ -72,13 +103,16 @@ class OFAViT(nn.Module):
         out_features = []
 
         # apply Transformer blocks
-        for i,blk in enumerate(self.blocks):
+        for i, blk in enumerate(self.blocks):
             x = blk(x)
             if i in self.out_indices:
                 out = x[:, 1:]
                 B, _, C = out.shape
-                out = out.reshape(B, hw_shape[0], hw_shape[1],
-                                  C).permute(0, 3, 1, 2).contiguous()
+                out = (
+                    out.reshape(B, hw_shape[0], hw_shape[1], C)
+                    .permute(0, 3, 1, 2)
+                    .contiguous()
+                )
                 out_features.append(out)
 
         return out_features
@@ -89,27 +123,50 @@ class OFAViT(nn.Module):
 
 
 def vit_base_patch16(**kwargs):
-    model = OFAViT(out_indices=[3,5,7,11],
-        patch_size=16, embed_dim=768, depth=12, num_heads=12, mlp_ratio=4,
-        norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    model = OFAViT(
+        out_indices=[3, 5, 7, 11],
+        patch_size=16,
+        embed_dim=768,
+        depth=12,
+        num_heads=12,
+        mlp_ratio=4,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6),
+        **kwargs,
+    )
     return model
 
 
 def vit_large_patch16(**kwargs):
-    model = OFAViT(out_indices=[7,11,15,23],
-        patch_size=16, embed_dim=1024, depth=24, num_heads=16, mlp_ratio=4,
-        norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    model = OFAViT(
+        out_indices=[7, 11, 15, 23],
+        patch_size=16,
+        embed_dim=1024,
+        depth=24,
+        num_heads=16,
+        mlp_ratio=4,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6),
+        **kwargs,
+    )
     return model
 
 
 def vit_huge_patch14(**kwargs):
-    model = OFAViT(out_indices=[7,15,23,31],
-        patch_size=14, embed_dim=1280, depth=32, num_heads=16, mlp_ratio=4,
-        norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    model = OFAViT(
+        out_indices=[7, 15, 23, 31],
+        patch_size=14,
+        embed_dim=1280,
+        depth=32,
+        num_heads=16,
+        mlp_ratio=4,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6),
+        **kwargs,
+    )
     return model
 
 
-if __name__=='__main__':
-    check_point = torch.load('checkpoints/mae_ofa_decp_all_vitb16_224_Ball/checkpoint-99.pth')
+if __name__ == "__main__":
+    check_point = torch.load(
+        "checkpoints/mae_ofa_decp_all_vitb16_224_Ball/checkpoint-99.pth"
+    )
     vit_model = vit_base_patch16()
-    vit_model.load_state_dict(check_point['model'], strict=False)
+    vit_model.load_state_dict(check_point["model"], strict=False)
