@@ -40,7 +40,7 @@ class MSDeformAttn(nn.Module):
         super().__init__()
         if d_model % n_heads != 0:
             raise ValueError(
-                "d_model must be divisible by n_heads, " "but got {} and {}".format(
+                "d_model must be divisible by n_heads, but got {} and {}".format(
                     d_model, n_heads
                 )
             )

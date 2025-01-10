@@ -261,17 +261,17 @@ class EnMAPCorineBenchmark(NonGeoDataset):
         return_mask: bool = False,
         pin_memory: bool = False,
     ) -> None:
-        assert (
-            sensor in self.valid_sensors
-        ), f"Only supports one of {self.valid_sensors}, but found {sensor}."
+        assert sensor in self.valid_sensors, (
+            f"Only supports one of {self.valid_sensors}, but found {sensor}."
+        )
         self.sensor = sensor
-        assert (
-            product in self.valid_products
-        ), f"Only supports one of {self.valid_products}, but found {product}."
+        assert product in self.valid_products, (
+            f"Only supports one of {self.valid_products}, but found {product}."
+        )
         self.product = product
-        assert (
-            split in self.valid_splits
-        ), f"Only supports one of {self.valid_splits}, but found {split}."
+        assert split in self.valid_splits, (
+            f"Only supports one of {self.valid_splits}, but found {split}."
+        )
         self.split = split
 
         assert num_classes in [43, 19]

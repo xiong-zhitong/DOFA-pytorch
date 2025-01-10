@@ -106,9 +106,9 @@ class GeoBenchDataset:
 
     def create_dataset(self):
         task = self.tasks.get(self.dataset_config.dataset_name)
-        assert (
-            task is not None
-        ), f"{self.dataset_config.dataset_name} doesn't exist in geobench"
+        assert task is not None, (
+            f"{self.dataset_config.dataset_name} doesn't exist in geobench"
+        )
         GeoBenchTransform = (
             ClsGeoBenchTransform
             if self.dataset_config.task == "classification"

@@ -62,13 +62,13 @@ class EnMAPCDLNLCDBenchmark(NonGeoDataset):
         """
 
         self.sensor = sensor
-        assert (
-            product in self.valid_products
-        ), f"Only supports one of {self.valid_products}, but found {product}."
+        assert product in self.valid_products, (
+            f"Only supports one of {self.valid_products}, but found {product}."
+        )
         self.product = product
-        assert (
-            split in self.valid_splits
-        ), f"Only supports one of {self.valid_splits}, but found {split}."
+        assert split in self.valid_splits, (
+            f"Only supports one of {self.valid_splits}, but found {split}."
+        )
         self.split = split
 
         self.cmap = self.cmaps[product]

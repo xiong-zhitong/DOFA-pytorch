@@ -45,9 +45,9 @@ class HyperviewBenchmark(NonGeoDataset):
         num_bands: int = 150,
         patch_size: int = 128,
     ) -> None:
-        assert (
-            split in self.valid_splits
-        ), f"Only supports one of {self.valid_splits}, but found {split}."
+        assert split in self.valid_splits, (
+            f"Only supports one of {self.valid_splits}, but found {split}."
+        )
         self.split = split
 
         self.root = root
