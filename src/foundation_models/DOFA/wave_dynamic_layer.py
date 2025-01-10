@@ -75,10 +75,10 @@ class GaussianFourierFeatureTransform(torch.nn.Module):
 
         batches, channels, width, height = x.shape
 
-        assert channels == self._num_input_channels, (
-            "Expected input to have {} channels (got {} channels)".format(
-                self._num_input_channels, channels
-            )
+        assert (
+            channels == self._num_input_channels
+        ), "Expected input to have {} channels (got {} channels)".format(
+            self._num_input_channels, channels
         )
 
         # Make shape compatible for matmul with _B.
@@ -163,7 +163,7 @@ class Dynamic_MLP_Decoder(nn.Module):
         return dynamic_weights
 
     def weight_init(self, m):
-        if type(m) == nn.Linear:
+        if isinstance(m, nn.Linear):
             init.xavier_uniform_(m.weight)
             m.bias.data.fill_(0.01)
 
@@ -282,13 +282,11 @@ class Dynamic_MLP_OFA(nn.Module):
         self._init_weights()
 
     def _get_weights(self, waves):
-        dweights = []
         dynamic_weights = self.weight_generator(waves)
-
         return dynamic_weights
 
     def weight_init(self, m):
-        if type(m) == nn.Linear:
+        if isinstance(m, nn.Linear):
             init.xavier_uniform_(m.weight)
             m.bias.data.fill_(0.01)
 
