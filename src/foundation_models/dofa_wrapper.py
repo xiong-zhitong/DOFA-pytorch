@@ -1,17 +1,11 @@
-import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-from torchmetrics.functional.classification import (
-    multilabel_average_precision,
-    multilabel_f1_score,
-)
 from .DOFA.models_dwv import vit_base_patch16 as vit_base_patch16_cls
 from .DOFA.models_dwv import vit_large_patch16 as vit_large_patch16_cls
 from .DOFA.models_dwv_seg import vit_base_patch16 as vit_base_patch16_seg
 from .DOFA.models_dwv_seg import vit_large_patch16 as vit_large_patch16_seg
 from mmseg.models.necks import Feature2Pyramid
 from mmseg.models.decode_heads import UPerHead, FCNHead
-from loguru import logger
 from util.misc import resize
 from .lightning_task import LightningTask
 from timm.models.layers import trunc_normal_

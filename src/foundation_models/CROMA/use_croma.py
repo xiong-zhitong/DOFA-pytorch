@@ -3,9 +3,7 @@ from einops import rearrange
 import math
 import itertools
 import torch
-from collections import OrderedDict
 import warnings
-from loguru import logger
 
 
 class PretrainedCROMA(nn.Module):
@@ -76,7 +74,7 @@ class PretrainedCROMA(nn.Module):
         )
 
         if modality in ["SAR", "both"]:
-            print(f"Initializing SAR encoder")
+            print("Initializing SAR encoder")
             self.s1_encoder = ViT(
                 dim=self.encoder_dim,
                 depth=int(self.encoder_depth / 2),
@@ -98,7 +96,7 @@ class PretrainedCROMA(nn.Module):
             self.GAP_FFN_s1.load_state_dict(torch.load(pretrained_path)["s1_GAP_FFN"])
 
         if modality in ["optical", "both"]:
-            print(f"Initializing optical encoder")
+            print("Initializing optical encoder")
             self.s2_encoder = ViT(
                 dim=self.encoder_dim,
                 depth=self.encoder_depth,
@@ -120,7 +118,7 @@ class PretrainedCROMA(nn.Module):
             self.GAP_FFN_s2.load_state_dict(torch.load(pretrained_path)["s2_GAP_FFN"])
 
         if modality == "both":
-            print(f"Initializing joint SAR-optical encoder")
+            print("Initializing joint SAR-optical encoder")
             self.cross_encoder = BaseTransformerCrossAttn(
                 dim=self.encoder_dim,
                 depth=int(self.encoder_depth / 2),

@@ -3,7 +3,6 @@ import warnings
 
 
 # from torch._six import inf
-from torch import inf  # pytorch 2.1
 import torch.nn.functional as F
 
 from timm.utils import accuracy as timm_accuracy

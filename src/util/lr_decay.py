@@ -9,7 +9,6 @@
 # BEiT: https://github.com/microsoft/unilm/tree/master/beit
 # --------------------------------------------------------
 
-import json
 
 
 def param_groups_lrd(

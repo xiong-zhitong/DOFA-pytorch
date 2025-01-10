@@ -8,10 +8,8 @@ from functools import partial
 import math
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from timm.models.vision_transformer import VisionTransformer, PatchEmbed
 from util.pos_embed import get_2d_sincos_pos_embed, get_1d_sincos_pos_embed_from_grid
-import pdb
 
 
 class GroupChannelsVisionTransformer(VisionTransformer):

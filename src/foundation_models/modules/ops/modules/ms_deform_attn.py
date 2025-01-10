@@ -17,7 +17,6 @@ from torch import nn
 from torch.nn.init import constant_, xavier_uniform_
 
 from ..functions import MSDeformAttnFunction
-from loguru import logger
 
 
 def _is_power_of_2(n):

@@ -3,7 +3,6 @@
 # MAE: https://github.com/facebookresearch/mae
 # --------------------------------------------------------
 import math
-import sys
 from typing import Iterable
 
 import torch

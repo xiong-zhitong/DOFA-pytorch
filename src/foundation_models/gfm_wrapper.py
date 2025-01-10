@@ -1,12 +1,9 @@
 from .lightning_task import LightningTask
 from .GFM import build_swin_cls, build_swin_seg
 import torch.nn as nn
-import torch
 
 # use mmsegmentation for upernet+mae
 from mmseg.models.decode_heads import UPerHead, FCNHead
-from loguru import logger
-import pdb
 from util.misc import resize
 
 # assert timm.__version__ == "0.3.2" # version check

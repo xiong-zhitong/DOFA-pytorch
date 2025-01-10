@@ -11,7 +11,6 @@ from foundation_models import (
 from datasets.geobench_wrapper import GeoBenchDataset
 from datasets.resisc_wrapper import Resics45Dataset
 from datasets.benv2_wrapper import BenV2Dataset
-import pdb
 
 model_registry = {
     "croma": CromaModel,
