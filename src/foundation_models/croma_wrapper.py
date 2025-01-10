@@ -6,8 +6,6 @@ import torch
 # use mmsegmentation for upernet+mae
 from mmseg.models.necks import Feature2Pyramid
 from mmseg.models.decode_heads import UPerHead, FCNHead
-from loguru import logger
-import pdb
 from util.misc import resize, seg_metric, cls_metric
 
 

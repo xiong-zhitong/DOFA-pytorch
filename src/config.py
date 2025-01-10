@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field, validator
 from typing import Optional, Dict, List, Tuple
-import pdb
 
 # Pre-define the band_wavelengths dict
 band_names = [

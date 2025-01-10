@@ -1,8 +1,6 @@
 import os
-import pdb
 import mlflow
 import pandas as pd
-import pytorch_lightning as pl
 
 
 def collect_best_lightning_metrics(logs_dir, mode="min"):

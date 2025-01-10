@@ -6,13 +6,11 @@
 # --------------------------------------------------------
 
 import math
-import sys
 from typing import Iterable, Optional
 
 import torch
 
 # import wandb
-import torch.nn.functional as F
 
 from timm.data import Mixup
 from timm.utils import accuracy

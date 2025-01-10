@@ -8,7 +8,6 @@ import torch.nn as nn
 import torch.utils.checkpoint as checkpoint
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
 from .config import get_config
-import torch.nn.functional as F
 import math
 
 
@@ -801,6 +800,6 @@ def build_swin(model_config):
         for k, v in ckpt_model.items():
             if "encoder" in k:
                 new_state_dict[k[8:]] = v
-        msg = model.load_state_dict(new_state_dict, strict=False)
+        model.load_state_dict(new_state_dict, strict=False)
 
     return model

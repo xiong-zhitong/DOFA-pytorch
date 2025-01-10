@@ -10,21 +10,14 @@
 # --------------------------------------------------------
 
 from functools import partial
-from einops.layers.torch import Rearrange
 from .wave_dynamic_layer import (
     Dynamic_MLP_OFA,
-    Dynamic_MLP_Decoder,
-    Dynamic_Patch_Embed,
 )
-from operator import mul
-from torch.nn.modules.utils import _pair
-from torch.nn import Conv2d, Dropout
 
 import torch
 import torch.nn as nn
-from functools import reduce
 
-from timm.models.vision_transformer import PatchEmbed, Block
+from timm.models.vision_transformer import Block
 
 
 class OFAViT(nn.Module):

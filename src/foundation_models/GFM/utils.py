@@ -126,10 +126,10 @@ def load_pretrained(config, model):
         logger.info("Detect non-pre-trained model, pass without doing anything.")
 
     if config.MODEL.TYPE == "swin":
-        logger.info(f">>>>>>>>>> Remapping pre-trained keys for SWIN ..........")
+        logger.info(">>>>>>>>>> Remapping pre-trained keys for SWIN ..........")
         checkpoint = remap_pretrained_keys_swin(model, checkpoint_model, logger)
     elif config.MODEL.TYPE == "vit":
-        logger.info(f">>>>>>>>>> Remapping pre-trained keys for VIT ..........")
+        logger.info(">>>>>>>>>> Remapping pre-trained keys for VIT ..........")
         checkpoint = remap_pretrained_keys_vit(model, checkpoint_model, logger)
     else:
         raise NotImplementedError
@@ -205,10 +205,10 @@ def load_continual(config, model):
     #     logger.info('Detect non-pre-trained model, pass without doing anything.')
     checkpoint_model = {"encoder.{}".format(k): v for k, v in checkpoint_model.items()}
     if config.MODEL.TYPE == "swin":
-        logger.info(f">>>>>>>>>> Remapping pre-trained keys for SWIN ..........")
+        logger.info(">>>>>>>>>> Remapping pre-trained keys for SWIN ..........")
         checkpoint = remap_pretrained_keys_swin(model, checkpoint_model, logger)
     elif config.MODEL.TYPE == "vit":
-        logger.info(f">>>>>>>>>> Remapping pre-trained keys for VIT ..........")
+        logger.info(">>>>>>>>>> Remapping pre-trained keys for VIT ..........")
         checkpoint = remap_pretrained_keys_vit(model, checkpoint_model, logger)
     else:
         raise NotImplementedError

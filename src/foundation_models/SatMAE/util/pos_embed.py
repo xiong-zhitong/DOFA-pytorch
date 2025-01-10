@@ -96,7 +96,7 @@ def interpolate_pos_embed(model, checkpoint_model):
         embedding_size = pos_embed_checkpoint.shape[-1]
         try:
             num_patches = model.patch_embed.num_patches
-        except AttributeError as err:
+        except AttributeError:
             num_patches = model.patch_embed[0].num_patches
         num_extra_tokens = model.pos_embed.shape[-2] - num_patches
         # height (== width) for the checkpoint position embedding

@@ -129,7 +129,7 @@ experiments = [
 for exp in experiments:
     print(f"Running experiment: {exp['model']} on {exp['dataset']}")
     # exp["epochs"] = 1  # This is for debug
-    if not "warmup_epochs" in exp.keys():
+    if "warmup_epochs" not in exp.keys():
         exp["warmup_epochs"] = 0
     subprocess.run(
         [

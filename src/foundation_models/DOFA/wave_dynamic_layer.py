@@ -1,23 +1,11 @@
 import torch
 import torch.nn as nn
-from enum import Enum
-from typing import Callable, List, Optional, Tuple, Union
-import math
 import torch.nn.functional as F
 from util.pos_embed import get_1d_sincos_pos_embed_from_grid_torch
 import numpy as np
-import pdb
 
-from itertools import repeat as repeat_iter
-import collections.abc
 
-from einops import rearrange, repeat
-from einops.layers.torch import Rearrange
-from functools import reduce
-from operator import mul
-from torch import _assert
 import torch.nn.init as init
-import timm
 
 random_seed = 1234
 torch.manual_seed(random_seed)
@@ -175,7 +163,7 @@ class Dynamic_MLP_Decoder(nn.Module):
         return dynamic_weights
 
     def weight_init(self, m):
-        if type(m) == nn.Linear:
+        if isinstance(m, nn.Linear):
             init.xavier_uniform_(m.weight)
             m.bias.data.fill_(0.01)
 
@@ -294,13 +282,11 @@ class Dynamic_MLP_OFA(nn.Module):
         self._init_weights()
 
     def _get_weights(self, waves):
-        dweights = []
         dynamic_weights = self.weight_generator(waves)
-
         return dynamic_weights
 
     def weight_init(self, m):
-        if type(m) == nn.Linear:
+        if isinstance(m, nn.Linear):
             init.xavier_uniform_(m.weight)
             m.bias.data.fill_(0.01)
 

@@ -17,7 +17,6 @@ from torch import nn
 from torch.nn.init import constant_, xavier_uniform_
 
 from ..functions import MSDeformAttnFunction
-from loguru import logger
 
 
 def _is_power_of_2(n):
@@ -40,7 +39,7 @@ class MSDeformAttn(nn.Module):
         super().__init__()
         if d_model % n_heads != 0:
             raise ValueError(
-                "d_model must be divisible by n_heads, " "but got {} and {}".format(
+                "d_model must be divisible by n_heads, but got {} and {}".format(
                     d_model, n_heads
                 )
             )
