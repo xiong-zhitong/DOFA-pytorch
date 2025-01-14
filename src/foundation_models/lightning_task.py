@@ -1,8 +1,10 @@
-import pytorch_lightning as pl
+"""Base Class."""
+
+from lightning import LightningModule
 import torch
 
 
-class LightningTask(pl.LightningModule):
+class LightningTask(LightningModule):
     def __init__(self, args, config, data_config):
         super().__init__()
         self.config = config  # model_config

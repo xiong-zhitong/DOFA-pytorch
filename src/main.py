@@ -9,12 +9,13 @@ import pytorch_lightning as pl
 from pytorch_lightning.strategies import DDPStrategy
 from datasets.data_module import LightningDataModule
 
+from factory import create_model
+from model_config import model_config_registry
+from dataset_config import dataset_config_registry
+
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore")
-
-from factory import create_model
-from config import model_config_registry, dataset_config_registry
 
 
 def get_args_parser():
@@ -58,9 +59,6 @@ def main(args):
     # Setup configs
     dataset_config = dataset_config_registry.get(args.dataset)()
     model_config = model_config_registry.get(args.model)()
-
-    # Calculate effective batch size and learning rate
-    eff_batch_size = args.batch_size * args.num_gpus
 
     args.lr = args.lr * args.num_gpus
 
