@@ -33,6 +33,7 @@ dependencies = [
     "python-dotenv",
     "torchgeo",
     "fastparquet",
-    "mlflow"
+    "mlflow",
+    "ray>=2.40.0",
 ]
 
