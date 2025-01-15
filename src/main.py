@@ -3,18 +3,20 @@ import datetime
 import os
 from pathlib import Path
 import warnings
-from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
-from pytorch_lightning.loggers import MLFlowLogger
-import pytorch_lightning as pl
-from pytorch_lightning.strategies import DDPStrategy
-from datasets.data_module import LightningDataModule
+from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor
+from lightning.pytorch.loggers import MLFlowLogger
+from lightning import Trainer
+from lightning.pytorch.strategies import DDPStrategy
+from datasets.data_module import BenchmarkDataModule
+from lightning.pytorch import seed_everything
+
+from factory import create_model
+from model_config import model_config_registry
+from dataset_config import dataset_config_registry
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore")
-
-from factory import create_model
-from config import model_config_registry, dataset_config_registry
 
 
 def get_args_parser():
@@ -50,7 +52,7 @@ def get_args_parser():
 
 
 def main(args):
-    pl.seed_everything(args.seed)
+    seed_everything(args.seed)
 
     # Create output directory
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
@@ -58,9 +60,6 @@ def main(args):
     # Setup configs
     dataset_config = dataset_config_registry.get(args.dataset)()
     model_config = model_config_registry.get(args.model)()
-
-    # Calculate effective batch size and learning rate
-    eff_batch_size = args.batch_size * args.num_gpus
 
     args.lr = args.lr * args.num_gpus
 
@@ -86,7 +85,7 @@ def main(args):
     ]
 
     # Initialize trainer
-    trainer = pl.Trainer(
+    trainer = Trainer(
         logger=mlf_logger,
         callbacks=callbacks,
         strategy=DDPStrategy(find_unused_parameters=False)
@@ -98,7 +97,7 @@ def main(args):
     )
 
     # Initialize data module
-    data_module = LightningDataModule(
+    data_module = BenchmarkDataModule(
         dataset_config=dataset_config,
         batch_size=args.batch_size,
         num_workers=args.num_workers,

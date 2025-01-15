@@ -1,9 +1,9 @@
-import pytorch_lightning as pl
+from lightning import LightningDataModule
 import torch
 from factory import create_dataset
 
 
-class LightningDataModule(pl.LightningDataModule):
+class BenchmarkDataModule(LightningDataModule):
     def __init__(self, dataset_config, batch_size, num_workers, pin_memory):
         super().__init__()
         self.dataset_config = dataset_config
