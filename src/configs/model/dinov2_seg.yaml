@@ -1,0 +1,11 @@
+defaults:
+  - base_model
+
+model_type: dinov2
+task: segmentation
+dino_size: dinov2_vitb14
+image_resolution: 224
+embed_dim: 768
+pretrained_path: null  # Add path if required
+num_channels: 3
+

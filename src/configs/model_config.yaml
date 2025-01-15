@@ -1,0 +1,3 @@
+defaults:
+  - model: satmae_seg  # Set default model configuration
+

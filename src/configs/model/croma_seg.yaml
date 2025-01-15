@@ -1,0 +1,12 @@
+defaults:
+  - base_model
+
+model_type: croma
+task: segmentation
+size: base
+modality: optical
+image_resolution: 120
+embed_dim: 768
+pretrained_path: "src/fm_weights/CROMA_base.pt"
+num_channels: 12
+

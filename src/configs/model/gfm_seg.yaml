@@ -1,0 +1,10 @@
+defaults:
+  - base_model
+
+model_type: gfm
+task: segmentation
+image_resolution: 192
+embed_dim: 1024
+pretrained_path: "src/fm_weights/gfm.pth"
+num_channels: 3
+

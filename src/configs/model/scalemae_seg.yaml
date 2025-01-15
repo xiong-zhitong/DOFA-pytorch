@@ -1,0 +1,10 @@
+defaults:
+  - base_model
+
+model_type: scalemae
+task: segmentation
+image_resolution: 224
+embed_dim: 1024
+pretrained_path: "src/fm_weights/scalemae-vitlarge-800.pth"
+num_channels: 3
+
