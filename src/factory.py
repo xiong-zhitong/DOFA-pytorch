@@ -32,7 +32,7 @@ dataset_registry = {
     "geobench": GeoBenchDataset,
     "resisc45": Resics45Dataset,
     "benv2": BenV2Dataset,
-    "caffe_rgb": 
+    "caffe_rgb": CaffeDataset
     # Add other dataset mappings here
 }
 
