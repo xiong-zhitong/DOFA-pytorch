@@ -25,7 +25,9 @@ class DinoV2Classification(LightningTask):
         self.encoder = torch.hub.load("facebookresearch/dinov2", model_config.dino_size)
         if model_config.freeze_backbone:
             self.freeze(self.encoder)
-        self.linear_classifier = nn.Linear(model_config.embed_dim, data_config.num_classes)
+        self.linear_classifier = nn.Linear(
+            model_config.embed_dim, data_config.num_classes
+        )
         self.criterion = (
             nn.MultiLabelSoftMarginLoss()
             if data_config.multilabel

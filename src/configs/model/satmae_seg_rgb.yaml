@@ -9,5 +9,5 @@ embed_dim: 1024
 image_resolution: 224
 patch_size: 16
 num_channels: 3
-pretrained_path: "src/fm_weights/checkpoint_ViT-L_pretrain_fmow_rgb.pth"
+pretrained_path: "checkpoint_ViT-L_pretrain_fmow_rgb.pth"
 

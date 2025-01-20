@@ -79,4 +79,5 @@ def main(cfg: DictConfig):
 
 
 if __name__ == "__main__":
+    os.environ["MODEL_WEIGHTS_DIR"] = os.getenv("MODEL_WEIGHTS_DIR", "./fm_weights")
     main()

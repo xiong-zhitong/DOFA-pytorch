@@ -2,6 +2,8 @@ from .lightning_task import LightningTask
 from .CROMA.use_croma import PretrainedCROMA
 import torch.nn as nn
 import torch
+import os
+from huggingface_hub import hf_hub_download
 
 # use mmsegmentation for upernet+mae
 from mmseg.models.necks import Feature2Pyramid
@@ -12,6 +14,19 @@ from util.misc import resize, seg_metric, cls_metric
 class CromaClassification(LightningTask):
     def __init__(self, args, model_config, data_config):
         super().__init__(args, model_config, data_config)
+
+        # look for pretrained weights
+        dir = os.getenv("MODEL_WEIGHTS_DIR")
+        filename = model_config.pretrained_path
+        path = os.path.join(dir, filename)
+        if not os.path.exists(path):
+            # download the weights from HF
+            hf_hub_download(
+                repo_id="antofuller/CROMA",
+                filename=filename,
+                cache_dir=dir,
+                local_dir=dir,
+            )
 
         self.encoder = PretrainedCROMA(
             pretrained_path=model_config.pretrained_path,

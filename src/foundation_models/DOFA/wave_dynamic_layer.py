@@ -75,10 +75,10 @@ class GaussianFourierFeatureTransform(torch.nn.Module):
 
         batches, channels, width, height = x.shape
 
-        assert (
-            channels == self._num_input_channels
-        ), "Expected input to have {} channels (got {} channels)".format(
-            self._num_input_channels, channels
+        assert channels == self._num_input_channels, (
+            "Expected input to have {} channels (got {} channels)".format(
+                self._num_input_channels, channels
+            )
         )
 
         # Make shape compatible for matmul with _B.
