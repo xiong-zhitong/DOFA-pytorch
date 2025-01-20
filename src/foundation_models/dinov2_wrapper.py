@@ -14,6 +14,8 @@ import torch.nn.functional as F
 from .modules import MSDeformAttn
 from timm.models.layers import trunc_normal_
 from torch.nn.init import normal_
+from peft import LoraConfig, get_peft_model
+
 
 from .modules import SpatialPriorModule, InteractionBlock, deform_inputs
 
@@ -22,16 +24,46 @@ class DinoV2Classification(LightningTask):
     def __init__(self, args, model_config, data_config):
         super().__init__(args, model_config, data_config)
 
+        self.lora = True
+
         self.encoder = torch.hub.load("facebookresearch/dinov2", model_config.dino_size)
+        
+        if self.lora:
+            self.apply_peft_to_last_layers(self.encoder, rank=8)
+
         if model_config.freeze_backbone:
-            self.freeze(self.encoder)
+            if self.lora:
+                self.freeze_non_lora_params(self.encoder)
+            else:
+                self.freeze(self.encoder)
+
         self.linear_classifier = nn.Linear(model_config.embed_dim, data_config.num_classes)
+
         self.criterion = (
             nn.MultiLabelSoftMarginLoss()
             if data_config.multilabel
             else nn.CrossEntropyLoss()
         )
 
+    
+    def apply_peft_to_last_layers(self, encoder, rank=8):
+        """
+        Apply LoRA to the last few layers of the encoder using PEFT.
+        """
+        # Configure LoRA
+        peft_config = LoraConfig(
+            r=rank,
+            lora_alpha=32,  # Scaling factor for LoRA
+            target_modules=["q", "k", "v", "out"],  # LoRA target layers
+            lora_dropout=0.1,
+            bias="none",
+            task_type="SEQ_CLS"  # Task type (use appropriate type for your model)
+        )
+
+        # Wrap the encoder with PEFT
+        self.encoder = get_peft_model(encoder, peft_config)
+
+    
     def loss(self, outputs, labels):
         return self.criterion(outputs[0], labels)
 
@@ -43,7 +75,12 @@ class DinoV2Classification(LightningTask):
         return out_logits, global_pooled
 
     def params_to_optimize(self):
-        return self.linear_classifier.parameters()
+        if self.lora:
+            # Include LoRA parameters for optimization
+            lora_params = [p for n, p in self.encoder.named_parameters() if "lora" in n]
+            return list(self.linear_classifier.parameters()) + lora_params
+        else:
+            return list(self.linear_classifier.parameters())
 
     def log_metrics(self, outputs, targets, prefix="train"):
         # Calculate accuracy and other classification-specific metrics
@@ -67,7 +104,7 @@ class DinoV2Adapter(nn.Module):
         num_heads=12,
         conv_inplane=64,
         n_points=4,
-        deform_num_heads=6,
+        deform_num_heads=8,
         init_values=0.0,
         interaction_indexes=None,
         with_cffn=True,

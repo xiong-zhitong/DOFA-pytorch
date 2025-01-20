@@ -1,20 +1,21 @@
 defaults:
-  - model: satmae_seg
-  - dataset: geobench_cashew_10band 
+  - model: dinov2_cls
+  - dataset: geobench_pv4ger_cls
   - _self_
 
 
 # Training parameters
 lr: 1e-3
-batch_size: 64
-num_workers: 10
+batch_size: 32
+weight_decay: 0.0001
+num_workers: 8
 pin_mem: true
 num_gpus: 2
 strategy: ddp
-epochs: 20
-warmup_epochs: 3
+epochs: 30
+warmup_epochs: 0
 seed: 0
 output_dir: ./output_dir
-task: segmentation
+task: classification
 resume: null
 

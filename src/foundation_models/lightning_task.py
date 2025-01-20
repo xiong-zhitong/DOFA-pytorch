@@ -24,6 +24,14 @@ class LightningTask(LightningModule):
     def unfreeze(self, module):
         for param in module.parameters():
             param.requires_grad = True
+    
+    def freeze_non_lora_params(self, module):
+        """
+        Freeze the encoder parameters except for LoRA-specific ones.
+        """
+        for name, param in module.named_parameters():
+            if "lora" not in name:  # Skip LoRA parameters
+                param.requires_grad = False
 
     def log_metrics(self, outputs, targets, prefix="train"):
         """Abstract method for logging task-specific metrics."""
