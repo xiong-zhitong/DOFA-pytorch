@@ -19,7 +19,9 @@ class AnySatClassification(LightningTask):
 
         if model_config.freeze_backbone:
             self.freeze(self.encoder)
-        self.linear_classifier = nn.Linear(model_config.embed_dim, data_config.num_classes)
+        self.linear_classifier = nn.Linear(
+            model_config.embed_dim, data_config.num_classes
+        )
         self.criterion = (
             nn.MultiLabelSoftMarginLoss()
             if data_config.multilabel

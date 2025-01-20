@@ -10,6 +10,7 @@ from util.misc import resize
 from .lightning_task import LightningTask
 from timm.models.layers import trunc_normal_
 from util.misc import seg_metric, cls_metric
+from huggingface_hub import hf_hub_download
 
 
 class DofaClassification(LightningTask):
@@ -22,8 +23,21 @@ class DofaClassification(LightningTask):
             else vit_large_patch16_cls(num_classes=data_config.num_classes)
         )
 
+        # look for pretrained weights
+        dir = os.getenv("MODEL_WEIGHTS_DIR")
+        filename = model_config.pretrained_path
+        path = os.path.join(dir, filename)
+        if not os.path.exists(path):
+            # download the weights from HF
+            hf_hub_download(
+                repo_id="earthflow/dofa",
+                filename=filename,
+                cache_dir=dir,
+                local_dir=dir,
+            )
+
         # Load pretrained weights
-        check_point = torch.load(model_config.pretrained_path)
+        check_point = torch.load(path)
         self.encoder.load_state_dict(check_point, strict=False)
 
         if model_config.freeze_backbone:

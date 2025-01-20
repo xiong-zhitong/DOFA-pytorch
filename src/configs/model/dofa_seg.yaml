@@ -6,5 +6,5 @@ task: segmentation
 dofa_size: dofa_large
 image_resolution: 224
 embed_dim: 1024
-pretrained_path: "src/fm_weights/DOFA_ViT_large_e100.pth"
+pretrained_path: "DOFA_ViT_large_e100.pth"
 

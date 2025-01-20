@@ -10,6 +10,7 @@ from mmseg.models.decode_heads import UPerHead, FCNHead
 from util.misc import resize
 from .lightning_task import LightningTask
 from util.misc import seg_metric, cls_metric
+from huggingface_hub import hf_hub_download
 
 
 class ScaleMAEClassification(LightningTask):
@@ -21,15 +22,28 @@ class ScaleMAEClassification(LightningTask):
         )
 
         # Load pretrained weights
-        checkpoint = torch.load(model_config.pretrained_path, map_location="cpu")
+        checkpoint = torch.load(path, map_location="cpu")
         checkpoint_model = checkpoint["model"]
         msg = self.encoder.load_state_dict(checkpoint_model, strict=False)
         # logger.debug(msg)
 
         if model_config.freeze_backbone:
-            self.freeze(self.encoder)
+            self.freeze(self.encoder)  # look for pretrained weights
+        dir = os.getenv("MODEL_WEIGHTS_DIR")
+        filename = model_config.pretrained_path
+        path = os.path.join(dir, filename)
+        if not os.path.exists(path):
+            # download the weights from HF
+            hf_hub_download(
+                repo_id="torchgeo/vit_large_patch16_224_fmow_rgb_scalemae",
+                filename=filename,
+                cache_dir=dir,
+                local_dir=dir,
+            )
 
-        self.linear_classifier = torch.nn.Linear(model_config.embed_dim, data_config.num_classes)
+        self.linear_classifier = torch.nn.Linear(
+            model_config.embed_dim, data_config.num_classes
+        )
 
         self.criterion = (
             nn.MultiLabelSoftMarginLoss()

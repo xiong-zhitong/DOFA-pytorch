@@ -9,6 +9,7 @@ from util.misc import resize
 from .lightning_task import LightningTask
 from einops import rearrange
 from util.misc import seg_metric, cls_metric
+from huggingface_hub import hf_hub_download
 
 
 class SoftConClassification(LightningTask):
@@ -24,13 +25,28 @@ class SoftConClassification(LightningTask):
             num_register_tokens=0,
         )
 
-        ckpt_vit14 = torch.load(model_config.pretrained_path)
+        # look for pretrained weights
+        dir = os.getenv("MODEL_WEIGHTS_DIR")
+        filename = model_config.pretrained_path
+        path = os.path.join(dir, filename)
+        if not os.path.exists(path):
+            # download the weights from HF
+            hf_hub_download(
+                repo_id="wangyi111/softcon",
+                filename=filename,
+                cache_dir=dir,
+                local_dir=dir,
+            )
+
+        ckpt_vit14 = torch.load(path)
         self.encoder.load_state_dict(ckpt_vit14)
 
         if model_config.freeze_backbone:
             self.freeze(self.encoder)
 
-        self.linear_classifier = nn.Linear(model_config.embed_dim, data_config.num_classes)
+        self.linear_classifier = nn.Linear(
+            model_config.embed_dim, data_config.num_classes
+        )
         self.criterion = (
             nn.MultiLabelSoftMarginLoss()
             if data_config.multilabel
