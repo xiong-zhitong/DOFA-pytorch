@@ -10,29 +10,29 @@ from util.misc import resize, seg_metric, cls_metric
 
 
 class CromaClassification(LightningTask):
-    def __init__(self, args, config, data_config):
-        super().__init__(args, config, data_config)
+    def __init__(self, args, model_config, data_config):
+        super().__init__(args, model_config, data_config)
 
         self.encoder = PretrainedCROMA(
-            pretrained_path=config.pretrained_path,
-            size=config.size,
-            modality=config.modality,
-            image_resolution=config.image_resolution,
+            pretrained_path=model_config.pretrained_path,
+            size=model_config.size,
+            modality=model_config.modality,
+            image_resolution=model_config.image_resolution,
         )
 
         # pretrained weights loaded
-        if config.freeze_backbone:
+        if model_config.freeze_backbone:
             self.freeze(self.encoder)
 
         self.encoder.GAP_FFN_s2[1] = torch.nn.Linear(
-            self.encoder.GAP_FFN_s2[1].in_features, config.num_classes
+            self.encoder.GAP_FFN_s2[1].in_features, data_config.num_classes
         )
         self.unfreeze(self.encoder.GAP_FFN_s2[1])
         del self.encoder.GAP_FFN_s2[2:]
 
         self.criterion = (
             nn.MultiLabelSoftMarginLoss()
-            if config.multilabel
+            if data_config.multilabel
             else nn.CrossEntropyLoss()
         )
 
@@ -43,7 +43,7 @@ class CromaClassification(LightningTask):
         all_output = self.encoder(optical_images=samples)
         out_logits = all_output["optical_GAP"]
         feats = all_output["optical_encodings"]
-        return (out_logits, feats) if self.config.out_features else out_logits
+        return (out_logits, feats) if self.model_config.out_features else out_logits
 
     def params_to_optimize(self):
         return self.encoder.GAP_FFN_s2[1].parameters()
@@ -63,20 +63,20 @@ class CromaClassification(LightningTask):
 
 
 class CromaSegmentation(LightningTask):
-    def __init__(self, args, config, data_config):
-        super().__init__(args, config, data_config)
+    def __init__(self, args, model_config, data_config):
+        super().__init__(args, model_config, data_config)
         self.encoder = PretrainedCROMA(
-            pretrained_path=config.pretrained_path,
-            size=config.size,
-            modality=config.modality,
-            image_resolution=config.image_resolution,
+            pretrained_path=model_config.pretrained_path,
+            size=model_config.size,
+            modality=model_config.modality,
+            image_resolution=model_config.image_resolution,
         )
 
         # pretrained weights Loaded
-        if config.freeze_backbone:
+        if model_config.freeze_backbone:
             self.freeze(self.encoder)
 
-        edim = config.embed_dim
+        edim = model_config.embed_dim
         self.neck = Feature2Pyramid(embed_dim=edim, rescales=[4, 2, 1, 0.5])
         self.decoder = UPerHead(
             in_channels=[edim] * 4,
@@ -84,7 +84,7 @@ class CromaSegmentation(LightningTask):
             pool_scales=(1, 2, 3, 6),
             channels=512,
             dropout_ratio=0.1,
-            num_classes=config.num_classes,
+            num_classes=data_config.num_classes,
             norm_cfg=dict(type="SyncBN", requires_grad=True),
             align_corners=False,
             loss_decode=dict(
@@ -98,7 +98,7 @@ class CromaSegmentation(LightningTask):
             num_convs=1,
             concat_input=False,
             dropout_ratio=0.1,
-            num_classes=config.num_classes,
+            num_classes=data_config.num_classes,
             norm_cfg=dict(type="SyncBN", requires_grad=True),
             align_corners=False,
             loss_decode=dict(
@@ -140,10 +140,10 @@ class CromaSegmentation(LightningTask):
 
 
 # Model factory for different dinov2 tasks
-def CromaModel(args, config, data_config):
+def CromaModel(args, model_config, data_config):
     if args.task == "classification":
-        return CromaClassification(args, config, data_config)
+        return CromaClassification(args, model_config, data_config)
     elif args.task == "segmentation":
-        return CromaSegmentation(args, config, data_config)
+        return CromaSegmentation(args, model_config, data_config)
     else:
         raise NotImplementedError("Task not supported")

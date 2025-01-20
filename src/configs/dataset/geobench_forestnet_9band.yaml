@@ -1,0 +1,25 @@
+defaults:
+  - geobench_forestnet
+
+band_names:
+  - "04 - Red"
+  - "03 - Green"
+  - "02 - Blue"
+  - "05 - NIR"
+  - "05 - NIR"
+  - "05 - NIR"
+  - "05 - NIR"
+  - "06 - SWIR1"
+  - "07 - SWIR2"
+band_wavelengths:
+  - 0.66
+  - 0.56
+  - 0.49
+  - 0.86
+  - 0.86
+  - 0.86
+  - 0.86
+  - 1.61
+  - 2.2
+num_channels: 9
+

@@ -1,0 +1,24 @@
+defaults:
+  - geobench
+
+benchmark_name: classification_v1.0
+dataset_name: m-eurosat
+task: classification
+band_names:
+  - "01 - Coastal aerosol"
+  - "02 - Blue"
+  - "03 - Green"
+  - "04 - Red"
+  - "05 - Vegetation Red Edge"
+  - "06 - Vegetation Red Edge"
+  - "07 - Vegetation Red Edge"
+  - "08 - NIR"
+  - "08A - Vegetation Red Edge"
+  - "09 - Water vapour"
+  - "10 - SWIR - Cirrus"
+  - "11 - SWIR"
+  - "12 - SWIR"
+num_classes: 10
+multilabel: false
+num_channels: 13
+

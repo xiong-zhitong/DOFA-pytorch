@@ -12,28 +12,28 @@ from util.misc import seg_metric, cls_metric
 
 
 class SoftConClassification(LightningTask):
-    def __init__(self, args, config, data_config):
-        super().__init__(args, config, data_config)
+    def __init__(self, args, model_config, data_config):
+        super().__init__(args, model_config, data_config)
 
-        self.encoder = dinov2_vit.__dict__[config.softcon_size](
-            img_size=config.image_resolution,
+        self.encoder = dinov2_vit.__dict__[model_config.softcon_size](
+            img_size=model_config.image_resolution,
             patch_size=14,
-            in_chans=config.num_channels,
+            in_chans=model_config.num_channels,
             block_chunks=0,
             init_values=1e-5,
             num_register_tokens=0,
         )
 
-        ckpt_vit14 = torch.load(config.pretrained_path)
+        ckpt_vit14 = torch.load(model_config.pretrained_path)
         self.encoder.load_state_dict(ckpt_vit14)
 
-        if config.freeze_backbone:
+        if model_config.freeze_backbone:
             self.freeze(self.encoder)
 
-        self.linear_classifier = nn.Linear(config.embed_dim, config.num_classes)
+        self.linear_classifier = nn.Linear(model_config.embed_dim, data_config.num_classes)
         self.criterion = (
             nn.MultiLabelSoftMarginLoss()
-            if config.multilabel
+            if data_config.multilabel
             else nn.CrossEntropyLoss()
         )
 
@@ -64,25 +64,25 @@ class SoftConClassification(LightningTask):
 
 
 class SoftConSegmentation(LightningTask):
-    def __init__(self, args, config, data_config):
-        super().__init__(args, config, data_config)
+    def __init__(self, args, model_config, data_config):
+        super().__init__(args, model_config, data_config)
 
-        self.encoder = dinov2_vit.__dict__[config.softcon_size](
-            img_size=config.image_resolution,
+        self.encoder = dinov2_vit.__dict__[model_config.softcon_size](
+            img_size=model_config.image_resolution,
             patch_size=14,
-            in_chans=config.num_channels,
+            in_chans=model_config.num_channels,
             block_chunks=0,
             init_values=1e-5,
             num_register_tokens=0,
         )
 
-        ckpt_vit14 = torch.load(config.pretrained_path)
+        ckpt_vit14 = torch.load(model_config.pretrained_path)
         self.encoder.load_state_dict(ckpt_vit14)
 
-        if config.freeze_backbone:
+        if model_config.freeze_backbone:
             self.freeze(self.encoder)
 
-        edim = config.embed_dim
+        edim = model_config.embed_dim
         self.neck = Feature2Pyramid(embed_dim=edim, rescales=[4, 2, 1, 0.5])
         self.decoder = UPerHead(
             in_channels=[edim] * 4,
@@ -90,7 +90,7 @@ class SoftConSegmentation(LightningTask):
             pool_scales=(1, 2, 3, 6),
             channels=512,
             dropout_ratio=0.1,
-            num_classes=config.num_classes,
+            num_classes=data_config.num_classes,
             norm_cfg=dict(type="SyncBN", requires_grad=True),
             align_corners=False,
             loss_decode=dict(
@@ -104,7 +104,7 @@ class SoftConSegmentation(LightningTask):
             num_convs=1,
             concat_input=False,
             dropout_ratio=0.1,
-            num_classes=config.num_classes,
+            num_classes=data_config.num_classes,
             norm_cfg=dict(type="SyncBN", requires_grad=True),
             align_corners=False,
             loss_decode=dict(
@@ -150,10 +150,10 @@ class SoftConSegmentation(LightningTask):
 
 
 # Model factory for different dinov2 tasks
-def SoftConModel(args, config, data_config):
+def SoftConModel(args, model_config, data_config):
     if args.task == "classification":
-        return SoftConClassification(args, config, data_config)
+        return SoftConClassification(args, model_config, data_config)
     elif args.task == "segmentation":
-        return SoftConSegmentation(args, config, data_config)
+        return SoftConSegmentation(args, model_config, data_config)
     else:
         raise NotImplementedError("Task not supported")

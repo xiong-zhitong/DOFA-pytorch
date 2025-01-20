@@ -1,0 +1,6 @@
+defaults:
+  - benv2_all
+
+bands: rgb
+num_channels: 3
+

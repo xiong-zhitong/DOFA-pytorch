@@ -1,0 +1,15 @@
+defaults:
+  - geobench_sacrop
+
+band_names:
+  - "04 - Red"
+  - "03 - Green"
+  - "02 - Blue"
+  - "05 - Vegetation Red Edge"
+  - "06 - Vegetation Red Edge"
+  - "07 - Vegetation Red Edge"
+  - "08 - NIR"
+  - "11 - SWIR"
+  - "12 - SWIR"
+num_channels: 9
+

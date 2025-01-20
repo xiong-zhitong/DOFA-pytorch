@@ -1,0 +1,14 @@
+defaults:
+  - base_dataset
+
+dataset_type: geobench
+benchmark_name: null  # Options: "classification_v1.0", "segmentation_v1.0"
+dataset_name: null
+band_names: []
+band_wavelengths: []
+data_path: /home/zhitong/Datasets/geobench/
+multilabel: false
+additional_param: null
+ignore_index: null
+image_resolution: 224
+

@@ -1,0 +1,13 @@
+defaults:
+  - base_dataset
+
+dataset_type: resisc45
+task: classification
+dataset_name: resisc45
+num_classes: 45
+num_channels: 3
+data_path: /mnt/data/datasets_classification/resisc45
+band_names: ["Red", "Green", "Blue"]
+image_resolution: 224
+multilabel: false
+

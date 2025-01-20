@@ -1,0 +1,14 @@
+defaults:
+  - geobench
+
+benchmark_name: segmentation_v1.0
+dataset_name: m-NeonTree
+task: segmentation
+band_names:
+  - "Blue"
+  - "Green"
+  - "Red"
+num_classes: 2
+multilabel: false
+num_channels: 3
+

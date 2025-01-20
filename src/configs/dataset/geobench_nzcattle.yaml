@@ -1,0 +1,18 @@
+defaults:
+  - geobench
+
+benchmark_name: segmentation_v1.0
+dataset_name: m-nz-cattle
+task: segmentation
+band_names:
+  - "Red"
+  - "Green"
+  - "Blue"
+band_wavelengths:
+  - 0.66
+  - 0.56
+  - 0.48
+num_classes: 2
+multilabel: false
+num_channels: 3
+

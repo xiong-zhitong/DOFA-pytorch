@@ -12,12 +12,13 @@ from util.misc import seg_metric, cls_metric
 
 
 class GFMClassification(LightningTask):
-    def __init__(self, args, config, data_config):
-        super().__init__(args, config, data_config)
+    def __init__(self, args, model_config, data_config):
+        super().__init__(args, model_config, data_config)
 
-        self.encoder = build_swin_cls(config)
+        model_config.num_classes = data_config.num_classes
+        self.encoder = build_swin_cls(model_config)
 
-        if config.freeze_backbone:
+        if model_config.freeze_backbone:
             self.freeze(self.encoder)
 
         trunc_normal_(self.encoder.head.weight, std=0.01)
@@ -29,7 +30,7 @@ class GFMClassification(LightningTask):
 
         self.criterion = (
             nn.MultiLabelSoftMarginLoss()
-            if config.multilabel
+            if data_config.multilabel
             else nn.CrossEntropyLoss()
         )
 
@@ -38,7 +39,7 @@ class GFMClassification(LightningTask):
 
     def forward(self, samples):
         out_logits, feats = self.encoder(samples)
-        return (out_logits, feats) if self.config.out_features else out_logits
+        return (out_logits, feats) if self.model_config.out_features else out_logits
 
     def params_to_optimize(self):
         return self.encoder.head.parameters()
@@ -58,22 +59,22 @@ class GFMClassification(LightningTask):
 
 
 class GFMSegmentation(LightningTask):
-    def __init__(self, args, config, data_config):
-        super().__init__(args, config, data_config)
-        self.encoder = build_swin_seg(config)
+    def __init__(self, args, model_config, data_config):
+        super().__init__(args, model_config, data_config)
+        self.encoder = build_swin_seg(model_config)
         # pretrained weights loaded already
 
-        if config.freeze_backbone:
+        if model_config.freeze_backbone:
             self.freeze(self.encoder)
 
-        edim = config.embed_dim
+        edim = model_config.embed_dim
         self.decoder = UPerHead(
             in_channels=[256, 512, 1024, 1024],
             in_index=[0, 1, 2, 3],
             pool_scales=(1, 2, 3, 6),
             channels=512,
             dropout_ratio=0.1,
-            num_classes=config.num_classes,
+            num_classes=data_config.num_classes,
             norm_cfg=dict(type="SyncBN", requires_grad=True),
             align_corners=False,
             loss_decode=dict(
@@ -87,7 +88,7 @@ class GFMSegmentation(LightningTask):
             num_convs=1,
             concat_input=False,
             dropout_ratio=0.1,
-            num_classes=config.num_classes,
+            num_classes=data_config.num_classes,
             norm_cfg=dict(type="SyncBN", requires_grad=True),
             align_corners=False,
             loss_decode=dict(
@@ -124,10 +125,10 @@ class GFMSegmentation(LightningTask):
 
 
 # Model factory for different dinov2 tasks
-def GFMModel(args, config, data_config):
+def GFMModel(args, model_config, data_config):
     if args.task == "classification":
-        return GFMClassification(args, config, data_config)
+        return GFMClassification(args, model_config, data_config)
     elif args.task == "segmentation":
-        return GFMSegmentation(args, config, data_config)
+        return GFMSegmentation(args, model_config, data_config)
     else:
         raise NotImplementedError("Task not supported")

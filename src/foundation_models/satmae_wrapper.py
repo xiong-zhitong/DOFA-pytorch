@@ -18,32 +18,32 @@ from util.misc import seg_metric, cls_metric
 
 
 class SatMAEClassification(LightningTask):
-    def __init__(self, args, config, data_config):
-        super().__init__(args, config, data_config)
+    def __init__(self, args, model_config, data_config):
+        super().__init__(args, model_config, data_config)
 
         # get the params for the model
         kwargs = {}
-        kwargs["img_size"] = config.image_resolution
-        kwargs["patch_size"] = config.patch_size
-        kwargs["in_chans"] = config.num_channels
-        if config.num_channels > 3:
-            kwargs["channel_groups"] = config.channel_groups
+        kwargs["img_size"] = model_config.image_resolution
+        kwargs["patch_size"] = model_config.patch_size
+        kwargs["in_chans"] = model_config.num_channels
+        if model_config.num_channels > 3:
+            kwargs["channel_groups"] = model_config.channel_groups
             self.encoder = vit_large_patch16_cls(**kwargs)
         else:
             self.encoder = vit_large_patch16_cls_rgb(**kwargs)
         # Load pretrained weights
-        checkpoint = torch.load(config.pretrained_path, map_location="cpu")
+        checkpoint = torch.load(model_config.pretrained_path, map_location="cpu")
         checkpoint_model = checkpoint["model"]
         msg = self.encoder.load_state_dict(checkpoint_model, strict=False)
 
-        if config.freeze_backbone:
+        if model_config.freeze_backbone:
             self.freeze(self.encoder)
 
-        self.linear_classifier = torch.nn.Linear(config.embed_dim, config.num_classes)
+        self.linear_classifier = torch.nn.Linear(model_config.embed_dim, data_config.num_classes)
 
         self.criterion = (
             nn.MultiLabelSoftMarginLoss()
-            if config.multilabel
+            if data_config.multilabel
             else nn.CrossEntropyLoss()
         )
 
@@ -53,7 +53,7 @@ class SatMAEClassification(LightningTask):
     def forward(self, samples):
         feats = self.encoder.forward_features(samples)
         out_logits = self.linear_classifier(feats)
-        return (out_logits, feats) if self.config.out_features else out_logits
+        return (out_logits, feats) if self.model_config.out_features else out_logits
 
     def params_to_optimize(self):
         return self.linear_classifier.parameters()
@@ -73,28 +73,28 @@ class SatMAEClassification(LightningTask):
 
 
 class SatMAESegmentation(LightningTask):
-    def __init__(self, args, config, data_config):
-        super().__init__(args, config, data_config)
+    def __init__(self, args, model_config, data_config):
+        super().__init__(args, model_config, data_config)
 
         kwargs = {}
-        kwargs["img_size"] = config.image_resolution
-        kwargs["patch_size"] = config.patch_size
-        kwargs["in_chans"] = config.num_channels
-        if config.num_channels > 3:
-            kwargs["channel_groups"] = config.channel_groups
+        kwargs["img_size"] = model_config.image_resolution
+        kwargs["patch_size"] = model_config.patch_size
+        kwargs["in_chans"] = model_config.num_channels
+        if model_config.num_channels > 3:
+            kwargs["channel_groups"] = model_config.channel_groups
             self.encoder = vit_large_patch16_seg(**kwargs)
         else:
             self.encoder = vit_large_patch16_seg_rgb(**kwargs)
 
         # Load pretrained weights
-        checkpoint = torch.load(config.pretrained_path, map_location="cpu")
+        checkpoint = torch.load(model_config.pretrained_path, map_location="cpu")
         checkpoint_model = checkpoint["model"]
         msg = self.encoder.load_state_dict(checkpoint_model, strict=False)
 
-        if config.freeze_backbone:
+        if model_config.freeze_backbone:
             self.freeze(self.encoder)
 
-        edim = config.embed_dim
+        edim = model_config.embed_dim
         self.neck = Feature2Pyramid(embed_dim=edim, rescales=[4, 2, 1, 0.5])
         self.decoder = UPerHead(
             in_channels=[edim] * 4,
@@ -102,7 +102,7 @@ class SatMAESegmentation(LightningTask):
             pool_scales=(1, 2, 3, 6),
             channels=512,
             dropout_ratio=0.1,
-            num_classes=config.num_classes,
+            num_classes=data_config.num_classes,
             norm_cfg=dict(type="SyncBN", requires_grad=True),
             align_corners=False,
             loss_decode=dict(
@@ -116,7 +116,7 @@ class SatMAESegmentation(LightningTask):
             num_convs=1,
             concat_input=False,
             dropout_ratio=0.1,
-            num_classes=config.num_classes,
+            num_classes=data_config.num_classes,
             norm_cfg=dict(type="SyncBN", requires_grad=True),
             align_corners=False,
             loss_decode=dict(
@@ -158,10 +158,10 @@ class SatMAESegmentation(LightningTask):
 
 
 # Model factory for different dinov2 tasks
-def SatMAEModel(args, config, data_config):
+def SatMAEModel(args, model_config, data_config):
     if args.task == "classification":
-        return SatMAEClassification(args, config, data_config)
+        return SatMAEClassification(args, model_config, data_config)
     elif args.task == "segmentation":
-        return SatMAESegmentation(args, config, data_config)
+        return SatMAESegmentation(args, model_config, data_config)
     else:
         raise NotImplementedError("Task not supported")

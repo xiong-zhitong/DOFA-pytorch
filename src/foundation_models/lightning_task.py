@@ -5,9 +5,9 @@ import torch
 
 
 class LightningTask(LightningModule):
-    def __init__(self, args, config, data_config):
+    def __init__(self, args, model_config, data_config):
         super().__init__()
-        self.config = config  # model_config
+        self.model_config = model_config  # model_config
         self.args = args  # args for optimization params
         self.data_config = data_config  # dataset_config
         self.save_hyperparameters()
@@ -62,7 +62,7 @@ class LightningTask(LightningModule):
         return loss
 
     def configure_optimizers(self):
-        if self.config.task == "classification":
+        if self.model_config.task == "classification":
             optimizer = torch.optim.SGD(
                 self.params_to_optimize(),
                 lr=self.args.lr,

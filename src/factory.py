@@ -13,7 +13,6 @@ from foundation_models import (
 from datasets.geobench_wrapper import GeoBenchDataset
 from datasets.resisc_wrapper import Resics45Dataset
 from datasets.benv2_wrapper import BenV2Dataset
-from datasets.caffe_wrapper import CaffeDataset
 
 model_registry = {
     "croma": CromaModel,
@@ -32,7 +31,6 @@ dataset_registry = {
     "geobench": GeoBenchDataset,
     "resisc45": Resics45Dataset,
     "benv2": BenV2Dataset,
-    "caffe_rgb": CaffeDataset
     # Add other dataset mappings here
 }
 
@@ -52,9 +50,6 @@ def create_model(args, config_model, dataset_config=None):
     model_class = model_registry.get(model_name)
     if model_class is None:
         raise ValueError(f"Model type '{model_name}' not found.")
-
-    if dataset_config is not None:
-        config_model.apply_dataset(dataset_config)
 
     model = model_class(args, config_model, dataset_config)
 

@@ -1,0 +1,14 @@
+defaults:
+  - geobench
+
+benchmark_name: classification_v1.0
+dataset_name: m-pv4ger
+task: classification
+band_names:
+  - "Blue"
+  - "Green"
+  - "Red"
+num_classes: 2
+multilabel: false
+num_channels: 3
+

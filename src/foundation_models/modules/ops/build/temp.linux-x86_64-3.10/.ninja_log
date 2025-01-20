@@ -1,0 +1,4 @@
+# ninja log v5
+0	4227	1737369411421403236	/home/xshadow/evaluation/DOFA-pytorch/src/foundation_models/modules/ops/build/temp.linux-x86_64-3.10/home/xshadow/evaluation/DOFA-pytorch/src/foundation_models/modules/ops/src/cpu/ms_deform_attn_cpu.o	cdb4379b5cb49255
+1	16477	1737369423673364950	/home/xshadow/evaluation/DOFA-pytorch/src/foundation_models/modules/ops/build/temp.linux-x86_64-3.10/home/xshadow/evaluation/DOFA-pytorch/src/foundation_models/modules/ops/src/vision.o	e776627fd3d2f954
+0	18883	1737369426045357537	/home/xshadow/evaluation/DOFA-pytorch/src/foundation_models/modules/ops/build/temp.linux-x86_64-3.10/home/xshadow/evaluation/DOFA-pytorch/src/foundation_models/modules/ops/src/cuda/ms_deform_attn_cuda.o	bf0c39b53d59c87e

@@ -10,19 +10,19 @@ from util.misc import seg_metric, cls_metric
 
 
 class AnySatClassification(LightningTask):
-    def __init__(self, args, config, data_config):
-        super().__init__(args, config, data_config)
+    def __init__(self, args, model_config, data_config):
+        super().__init__(args, model_config, data_config)
 
         self.encoder = torch.hub.load(
             "gastruc/anysat", "anysat", pretrained=True, flash_attn=False
         )
 
-        if config.freeze_backbone:
+        if model_config.freeze_backbone:
             self.freeze(self.encoder)
-        self.linear_classifier = nn.Linear(config.embed_dim, config.num_classes)
+        self.linear_classifier = nn.Linear(model_config.embed_dim, data_config.num_classes)
         self.criterion = (
             nn.MultiLabelSoftMarginLoss()
-            if config.multilabel
+            if data_config.multilabel
             else nn.CrossEntropyLoss()
         )
 
@@ -56,16 +56,16 @@ class AnySatClassification(LightningTask):
 
 
 class AnySatSegmentation(LightningTask):
-    def __init__(self, args, config, data_config):
-        super().__init__(args, config, data_config)
+    def __init__(self, args, model_config, data_config):
+        super().__init__(args, model_config, data_config)
         self.encoder = torch.hub.load(
             "gastruc/anysat", "anysat", pretrained=True, flash_attn=False
         )
 
-        if config.freeze_backbone:
+        if model_config.freeze_backbone:
             self.freeze(self.encoder)
 
-        edim = config.embed_dim
+        edim = model_config.embed_dim
         self.neck = Feature2Pyramid(embed_dim=edim, rescales=[4, 2, 1, 0.5])
         self.decoder = UPerHead(
             in_channels=[edim] * 4,
@@ -73,7 +73,7 @@ class AnySatSegmentation(LightningTask):
             pool_scales=(1, 2, 3, 6),
             channels=512,
             dropout_ratio=0.1,
-            num_classes=config.num_classes,
+            num_classes=data_config.num_classes,
             norm_cfg=dict(type="SyncBN", requires_grad=True),
             align_corners=False,
             loss_decode=dict(
@@ -87,7 +87,7 @@ class AnySatSegmentation(LightningTask):
             num_convs=1,
             concat_input=False,
             dropout_ratio=0.1,
-            num_classes=config.num_classes,
+            num_classes=data_config.num_classes,
             norm_cfg=dict(type="SyncBN", requires_grad=True),
             align_corners=False,
             loss_decode=dict(
@@ -131,10 +131,10 @@ class AnySatSegmentation(LightningTask):
 
 
 # Model factory for different dinov2 tasks
-def AnySatModel(args, config, data_config):
+def AnySatModel(args, model_config, data_config):
     if args.task == "classification":
-        return AnySatClassification(args, config, data_config)
+        return AnySatClassification(args, model_config, data_config)
     elif args.task == "segmentation":
-        return AnySatSegmentation(args, config, data_config)
+        return AnySatSegmentation(args, model_config, data_config)
     else:
         raise NotImplementedError("Task not supported")

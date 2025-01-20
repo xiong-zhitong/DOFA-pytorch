@@ -1,0 +1,18 @@
+defaults:
+  - geobench
+
+benchmark_name: segmentation_v1.0
+dataset_name: m-chesapeake
+task: segmentation
+band_names:
+  - "Blue"
+  - "Green"
+  - "Red"
+band_wavelengths:
+  - 0.48
+  - 0.56
+  - 0.66
+num_classes: 7
+multilabel: false
+num_channels: 3
+
