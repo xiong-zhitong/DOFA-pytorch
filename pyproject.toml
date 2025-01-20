@@ -5,9 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "GeoFM"
 version = "0.1.0"
-description = "Project with specific dependencies"
+description = "Accessible Geospatial Foundation Models with PyTorch Lightning."
 authors = [
     { name = "Zhitong Xiong", email = "xiongzhitong@gmail.com" }
+]
+
+maintainers = [
+    { name = "Zhitong Xiong", email = "xiongzhitong@gmail.com" },
+    { name = "Nils Lehmann", email = "n.lehmann@tum.de" }
 ]
 
 
@@ -35,5 +40,6 @@ dependencies = [
     "fastparquet",
     "mlflow",
     "ray>=2.40.0",
+    "huggingface-hub>=0.27.1"
 ]
 

@@ -8,6 +8,7 @@ import torch
 import torch.distributed as dist
 import numpy as np
 from scipy import interpolate
+from huggingface_hub import hf_hub_download
 
 try:
     # noinspection PyUnresolvedReferences
@@ -112,7 +113,16 @@ def reduce_tensor(tensor):
 
 def load_pretrained(config, model):
     logger.info(f">>>>>>>>>> Fine-tuned from {config.PRETRAINED} ..........")
-    checkpoint = torch.load(config.PRETRAINED, map_location="cpu")
+    # look for pretrained weights
+    dir = os.getenv("MODEL_WEIGHTS_DIR")
+    filename = model_config.pretrained_path
+    path = os.path.join(dir, filename)
+    if not os.path.exists(path):
+        # download the weights from HF
+        hf_hub_download(
+            repo_id="earthflow/GeoFMs", filename=filename, cache_dir=dir, local_dir=dir
+        )
+    checkpoint = torch.load(path, map_location="cpu")
     checkpoint_model = checkpoint["model"]
 
     if any([True if "encoder." in k else False for k in checkpoint_model.keys()]):

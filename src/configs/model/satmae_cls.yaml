@@ -8,5 +8,5 @@ image_resolution: 96
 patch_size: 8
 num_channels: 10
 channel_groups: [[0, 1, 2, 6], [3, 4, 5, 7], [8, 9]]
-pretrained_path: "src/fm_weights/checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
+pretrained_path: "checkpoint_ViT-L_pretrain_fmow_sentinel.pth"
 

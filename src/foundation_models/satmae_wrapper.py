@@ -16,6 +16,8 @@ from util.misc import resize
 from .lightning_task import LightningTask
 from util.misc import seg_metric, cls_metric
 
+from huggingface_hub import hf_hub_download
+
 
 class SatMAEClassification(LightningTask):
     def __init__(self, args, model_config, data_config):
@@ -31,15 +33,31 @@ class SatMAEClassification(LightningTask):
             self.encoder = vit_large_patch16_cls(**kwargs)
         else:
             self.encoder = vit_large_patch16_cls_rgb(**kwargs)
+
+        # look for pretrained weights
+        dir = os.getenv("MODEL_WEIGHTS_DIR")
+        filename = model_config.pretrained_path
+        path = os.path.join(dir, filename)
+        if not os.path.exists(path):
+            # download the weights from HF
+            hf_hub_download(
+                repo_id=f"mubashir04/{filename}",
+                filename=filename,
+                cache_dir=dir,
+                local_dir=dir,
+            )
+
         # Load pretrained weights
-        checkpoint = torch.load(model_config.pretrained_path, map_location="cpu")
+        checkpoint = torch.load(path, map_location="cpu")
         checkpoint_model = checkpoint["model"]
         msg = self.encoder.load_state_dict(checkpoint_model, strict=False)
 
         if model_config.freeze_backbone:
             self.freeze(self.encoder)
 
-        self.linear_classifier = torch.nn.Linear(model_config.embed_dim, data_config.num_classes)
+        self.linear_classifier = torch.nn.Linear(
+            model_config.embed_dim, data_config.num_classes
+        )
 
         self.criterion = (
             nn.MultiLabelSoftMarginLoss()
