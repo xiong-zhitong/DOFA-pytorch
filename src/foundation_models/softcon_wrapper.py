@@ -1,6 +1,7 @@
 from .SoftCON.models.dinov2 import vision_transformer as dinov2_vit
 import torch.nn as nn
 import torch
+import os
 
 # use mmsegmentation for upernet+mae
 from mmseg.models.necks import Feature2Pyramid

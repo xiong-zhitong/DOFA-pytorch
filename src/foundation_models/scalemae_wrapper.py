@@ -3,6 +3,7 @@ from .ScaleMAE.models_vit import vit_large_patch16 as vit_large_patch16_cls
 
 import torch.nn as nn
 import torch
+import os
 
 # use mmsegmentation for upernet+mae
 from mmseg.models.necks import Feature2Pyramid

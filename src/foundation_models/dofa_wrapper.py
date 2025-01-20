@@ -1,4 +1,5 @@
 import torch
+import os
 import torch.nn as nn
 from .DOFA.models_dwv import vit_base_patch16 as vit_base_patch16_cls
 from .DOFA.models_dwv import vit_large_patch16 as vit_large_patch16_cls

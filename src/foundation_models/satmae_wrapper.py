@@ -8,6 +8,7 @@ from .SatMAE.models_vit_seg import vit_large_patch16 as vit_large_patch16_seg_rg
 
 import torch.nn as nn
 import torch
+import os
 
 # use mmsegmentation for upernet+mae
 from mmseg.models.necks import Feature2Pyramid
