@@ -17,10 +17,12 @@ from util.misc import resize
 from .lightning_task import LightningTask
 from util.misc import seg_metric, cls_metric
 
-from huggingface_hub import hf_hub_download
+from torchvision.datasets.utils import download_url
 
 
 class SatMAEClassification(LightningTask):
+
+    url = "https://huggingface.co/mubashir04/{}/resolve/main/{}"
     def __init__(self, args, model_config, data_config):
         super().__init__(args, model_config, data_config)
 
@@ -41,12 +43,7 @@ class SatMAEClassification(LightningTask):
         path = os.path.join(dir, filename)
         if not os.path.exists(path):
             # download the weights from HF
-            hf_hub_download(
-                repo_id=f"mubashir04/{filename}",
-                filename=filename,
-                cache_dir=dir,
-                local_dir=dir,
-            )
+            download_url(self.url.format(filename.split(".")[0], filename), dir, filename=filename)
 
         # Load pretrained weights
         checkpoint = torch.load(path, map_location="cpu")
