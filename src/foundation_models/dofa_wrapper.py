@@ -1,4 +1,5 @@
 import torch
+import os
 import torch.nn as nn
 from .DOFA.models_dwv import vit_base_patch16 as vit_base_patch16_cls
 from .DOFA.models_dwv import vit_large_patch16 as vit_large_patch16_cls
@@ -10,10 +11,13 @@ from util.misc import resize
 from .lightning_task import LightningTask
 from timm.models.layers import trunc_normal_
 from util.misc import seg_metric, cls_metric
-from huggingface_hub import hf_hub_download
+from torchvision.datasets.utils import download_url
 
 
 class DofaClassification(LightningTask):
+
+    url = "https://huggingface.co/earthflow/dofa/resolve/main/{}"
+
     def __init__(self, args, model_config, data_config):
         super().__init__(args, model_config, data_config)
 
@@ -29,12 +33,7 @@ class DofaClassification(LightningTask):
         path = os.path.join(dir, filename)
         if not os.path.exists(path):
             # download the weights from HF
-            hf_hub_download(
-                repo_id="earthflow/dofa",
-                filename=filename,
-                cache_dir=dir,
-                local_dir=dir,
-            )
+            download_url(self.url.format(filename), dir, filename=filename)
 
         # Load pretrained weights
         check_point = torch.load(path)

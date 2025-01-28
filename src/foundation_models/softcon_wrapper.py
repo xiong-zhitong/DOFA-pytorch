@@ -1,6 +1,7 @@
 from .SoftCON.models.dinov2 import vision_transformer as dinov2_vit
 import torch.nn as nn
 import torch
+import os
 
 # use mmsegmentation for upernet+mae
 from mmseg.models.necks import Feature2Pyramid
@@ -9,10 +10,13 @@ from util.misc import resize
 from .lightning_task import LightningTask
 from einops import rearrange
 from util.misc import seg_metric, cls_metric
-from huggingface_hub import hf_hub_download
+from torchvision.datasets.utils import download_url
 
 
 class SoftConClassification(LightningTask):
+
+    url = "https://huggingface.co/wangyi111/softcon/resolve/main/{}"
+
     def __init__(self, args, model_config, data_config):
         super().__init__(args, model_config, data_config)
 
@@ -31,12 +35,7 @@ class SoftConClassification(LightningTask):
         path = os.path.join(dir, filename)
         if not os.path.exists(path):
             # download the weights from HF
-            hf_hub_download(
-                repo_id="wangyi111/softcon",
-                filename=filename,
-                cache_dir=dir,
-                local_dir=dir,
-            )
+            download_url(self.url.format(filename), dir, filename=filename)
 
         ckpt_vit14 = torch.load(path)
         self.encoder.load_state_dict(ckpt_vit14)

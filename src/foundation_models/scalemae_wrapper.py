@@ -3,6 +3,7 @@ from .ScaleMAE.models_vit import vit_large_patch16 as vit_large_patch16_cls
 
 import torch.nn as nn
 import torch
+import os
 
 # use mmsegmentation for upernet+mae
 from mmseg.models.necks import Feature2Pyramid
@@ -10,10 +11,13 @@ from mmseg.models.decode_heads import UPerHead, FCNHead
 from util.misc import resize
 from .lightning_task import LightningTask
 from util.misc import seg_metric, cls_metric
-from huggingface_hub import hf_hub_download
+from torchvision.datasets.utils import download_url
 
 
 class ScaleMAEClassification(LightningTask):
+
+    url = "https://huggingface.co/torchgeo/{}/resolve/main/{}"
+
     def __init__(self, args, model_config, data_config):
         super().__init__(args, model_config, data_config)
 
@@ -34,12 +38,7 @@ class ScaleMAEClassification(LightningTask):
         path = os.path.join(dir, filename)
         if not os.path.exists(path):
             # download the weights from HF
-            hf_hub_download(
-                repo_id="torchgeo/vit_large_patch16_224_fmow_rgb_scalemae",
-                filename=filename,
-                cache_dir=dir,
-                local_dir=dir,
-            )
+            download_url(self.url.format(filename.split(".")[0], filename), dir, filename=filename)
 
         self.linear_classifier = torch.nn.Linear(
             model_config.embed_dim, data_config.num_classes
