@@ -14,6 +14,8 @@ For this navigate to the root directory of this repository and do:
 pip install -e .
 ```
 
+You will also need to for the moment install the ViT Adapter part below.
+
 ### To use [ViT Adapter](https://arxiv.org/abs/2205.08534)
 ```bash
 cd src/foundation_models/modules/ops/
@@ -63,7 +65,8 @@ This repository includes the following models for evaluation:
 The following datasets are currently supported:
 
 - GeoBench
-- **Spectral Earth** *(in progress)*
+- BigEarthNetV2
+- Resisc45
 
 ---
 
@@ -81,19 +84,31 @@ To add a new model or dataset for evaluation, follow these steps:
    - Register the dataset in [`factory.py`](factory.py) to ensure access.
    
 3. **Configuration Setup:**
-   - Define the configuration settings in [`config.py`](util/config.py).
+   This project is using [hydra](https://hydra.cc/docs/1.3/intro/) for experiment configuation:
+
+   In the configs directory there is a subdirectory for models and dataset, where you need to add
+   a config file for the new dataset and model
 
 ---
 
-## Running the Evaluation
+## Running an experiment
 
 To run the evaluation script, use the following command:
 
 ```bash
-python scripts/exp_config.py
+python main.py model=dinov2_cls dataset=benv2_rgb
 ```
 
-This script initiates training for model evaluation on GeoBench with CROMA.
+The model and dataset arguments are the names of the config.yaml files specified under the src/configs directory. Additional argumentes can be passed to the command, basically, anything that you see in `src/main.py` and has `cfg.{something}` passing the argument with the command line command will overwrite the configs with the dedicated values.
+
+For example:
+
+```bash
+python main.py model=dinov2_cls dataset=benv2_rgb output_dir=experiments/dinov2_benv2_rgb  batch_size=32 num_gpus=1 epochs=100 lr=1e-4
+```
+
+overwrites the output directory where experiments are stored, batch size, epochs and learning rate.
+
 
 ---
 

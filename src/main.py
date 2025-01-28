@@ -52,7 +52,7 @@ def main(cfg: DictConfig):
     trainer = Trainer(
         logger=mlf_logger,
         callbacks=callbacks,
-        strategy=DDPStrategy(find_unused_parameters=False) if cfg.strategy == "ddp" else cfg.strategy,
+        strategy=DDPStrategy(find_unused_parameters=False) if cfg.strategy == "ddp" and cfg.num_gpus > 1 else cfg.strategy,
         devices=cfg.num_gpus,
         max_epochs=cfg.epochs,
         num_sanity_val_steps=0,
