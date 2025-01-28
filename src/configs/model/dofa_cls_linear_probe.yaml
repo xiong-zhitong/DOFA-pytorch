@@ -7,5 +7,5 @@ dofa_size: dofa_large
 image_resolution: 224
 embed_dim: 1024
 pretrained_path: "DOFA_ViT_large_e100.pth"
-full_finetune: true
+full_finetune: false
 

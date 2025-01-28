@@ -12,6 +12,7 @@ from .lightning_task import LightningTask
 from timm.models.layers import trunc_normal_
 from util.misc import seg_metric, cls_metric
 from torchvision.datasets.utils import download_url
+from peft import LoraConfig, get_peft_model
 
 
 class DofaClassification(LightningTask):
@@ -21,11 +22,21 @@ class DofaClassification(LightningTask):
     def __init__(self, args, model_config, data_config):
         super().__init__(args, model_config, data_config)
 
+        self.lora = model_config.get("lora", False)
+
+        self.full_finetune = model_config.get("full_finetune", False)
+
+        # can only be one of the two
+        assert not (self.lora and self.full_finetune), "Can only use one of LoRA or full finetune bot not both to true"
+
         self.encoder = (
             vit_base_patch16_cls(num_classes=data_config.num_classes)
             if model_config.dofa_size == "dofa_base"
             else vit_large_patch16_cls(num_classes=data_config.num_classes)
         )
+
+        print(self.encoder)
+
 
         # look for pretrained weights
         dir = os.getenv("MODEL_WEIGHTS_DIR")
@@ -39,8 +50,15 @@ class DofaClassification(LightningTask):
         check_point = torch.load(path)
         self.encoder.load_state_dict(check_point, strict=False)
 
+        if self.lora:
+            self.apply_peft_to_last_layers(self.encoder, target_modules=model_config.lora_target_modules, rank=8)
+
         if model_config.freeze_backbone:
-            self.freeze(self.encoder)
+            if self.lora:
+                # TODO not implemented yet I think
+                self.freeze_non_lora_params(self.encoder)
+            else:
+                self.freeze(self.encoder)
 
         trunc_normal_(self.encoder.head.weight, std=0.01)
         self.encoder.head = nn.Sequential(
@@ -55,6 +73,26 @@ class DofaClassification(LightningTask):
             else nn.CrossEntropyLoss()
         )
 
+        self.model_config = model_config
+        self.data_config = data_config
+
+    def apply_peft_to_last_layers(self, encoder, target_modules: list[str], rank: int=8):
+        """
+        Apply LoRA to the last few layers of the encoder using PEFT.
+        """
+        # Configure LoRA
+        peft_config = LoraConfig(
+            r=rank,
+            lora_alpha=32,  # Scaling factor for LoRA
+            target_modules=target_modules,  # LoRA target layers
+            lora_dropout=0.1,
+            bias="none",
+            task_type="SEQ_CLS"  # Task type (use appropriate type for your model)
+        )
+
+        # Wrap the encoder with PEFT
+        self.encoder = get_peft_model(encoder, peft_config)
+
     def loss(self, outputs, labels):
         return self.criterion(outputs[0], labels)
 
@@ -63,7 +101,14 @@ class DofaClassification(LightningTask):
         return (out_logits, feats) if self.model_config.out_features else out_logits
 
     def params_to_optimize(self):
-        return self.encoder.head.parameters()
+        if self.lora:
+            # Include LoRA parameters for optimization
+            lora_params = [p for n, p in self.encoder.named_parameters() if "lora" in n]
+            return list(self.encoder.head.parameters()) + lora_params
+        if self.full_finetune:
+            return list(self.encoder.parameters())
+        else:
+            return list(self.encoder.head.parameters())
 
     def log_metrics(self, outputs, targets, prefix="train"):
         # Calculate accuracy and other classification-specific metrics

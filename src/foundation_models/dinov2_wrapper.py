@@ -24,12 +24,19 @@ class DinoV2Classification(LightningTask):
     def __init__(self, args, model_config, data_config):
         super().__init__(args, model_config, data_config)
 
-        self.lora = True
+        self.lora = model_config.get("lora", False)
+
+        self.full_finetune = model_config.get("full_finetune", False)
+
+        # can only be one of the two
+        assert not (self.lora and self.full_finetune), "Can only use one of LoRA or full finetune bot not both to true"
 
         self.encoder = torch.hub.load("facebookresearch/dinov2", model_config.dino_size)
         
+        print(self.encoder)
         if self.lora:
-            self.apply_peft_to_last_layers(self.encoder, rank=8)
+            self.apply_peft_to_last_layers(self.encoder, target_modules=model_config.lora_target_modules, rank=8)
+
 
         if model_config.freeze_backbone:
             if self.lora:
@@ -46,7 +53,7 @@ class DinoV2Classification(LightningTask):
         )
 
     
-    def apply_peft_to_last_layers(self, encoder, rank=8):
+    def apply_peft_to_last_layers(self, encoder, target_modules: list[str], rank: int=8):
         """
         Apply LoRA to the last few layers of the encoder using PEFT.
         """
@@ -54,7 +61,7 @@ class DinoV2Classification(LightningTask):
         peft_config = LoraConfig(
             r=rank,
             lora_alpha=32,  # Scaling factor for LoRA
-            target_modules=["q", "k", "v", "out"],  # LoRA target layers
+            target_modules=target_modules,  # LoRA target layers
             lora_dropout=0.1,
             bias="none",
             task_type="SEQ_CLS"  # Task type (use appropriate type for your model)
@@ -79,6 +86,8 @@ class DinoV2Classification(LightningTask):
             # Include LoRA parameters for optimization
             lora_params = [p for n, p in self.encoder.named_parameters() if "lora" in n]
             return list(self.linear_classifier.parameters()) + lora_params
+        if self.full_finetune:
+            return list(self.encoder.parameters()) + list(self.linear_classifier.parameters())
         else:
             return list(self.linear_classifier.parameters())
 

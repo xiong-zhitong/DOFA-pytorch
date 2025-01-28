@@ -3,4 +3,9 @@ defaults:
 
 bands: rgb
 num_channels: 3
+band_names: [
+  "04 - Red",
+  "03 - Green",
+  "02 - Blue"
+]
 

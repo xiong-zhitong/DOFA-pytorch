@@ -1,0 +1,12 @@
+defaults:
+  - base_dataset
+
+dataset_type: caffe_rgb
+task: segmentation
+dataset_name: caffe_rgb
+num_classes: 4
+num_channels: 3
+data_path: /mnt/data/datasets_segmentation/Caffe
+image_resolution: 224
+band_wavelengths: []
+multilabel: false
