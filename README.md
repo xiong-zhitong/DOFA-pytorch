@@ -109,6 +109,11 @@ python main.py model=dinov2_cls dataset=benv2_rgb output_dir=experiments/dinov2_
 
 overwrites the output directory where experiments are stored, batch size, epochs and learning rate.
 
+## Hyperparameter Tuning
+
+There is also a script included that can optimize hyperparameters with [Ray Tune](https://docs.ray.io/en/latest/tune/index.html) similar to the hydra setup above but with additional parameters for hparam tuning.
+
+The python file `generate_bash_scripts_ray_tune.py` can generate bash scripts that execute the `src/hparam_ray_hdra.py` script with optimizing the learning rate and batch size. The additonal ray relevant parameters are `cfg.ray.{something}` inside that script. Some defaults are provided, but if you need more specific control over ray tune configuration, additional ray arguments can be passed to the command line or a script with the plus sign. For more information you can see how the `generate_bash_scripts_ray_tune.py` configures an experiment.
 
 ---
 
