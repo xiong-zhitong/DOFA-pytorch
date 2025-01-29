@@ -6,7 +6,6 @@ experiments = [
         "model": "dinov2_cls",
         "dataset": "benv2_rgb",
         "task": "classification",
-        "batch_size": 16,
         "epochs": 30,
         "lr_min": 0.001,
         "lr_max": 0.1,
@@ -24,7 +23,6 @@ def generate_bash_scripts(experiments, out_dir="."):
         dataset_dir = os.path.join(out_dir, "tune", dataset)
         os.makedirs(dataset_dir, exist_ok=True)
 
-        batch_size = exp["batch_size"]
         epochs = exp["epochs"]
         task = exp["task"]
         batch_choices = exp["batch_choices"]
@@ -49,7 +47,6 @@ export GEO_BENCH_DIR=/mnt/data/cc_benchmark
 
 model="{model}"
 dataset="{dataset}"
-batch_size="{batch_size}"
 lr_min="{lr_min}"
 lr_max="{lr_max}"
 task="{task}"
