@@ -14,7 +14,7 @@ For this navigate to the root directory of this repository and do:
 pip install -e .
 ```
 
-You will also need to for the moment install the ViT Adapter part below.
+You currently do not need to install the ViT Adapter part below, as it is not used in the current version of the repository. It is optional, and relies on CUDA toolkit < 12
 
 ### To use [ViT Adapter](https://arxiv.org/abs/2205.08534)
 ```bash
@@ -26,10 +26,17 @@ sh make.sh
 ### Model Weights
 Pretrained model weights are available on [Hugging Face](https://huggingface.co/XShadow/GeoFMs).
 
-You can set this environment variable in your terminal with:
+
+### Set Up Your Environment Variables
+
+You can set this environment variable in a .env in the root directory. The variables here are automatically exported and used by different scripts, so make sure to set the following variables:
 
 ```shell
-export MODEL_WEIGHTS_DIR=/your/custom/path
+MODEL_WEIGHTS_DIR=<path/to/your/where/you/want/to/store/weights>
+TORCH_HOME=<path/to/your/where/you/want/to/store/torch/hub/weights>
+DATASETS_DIR=<path/to/your/where/you/want/to/store/all/other/datasets>
+GEO_BENCH_DIR=<path/to/your/where/you/want/to/store/GeoBench>
+ODIR=<path/to/your/where/you/want/to/store/logs>
 ```
 
 When using any of the FMs, the init method will check whether it can find the pre-trained checkpoint of the respective FM in the above `MODEL_WEIGHTS_DIR` and download it there if not found. If you do not change the env
@@ -38,9 +45,6 @@ variable, the default will be `./fm_weights`.
 Some models depend on [torch hub](https://pytorch.org/docs/stable/hub.html#where-are-my-downloaded-models-saved), which by default will load models to `~.cache/torch/hub`. If you would like to change the directory if this to
 for example have a single place where all weights across the models are stored, you can also change
 
-```shell
-export TORCH_HOME=/your/custom/path
-```
 
 ---
 
@@ -51,12 +55,12 @@ This repository includes the following models for evaluation:
 - CROMA
 - DOFA
 - GFM
-- PanOpticOn
 - RemoteCLIP
 - SatMAE
 - ScaleMAE
 - Skyscript
 - SoftCON
+- AnySat
 
 ---
 
@@ -91,23 +95,45 @@ To add a new model or dataset for evaluation, follow these steps:
 
 ---
 
-## Running an experiment
+## Running Experiments
 
-To run the evaluation script, use the following command:
+To run evaluation on any of the models, you can use the following example:
 
-```bash
-python main.py model=dinov2_cls dataset=benv2_rgb
-```
-
-The model and dataset arguments are the names of the config.yaml files specified under the src/configs directory. Additional argumentes can be passed to the command, basically, anything that you see in `src/main.py` and has `cfg.{something}` passing the argument with the command line command will overwrite the configs with the dedicated values.
-
-For example:
 
 ```bash
-python main.py model=dinov2_cls dataset=benv2_rgb output_dir=experiments/dinov2_benv2_rgb  batch_size=32 num_gpus=1 epochs=100 lr=1e-4
+export $(cat .env)
+
+python src/main.py \
+output_dir=${ODIR}/exps/dinov2_cls_linear_probe_benv2_rgb \
+model=dinov2_cls_linear_probe \
+dataset=benv2_rgb \
+lr=0.002 \
+task=classification \
+num_gpus=0 \
+num_workers=8 \
+epochs=30 \
+warmup_epochs=5 \
+seed=13 \
+
 ```
 
-overwrites the output directory where experiments are stored, batch size, epochs and learning rate.
+
+The model and dataset arguments are the names of the config.yaml files specified under the `src/configs` directory. Additional arguments can be passed to the command: basically, anything in `src/main.py` that has `cfg.{something}` passing the argument with the command line command will overwrite the configs with the dedicated values.
+
+There is a convenience script for generating such shell scripts for running experiments. 
+
+```bash
+scripts/generate_bash_scripts.py
+```
+
+You can modify this to your needs and it will generate a different shell script for every experiment you want to run stored in their own folders under `scripts/<dataset>/run_<model>_<dataset>.sh`
+
+
+You can use the following command to run an experiment:
+```bash
+cd <path/to/this/repo>
+sh scripts/<path/to/your/experiment>.sh
+```
 
 
 ---
