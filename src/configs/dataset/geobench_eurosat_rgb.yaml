@@ -1,0 +1,14 @@
+defaults:
+  - geobench
+
+benchmark_name: classification_v1.0
+dataset_name: m-eurosat
+task: classification
+band_names:
+  - "04 - Red"
+  - "03 - Green"
+  - "02 - Blue"
+num_classes: 10
+multilabel: false
+num_channels: 3
+bands: rgb
