@@ -18,4 +18,4 @@ seed: 0
 output_dir: ./output_dir
 task: classification
 resume: null
-
+size: ${oc.env:MODEL_SIZE}  # Define the size variable using the environment variable

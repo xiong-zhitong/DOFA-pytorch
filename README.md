@@ -37,6 +37,7 @@ TORCH_HOME=<path/to/your/where/you/want/to/store/torch/hub/weights>
 DATASETS_DIR=<path/to/your/where/you/want/to/store/all/other/datasets>
 GEO_BENCH_DIR=<path/to/your/where/you/want/to/store/GeoBench>
 ODIR=<path/to/your/where/you/want/to/store/logs>
+REPO_PATH=<path/to/this/repo>
 ```
 
 When using any of the FMs, the init method will check whether it can find the pre-trained checkpoint of the respective FM in the above `MODEL_WEIGHTS_DIR` and download it there if not found. If you do not change the env
@@ -102,6 +103,9 @@ To run evaluation on any of the models, you can use the following example:
 
 ```bash
 export $(cat .env)
+export MODEL_SIZE=base #can be base or large
+echo "Output Directory": $ODIR
+echo "Model Size": $MODEL_SIZE
 
 python src/main.py \
 output_dir=${ODIR}/exps/dinov2_cls_linear_probe_benv2_rgb \
@@ -114,7 +118,6 @@ num_workers=8 \
 epochs=30 \
 warmup_epochs=5 \
 seed=13 \
-
 ```
 
 

@@ -1,15 +1,14 @@
 #!/bin/bash
-echo "Contents of the current directory:"
-ls -lah
 
 export CUDA_VISIBLE_DEVICES=0
 export $(cat /home/ando/fm-playground/.env)
-
+export MODEL_SIZE=base
 echo "Output Directory": $ODIR
+echo "Model Size": $MODEL_SIZE
 
 model=dofa_cls_linear_probe
-dataset=geobench_eurosat
-batch_size=320
+dataset=benv2_s2
+batch_size=400
 lr=0.002
 epochs=30
 warmup_epochs=3
@@ -27,4 +26,3 @@ num_workers=8 \
 epochs=${epochs} \
 warmup_epochs=${warmup_epochs} \
 seed=13 \
-batch_size=${batch_size} \

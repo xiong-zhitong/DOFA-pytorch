@@ -21,4 +21,18 @@ band_names:
 num_classes: 10
 multilabel: false
 num_channels: 13
+band_wavelengths:
+  - 440
+  - 490
+  - 560
+  - 665
+  - 705
+  - 740
+  - 783
+  - 842
+  - 860
+  - 940
+  - 1370
+  - 1610
+  - 2190
 

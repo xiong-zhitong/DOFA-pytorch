@@ -6,6 +6,6 @@ task: classification
 size: base
 modality: optical
 image_resolution: 120
-pretrained_path: "CROMA_base.pt"
+pretrained_path: "CROMA_${size}.pt"
 num_channels: 12
 

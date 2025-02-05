@@ -30,10 +30,9 @@ class DofaClassification(LightningTask):
         assert not (self.lora and self.full_finetune), "Can only use one of LoRA or full finetune bot not both to true"
 
         self.encoder = (
-            vit_base_patch16_cls(num_classes=data_config.num_classes)
-            if model_config.dofa_size == "dofa_base"
-            else vit_large_patch16_cls(num_classes=data_config.num_classes)
-        )
+            vit_base_patch16_cls(num_classes=data_config.num_classes) if model_config.size == "large" \
+                else vit_base_patch16_cls(num_classes=data_config.num_classes)
+            )
 
         print(self.encoder)
 
@@ -50,8 +49,8 @@ class DofaClassification(LightningTask):
         check_point = torch.load(path)
         self.encoder.load_state_dict(check_point, strict=False)
 
-        if self.lora:
-            self.apply_peft_to_last_layers(self.encoder, target_modules=model_config.lora_target_modules, rank=8)
+        if self.lora and model_config.lora:
+            self.apply_peft(self.encoder, lora_cfg=model_config.lora)
 
         if model_config.freeze_backbone:
             if self.lora:
@@ -76,22 +75,29 @@ class DofaClassification(LightningTask):
         self.model_config = model_config
         self.data_config = data_config
 
-    def apply_peft_to_last_layers(self, encoder, target_modules: list[str], rank: int=8):
+    def freeze_non_lora_params(self, encoder):
+        raise NotImplementedError("Not implemented yet: CANNOT freeze non-LoRA parameters")
+
+    def apply_peft(self, encoder, lora_cfg: dict):
         """
         Apply LoRA to the last few layers of the encoder using PEFT.
         """
+
+        print("LORA: Applying PEFT: ", lora_cfg)
+
         # Configure LoRA
         peft_config = LoraConfig(
-            r=rank,
-            lora_alpha=32,  # Scaling factor for LoRA
-            target_modules=target_modules,  # LoRA target layers
-            lora_dropout=0.1,
-            bias="none",
-            task_type="SEQ_CLS"  # Task type (use appropriate type for your model)
+            r=lora_cfg.get("lora_rank", 16),  # Rank of LoRA
+            lora_alpha=lora_cfg.get("lora_alpha", 16),  # Scaling factor for LoRA
+            target_modules=cfg.get("lora_target_modules",  "blocks.*.attn.qkv"), #["qkv", "proj"]
+            lora_dropout=lora_cfg.get("lora_dropout", 0.),  # Dropout rate for LoRA
+            bias=lora_cfg.get("bias", "none"),
+            task_type=lora_cfg.get("lora_task_type", None)  # Task type (use appropriate type for your model), "SEQ_CLS"
         )
 
         # Wrap the encoder with PEFT
         self.encoder = get_peft_model(encoder, peft_config)
+
 
     def loss(self, outputs, labels):
         return self.criterion(outputs[0], labels)
@@ -131,7 +137,7 @@ class DofaSegmentation(LightningTask):
             vit_base_patch16_seg(
                 drop_path_rate=0,
             )
-            if model_config.dofa_size == "dofa_base"
+            if model_config.size == "base"
             else vit_large_patch16_seg(
                 drop_path_rate=0,
             )
