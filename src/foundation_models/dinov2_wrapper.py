@@ -31,8 +31,12 @@ class DinoV2Classification(LightningTask):
         # can only be one of the two
         assert not (self.lora and self.full_finetune), "Can only use one of LoRA or full finetune bot not both to true"
 
-        self.encoder = torch.hub.load("facebookresearch/dinov2", model_config.dino_size)
+        if model_config.size == "base":
+            self.encoder = torch.hub.load("facebookresearch/dinov2", "dinov2_vitb14")
+        elif model_config.size == "large":
+            self.encoder = torch.hub.load("facebookresearch/dinov2", "dinov2_vitl14")
         
+        print(f'DinoV2 model: {model_config.size} | {self.encoder.embed_dim}')
         print(self.encoder)
         if self.lora:
             self.apply_peft_to_last_layers(self.encoder, target_modules=model_config.lora_target_modules, rank=8)
@@ -44,7 +48,7 @@ class DinoV2Classification(LightningTask):
             else:
                 self.freeze(self.encoder)
 
-        self.linear_classifier = nn.Linear(model_config.embed_dim, data_config.num_classes)
+        self.linear_classifier = nn.Linear(self.encoder.embed_dim, data_config.num_classes)
 
         self.criterion = (
             nn.MultiLabelSoftMarginLoss()
@@ -335,7 +339,7 @@ class DinoV2Segmentation(LightningTask):
         if model_config.freeze_backbone:
             self.freeze(self.encoder)
 
-        edim = model_config.embed_dim
+        edim = self.encoder.embed_dim
         self.neck = Feature2Pyramid(embed_dim=edim, rescales=[4, 2, 1, 0.5])
         self.decoder = UPerHead(
             in_channels=[edim] * 4,

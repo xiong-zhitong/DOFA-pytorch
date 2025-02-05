@@ -1,4 +1,4 @@
-model_type: null
+model_type: dofa
 size: ${oc.env:MODEL_SIZE}
 num_classes: 10
 task: classification
@@ -8,3 +8,7 @@ image_resolution: 224
 additional_params: {}
 num_channels: 12
 multilabel: false
+out_features: true
+embed_dim: 1024
+pretrained_path: "DOFA_ViT_${size}_e100.pth"
+full_finetune: false

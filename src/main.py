@@ -16,8 +16,23 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 warnings.filterwarnings("ignore")
 
+
+
+def print_trainable_parameters(model):
+    trainable_params = 0
+    all_param = 0
+    for _, param in model.named_parameters():
+        all_param += param.numel()
+        if param.requires_grad:
+            trainable_params += param.numel()
+    print(
+        f"trainable params: {trainable_params} || all params: {all_param} || trainable%: {100 * trainable_params / all_param:.2f}"
+    )
+
 @hydra.main(config_path="configs", config_name="config")
 def main(cfg: DictConfig):
+
+    print(f'MODEL_SIZE: {os.getenv("MODEL_SIZE")}')
     # Seed everything
     seed_everything(cfg.seed)
 
@@ -69,6 +84,8 @@ def main(cfg: DictConfig):
 
     # Create model (assumed to be a LightningModule)
     model = create_model(cfg, cfg.model, cfg.dataset)
+
+    print_trainable_parameters(model)
 
     # Train
     trainer.fit(model, data_module, ckpt_path=cfg.resume if cfg.resume else None)
