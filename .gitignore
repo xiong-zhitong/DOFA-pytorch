@@ -8,9 +8,9 @@
 *.pth
 *.pt
 *.csv
-panopticon_wrapper.py
+
 # Distribution / packaging
-PanOpticOn/
+*stealth*
 .Python
 logs/
 build/

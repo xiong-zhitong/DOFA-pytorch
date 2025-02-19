@@ -1,0 +1,6 @@
+model_type: croma
+image_resolution: 120
+
+size: base
+modality: optical # 12 channel input
+pretrained_path: ${oc.env:MODEL_WEIGHTS_DIR}/CROMA_base.pt

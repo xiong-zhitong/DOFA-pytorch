@@ -1,0 +1,7 @@
+model_type: dinov2
+
+dinov2_torchhub_id: dinov2_vitl14
+image_resolution: 224
+embed_dim: 1024
+
+pretrained_path: null  # Add path if required

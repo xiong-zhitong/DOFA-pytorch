@@ -1,8 +1,0 @@
-defaults:
-  - base_model
-
-model_type: 'anysat'
-embed_dim: 384
-task: classification
-freeze_backbone: true
-image_resolution: 224

@@ -10,8 +10,8 @@ from hydra import compose, initialize
 from omegaconf import OmegaConf
 from lightning import Trainer
 
-from src.factory import model_registry
-from src.datasets.data_module import BenchmarkDataModule
+from geofm_src.factory import model_registry
+from geofm_src.datasets.data_module import BenchmarkDataModule
 
 CONFIGS = {
     "classification": {

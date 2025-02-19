@@ -4,12 +4,12 @@ export CUDA_VISIBLE_DEVICES=0
 export $(cat /home/ando/fm-playground/.env)
 export MODEL_SIZE=base
 
-model=senpamae_cls
-dataset=geobench_eurosat
-batch_size=512
+model=dofa_cls_linear_probe
+dataset=corine_21
+batch_size=100
 lr=0.002
-epochs=30
-warmup_epochs=0
+epochs=5
+warmup_epochs=3
 task=classification
 # num_gpus=$(nvidia-smi -L | wc -l)
 num_gpus=1 #hardcoded for now
@@ -38,4 +38,4 @@ num_workers=8 \
 epochs=${epochs} \
 warmup_epochs=${warmup_epochs} \
 seed=13 \
-batch_size=512 \
+batch_size=100 \

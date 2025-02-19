@@ -1,0 +1,6 @@
+defaults:
+  - base_model_dofa
+
+task: regression
+full_finetune: false
+

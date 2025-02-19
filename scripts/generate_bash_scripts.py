@@ -99,24 +99,32 @@ experiments = [
     #     "lr": 0.002,
     #     "warmup_epochs": 3,
     # },
-    # {
-    #     "model": "rcf_seg",
-    #     "dataset": "loveda_rgb",
-    #     "task": "segmentation",
-    #     "batch_size": 16,
-    #     "epochs": 30,
-    #     "lr": 0.002,
-    #     "warmup_epochs": 3,
-    # },
-    # {
-    #     "model": "rcf_seg",
-    #     "dataset": "caffe_rgb",
-    #     "task": "segmentation",
-    #     "batch_size": 16,
-    #     "epochs": 30,
-    #     "lr": 0.002,
-    #     "warmup_epochs": 3,
-    # },
+    {
+        "model": "dofa_regression",
+        "dataset": "hyperview_all",
+        "task": "regression",
+        "batch_size": 200,
+        "epochs": 3,
+        "lr": 0.002,
+        "warmup_epochs": 3,
+    },
+    {
+        "model": "dofa_cls_linear_probe",
+        "dataset": "corine_21",
+        "task": "classification",
+        "batch_size": 100,
+        "epochs": 5,
+        "lr": 0.002,
+        "warmup_epochs": 3,
+    },
+    {
+        "model": "dofa_cls_linear_probe",
+        "dataset": "corine_sd",
+        "task": "classification",
+        "epochs": 5,
+        "lr": 0.002,
+        "warmup_epochs": 3,
+    },
     {
         "model": "dofa_cls_lora",
         "dataset": "geobench_eurosat",
@@ -202,11 +210,8 @@ def generate_bash_scripts(experiments, out_dir="."):
         # Generate script content
         script_content = f"""#!/bin/bash
 
-export CUDA_VISIBLE_DEVICES=0
 export $(cat {REPO_PATH}/.env)
 export MODEL_SIZE={MODEL_SIZE}
-echo "Output Directory": $ODIR
-echo "Model Size": $MODEL_SIZE
 
 model={model}
 dataset={dataset}
@@ -215,7 +220,20 @@ lr={lr}
 epochs={epochs}
 warmup_epochs={warmup_epochs}
 task={task}
-num_gpus=$(echo $CUDA_VISIBLE_DEVICES | tr ',' '\\n' | wc -l)
+num_gpus=$(nvidia-smi -L | wc -l)
+
+echo "***************************************"
+echo "Output Directory": $ODIR
+echo "Model Size": $MODEL_SIZE
+echo "Dataset": $dataset
+echo "Batch Size": $batch_size
+echo "Learning Rate": $lr
+echo "Epochs": $epochs
+echo "Warmup Epochs": $warmup_epochs
+echo "Task": $task
+echo "Num GPUs": $num_gpus
+echo "Num Workers": $NUM_WORKERS
+echo "***************************************"
 
 python {REPO_PATH}/src/main.py \\
 output_dir=${{ODIR}}/exps/${{model}}_${{dataset}} \\

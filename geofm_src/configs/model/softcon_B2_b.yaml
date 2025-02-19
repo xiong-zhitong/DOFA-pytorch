@@ -1,0 +1,7 @@
+model_type: softcon
+
+image_resolution: 224
+num_channels: 2
+dinov2_torchhub_id: dinov2_vitb14
+
+pretrained_path: ${oc.env:MODEL_WEIGHTS_DIR}/B2_vitb14_softcon.pth

@@ -1,0 +1,6 @@
+model_type: senpamae
+embed_dim: 768
+image_resolution: 144
+
+pretrained_path: ${oc.env:MODEL_WEIGHTS_DIR}/basemae.pt
+num_channels: 4

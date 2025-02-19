@@ -1,5 +1,0 @@
-defaults:
-  - base_model_dofa
-
-task: segmentation
-full_finetune: true

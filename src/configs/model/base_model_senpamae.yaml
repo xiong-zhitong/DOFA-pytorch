@@ -1,9 +1,0 @@
-model_type: senpamae
-task: classification
-freeze_backbone: true
-image_resolution: 144
-full_finetune: False
-embed_dim: 768
-pretrained_path: "senpamae_singleParameterEmbedding.pt"
-num_channels: 4
-image_size: 144

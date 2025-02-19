@@ -44,7 +44,8 @@ dependencies = [
     "ray>=2.40.0",
     "huggingface-hub>=0.27.1",
     "peft>=0.14.0",
-    "optuna"
+    "optuna",
+    "tifffile"
 ]
 
 [tool.pytest.ini_options]
@@ -60,4 +61,5 @@ filterwarnings = [
     "ignore:xFormers is not available:UserWarning"
 ]
 
-
+[tool.setuptools.packages.find]
+include = ["geofm_src*"]

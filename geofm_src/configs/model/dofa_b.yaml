@@ -1,0 +1,6 @@
+model_type: dofa
+
+size: base
+image_resolution: 224
+embed_dim: 768
+pretrained_path: ${oc.env:MODEL_WEIGHTS_DIR}/DOFA_ViT_base_e100.pth
